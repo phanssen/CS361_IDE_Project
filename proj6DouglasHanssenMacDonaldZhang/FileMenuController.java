@@ -100,7 +100,7 @@ public class FileMenuController
         Tab newTab = new Tab();
         newTab.setText("untitled" + (untitledCounter++) + ".txt");
 
-        newTab.setContent(new VirtualizedScrollPane<>(JavaCodeArea.createCodeArea()));
+        newTab.setContent(new VirtualizedScrollPane<>(new JavaCodeArea()));
 
         // set close action (clicking the 'x')
         newTab.setOnCloseRequest(event -> closeTab(newTab, event));
