@@ -27,25 +27,18 @@ Date: 10/12/18
         <Menu text="File">
             <MenuItem fx:id="aboutMenuItem" onAction="#handleAboutMenuItemAction" text="About..."/>
             <SeparatorMenuItem/>
-            <MenuItem fx:id="newMenuItem" onAction="#handleNewMenuItemAction" text="New">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="N" control="UP" meta="DOWN" shift="UP" shortcut="UP"/>
-                </accelerator>
+
+            <MenuItem fx:id="newMenuItem" onAction="#handleNewMenuItemAction" text="New"
+                      accelerator="Shortcut+N">
             </MenuItem>
-            <MenuItem fx:id="openMenuItem" onAction="#handleOpenMenuItemAction" text="Open...">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="O" control="UP" meta="DOWN" shift="UP" shortcut="UP"/>
-                </accelerator>
+            <MenuItem fx:id="openMenuItem" onAction="#handleOpenMenuItemAction" text="Open..."
+                      accelerator="Shortcut+O">
             </MenuItem>
-            <MenuItem fx:id="closeMenuItem" onAction="#handleCloseMenuItemAction" text="Close">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="W" control="UP" meta="DOWN" shift="UP" shortcut="UP"/>
-                </accelerator>
+            <MenuItem fx:id="closeMenuItem" onAction="#handleCloseMenuItemAction" text="Close"
+                      accelerator="Shortcut+W">
             </MenuItem>
-            <MenuItem fx:id="saveMenuItem" onAction="#handleSaveMenuItemAction" text="Save">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="S" control="UP" meta="DOWN" shift="UP" shortcut="UP"/>
-                </accelerator>
+            <MenuItem fx:id="saveMenuItem" onAction="#handleSaveMenuItemAction" text="Save"
+                      accelerator="Shortcut+S">
             </MenuItem>
             <MenuItem fx:id="saveAsMenuItem" onAction="#handleSaveAsMenuItemAction" text="Save as...">
                 <accelerator>
@@ -60,41 +53,32 @@ Date: 10/12/18
             </MenuItem>
         </Menu>
         <Menu text="Edit">
-            <MenuItem fx:id="undoMenuItem" onAction="#handleUndoMenuItemAction" text="Undo">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="Z" control="UP" meta="DOWN" shift="UP" shortcut="UP"/>
-                </accelerator>
+            <MenuItem fx:id="undoMenuItem" onAction="#handleUndoMenuItemAction" text="Undo" accelerator="Shortcut+Z">
+
             </MenuItem>
-            <MenuItem fx:id="redoMenuItem" onAction="#handleRedoMenuItemAction" text="Redo">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="Z" control="UP" meta="DOWN" shift="DOWN" shortcut="UP"/>
-                </accelerator>
+            <MenuItem fx:id="redoMenuItem" onAction="#handleRedoMenuItemAction" text="Redo" accelerator="Shortcut+Y">
             </MenuItem>
-            <MenuItem fx:id="cutMenuItem" onAction="#handleCutMenuItemAction" text="Cut">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="X" control="UP" meta="DOWN" shift="UP" shortcut="UP"/>
-                </accelerator>
+            <MenuItem fx:id="cutMenuItem" onAction="#handleCutMenuItemAction" text="Cut" accelerator="Shortcut+X">
             </MenuItem>
-            <MenuItem fx:id="copyMenuItem" onAction="#handleCopyMenuItemAction" text="Copy">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="C" control="UP" meta="DOWN" shift="UP" shortcut="UP"/>
-                </accelerator>
+            <MenuItem fx:id="copyMenuItem" onAction="#handleCopyMenuItemAction" text="Copy" accelerator="Shortcut+C">
             </MenuItem>
-            <MenuItem fx:id="pasteMenuItem" onAction="#handlePasteMenuItemAction" text="Paste">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="P" control="UP" meta="DOWN" shift="UP" shortcut="UP"/>
-                </accelerator>
+            <MenuItem fx:id="pasteMenuItem" onAction="#handlePasteMenuItemAction" text="Paste" accelerator="Shortcut+V">
             </MenuItem>
-            <MenuItem fx:id="selectAllMenuItem" onAction="#handleSelectAllMenuItemAction" text="Select all">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="A" control="UP" meta="DOWN" shift="DOWN" shortcut="UP"/>
-                </accelerator>
+            <MenuItem fx:id="selectAllMenuItem" onAction="#handleSelectAllMenuItemAction" text="Select all" accelerator="Shortcut+A">
             </MenuItem>
             <MenuItem fx:id="toggleCommentsMenuItem" onAction="#handleToggleComments" text="Toggle Comments">
             </MenuItem>
 
+
             <MenuItem fx:id="indentTextMenuItem" onAction="#handleIndentText" text="Indent Text">
             </MenuItem>
+            <MenuItem fx:id="unindentTextMenuItem" onAction="#handleUnindentText" text="Unindent Text">
+            </MenuItem>
+            <MenuItem fx:id="entabTextMenuItem" onAction="#handleEntab" text="Entab">
+            </MenuItem>
+            <MenuItem fx:id="detabTextMenuItem" onAction="#handleDetab" text="Detab">
+            </MenuItem>
+
 
         </Menu>
     </MenuBar>

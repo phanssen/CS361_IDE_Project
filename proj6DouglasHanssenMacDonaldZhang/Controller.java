@@ -65,6 +65,15 @@ public class Controller
     @FXML
     private MenuItem indentTextMenuItem;
 
+    @FXML
+    private MenuItem unindentTextMenuItem;
+
+    @FXML
+    private MenuItem entabTextMenuItem;
+
+    @FXML
+    private MenuItem detabTextMenuItem;
+
 
     @FXML
     private Button compileButton;
@@ -112,7 +121,10 @@ public class Controller
                 this.pasteMenuItem,
                 this.selectAllMenuItem,
                 this.toggleCommentsMenuItem,
-                this.indentTextMenuItem
+                this.indentTextMenuItem,
+                this.unindentTextMenuItem,
+                this.entabTextMenuItem,
+                this.detabTextMenuItem,
         };
 
         Object[] toolBarFields = {
@@ -306,7 +318,7 @@ public class Controller
     /**
      * Handles the Copy button action.
      * Copies the selected text.
-     */
+     */ 
     @FXML
     private void handleCopyMenuItemAction()
     {
@@ -344,6 +356,28 @@ public class Controller
     {
         editMenuController.handleIndentText();
     }
+
+    @FXML
+    private void handleUnindentText()
+    {
+        editMenuController.handleUnindentText();
+    }
+
+    @FXML
+    private void handleEntab()
+    {
+        editMenuController.handleEntab();
+    }
+
+    @FXML
+    private void handleDetab()
+    {
+        editMenuController.handleDetab();
+    }
+
+
+
+
 
 
 

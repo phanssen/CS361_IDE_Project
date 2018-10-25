@@ -178,6 +178,54 @@ public class EditMenuController
 
     }
 
+    /*
+     * Unindents all highlighted text by one tab per line if there is at least one tab on the line
+     * If there's no tab, nothing happens on that line
+     */
+    public void handleUnindentText() {
+        CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
+        String selectedText = TabPaneInfo.getCurCodeArea(this.tabPane).getSelectedText();
+        String selectedTextUnTabbed = selectedText.replace("\n\t", "\n");
+        String firstLine = selectedText.split("(?<=\n)")[0];
+        int firstLineLength = firstLine.length();
+        //replaceFirst in case there are multiple tabs on the first line
+        String firstLineUntabbed = firstLine.replaceFirst("\t", "");
+        selectedTextUnTabbed = firstLineUntabbed + selectedTextUnTabbed.substring(firstLineLength);
+        curCodeArea.replaceSelection(selectedTextUnTabbed);
+
+    }
+
+
+    /*
+    * Each section of four spaces in the highlighted text become a tab
+    */
+    public void handleEntab() {
+        CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
+        String selectedText = TabPaneInfo.getCurCodeArea(this.tabPane).getSelectedText();
+        String selectedTextEntabbed = selectedText.replace("    ", "\t");
+        curCodeArea.replaceSelection(selectedTextEntabbed);
+    }
+
+
+    /*
+     * Each tab in the highlighted text becomes four spaces
+     */
+    public void handleDetab() {
+        CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
+        String selectedText = TabPaneInfo.getCurCodeArea(this.tabPane).getSelectedText();
+        String selectedTextDetabbed = selectedText.replace("\t", "    ");
+        curCodeArea.replaceSelection("");
+        try {
+            curCodeArea.replaceSelection(selectedTextDetabbed);
+        }
+        catch (Exception e){
+            System.out.println("Here's the exception!");
+            e.printStackTrace();
+        }
+    }
+
+
+
     /**
      * Simple helper method
      *
