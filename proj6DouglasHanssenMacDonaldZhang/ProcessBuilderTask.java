@@ -19,8 +19,8 @@ import java.io.*;
 public class ProcessBuilderTask extends Task<String>
 {
     private final ProcessBuilder processBuilder;
-    public Process process;
-    public String consoleOutput;
+    private Process process;
+    private String consoleOutput;
 
 
     ProcessBuilderTask(ProcessBuilder processBuilder)
@@ -79,6 +79,21 @@ public class ProcessBuilderTask extends Task<String>
                     ("Trying to compile was a mistake.\n");
         
         return consoleOutput;
+    }
+
+    /**
+     * @return returns the process so that other classes can access it
+     */
+    public Process getProcess() {
+        return this.process;
+    }
+
+    /**
+     * @return returns the console output so that other classes can access it
+     * @throws Exception
+     */
+    public String getConsoleOutput() {
+        return this.consoleOutput;
     }
 }
 

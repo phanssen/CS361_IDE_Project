@@ -344,11 +344,12 @@ public class CompilationController
                     this.outputStream.flush();
 
                     OutputStream stdin =
-                            this.currentProcessBuilderTask.process.getOutputStream();
+                            this.currentProcessBuilderTask.getProcess().getOutputStream();
 
                     String content = this.outputStream.toString() + System.lineSeparator();
 
-                    this.currentProcessBuilderTask.consoleOutput += System.lineSeparator();
+                    String consoleOutput = this.currentProcessBuilderTask.getConsoleOutput();
+                    consoleOutput += System.lineSeparator();
 
                     if (this.writer == null)
                         this.writer = new BufferedWriter(new OutputStreamWriter(stdin));
