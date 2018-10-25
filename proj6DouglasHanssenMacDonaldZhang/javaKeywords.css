@@ -1,0 +1,69 @@
+/*
+File: javaKeywords.css
+CS361 Project 5
+Names: Kevin Ahn, Lucas DeGraw, Wyett MacDonald, and Evan Savillo
+Date: 10/12/18
+*/
+
+.keyword {
+    -fx-fill: purple;
+    -fx-font-weight: bold;
+}
+.semicolon {
+    -fx-font-weight: bold;
+}
+.paren {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.bracket {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.brace {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.string {
+    -fx-fill: blue;
+}
+
+.comment {
+	-fx-fill: cadetblue;
+}
+
+.intcon {
+    -fx-fill: firebrick;
+}
+
+.paragraph-box:has-caret {
+    -fx-background-color: #f2f9fc;
+}
+
+#compileButton {
+    -fx-font: 13 arial;
+    -fx-base: paleTurquoise;
+    -fx-background-radius: 100;
+}
+
+#compileAndRunButton {
+    -fx-font: 13 arial;
+    -fx-base: PaleGreen;
+    -fx-background-radius: 100;
+}
+
+#haltButton {
+    -fx-font: 13 arial;
+    -fx-base: lightpink;
+    -fx-background-radius: 100;
+}
+
+#consoleTextArea {
+    -fx-background-color: #00FF7F;
+    -fx-border-color: #000000;
+}
+
+#separator {
+    -fx-border-color: black;
+    -fx-background-color: black;
+}

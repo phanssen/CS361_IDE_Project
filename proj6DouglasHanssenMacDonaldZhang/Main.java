@@ -1,54 +1,87 @@
 /*
- * File: Main.java
- * Names: Kevin Ahn, Matt Jones, Jackie Hang, Kevin Zhou
- * Class: CS 361
- * Project 4
- * Date: October 2, 2018
- * ---------------------------
- * Names: Zena Abulhab, Paige Hanssen, Kyle Slager Kevin Zhou
- * Class: CS 361
- * Project 5
- * Date: October 12, 2018
- */
+File: Main.java
+CS361 Project 5
+Names: Kevin Ahn, Lucas DeGraw, Wyett MacDonald, and Evan Savillo
+Date: 10/12/18
+*/
 
-package proj5AbulhabHanssenSlagerZhou;
+package proj6DouglasHanssenMacDonaldZhang;
 
 import javafx.application.Application;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
-import java.lang.Exception;
+import javafx.scene.Parent;
+
 
 /**
- * This Main class inherits the Application class from JavaFX, used to implement a
- * basic IDE in which the user can edit/save files with as many tabs as they prefer.
+ * Creates a JavaFX application that contains an area for
+ * 1) a TabPane,
+ * which will contain  tabs at the user's discretion, the tabs themselves
+ * being populated with CodeAreas inside of VirtualizedScrollPanes
+ * and 2) a MenuBar with File and Edit menus,
+ * which contain MenuItems that facilitate the modification of the Tabs,
+ * or the textual contents therein.
  *
- *
- * @author  Matt Jones, Kevin Zhou, Kevin Ahn, Jackie Hang
- * @author  Zena Abulhab, Paige Hanssen, Kyle Slager Kevin Zhou
- * @version 5.0
- * @since   09-30-2018
+ * @author Liwei Jiang
+ * @author Iris Lian
+ * @author Tracy Quan
+ * @author Evan Savillo
+ * @author Chris Marcello
+ * @author Yi Feng
  */
-public class Main extends Application{
+public class Main extends Application
+{
+    private static final int SCENE_WIDTH = 640;
+    private static final int SCENE_HEIGHT = 480;
+    private static final String STAGE_TITLE =
+            "Kevin Ahn, Lucas DeGraw, Wyett MacDonald, and Evan Savillo's Project 5";
+
     /**
-     * Creates a scene containing a simple IDE. The IDE has tab with CodeAreas
-     * and two menus： File and Edit
+     * Takes in a stage and loads the FXML, creates the controller,
+     * and initializes a scene. 
      *
-     * @param stage A background window that contains the scene
+     * @param stage The stage that contains the window content
      */
     @Override
-    public void start(Stage stage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("Main.fxml"));
-        Scene scene = new Scene(root, 800, 500);
-        stage.setTitle("Project 05");
+    public void start(Stage stage) throws Exception
+    {
+        // load the fxml file to create the stage and get the root
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("Main.fxml"));
+        Parent root = loader.load();
+
+        // set controller and stage
+        Controller controller = loader.getController();
+        controller.setPrimaryStage(stage);
+
+        // eats the command to quit from the window itself
+        // minor behavior issue currently but not a real bug
+        // when quitting is prompts dialog twice on cancel after confirmed save
+        stage.setOnCloseRequest(event -> {
+            event.consume();
+            controller.handleExitMenuItemAction(event);
+        });
+
+        // initialize a scene and add features specified in the css file to the scene
+        Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
+        scene.getStylesheets().add("/proj6DouglasHanssenMacDonaldZhang/javaKeywords.css");
+
+        // configure the stage
+        stage.setTitle(STAGE_TITLE);
+
+        stage.sizeToScene();
         stage.setScene(scene);
         stage.show();
     }
+
     /**
-     * Launches an instance of class Main
+     * main function of Main class, launches application
+     *
+     * @param args command line arguments
      */
-    public static void main(String args[]){
+    public static void main(String[] args)
+    {
         launch(args);
     }
 }
