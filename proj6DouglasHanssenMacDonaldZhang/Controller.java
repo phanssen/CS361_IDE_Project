@@ -120,13 +120,16 @@ public class Controller
             }
         }
 
-        // CompilationController Bindings
-        {
-            this.compileButton.disableProperty().bind(
-                    tablessListProperty.emptyProperty());
-            this.compileAndRunButton.disableProperty().bind(
-                    tablessListProperty.emptyProperty());
-        }
+        // CompilationController Bindings:
+        // By having these bindings here, causes the bindings in Compilation
+        // Controller to not work correctly
+
+        // {
+        //     this.compileButton.disableProperty().bind(
+        //             tablessListProperty.emptyProperty());
+        //     this.compileAndRunButton.disableProperty().bind(
+        //             tablessListProperty.emptyProperty());
+        // }
 
         // Undo/Redo bindings (implemented before Clarification#1)
         {

@@ -29,23 +29,19 @@ Date: 10/12/18
             <SeparatorMenuItem/>
 
             <MenuItem fx:id="newMenuItem" onAction="#handleNewMenuItemAction" text="New"
-                      accelerator="Shortcut+N">
-            </MenuItem>
+                      accelerator="Shortcut+N" />
             <MenuItem fx:id="openMenuItem" onAction="#handleOpenMenuItemAction" text="Open..."
-                      accelerator="Shortcut+O">
-            </MenuItem>
+                      accelerator="Shortcut+O" />
             <MenuItem fx:id="closeMenuItem" onAction="#handleCloseMenuItemAction" text="Close"
-                      accelerator="Shortcut+W">
-            </MenuItem>
+                      accelerator="Shortcut+W" />
             <MenuItem fx:id="saveMenuItem" onAction="#handleSaveMenuItemAction" text="Save"
-                      accelerator="Shortcut+S">
-            </MenuItem>
+                      accelerator="Shortcut+S" />
             <MenuItem fx:id="saveAsMenuItem" onAction="#handleSaveAsMenuItemAction" text="Save as...">
                 <accelerator>
                     <KeyCodeCombination alt="UP" code="S" control="UP" meta="DOWN" shift="DOWN" shortcut="UP"/>
                 </accelerator>
             </MenuItem>
-            <SeparatorMenuItem/>
+            <SeparatorMenuItem />
             <MenuItem fx:id="exitMenuItem" onAction="#handleExitMenuItemAction" text="Exit">
                 <accelerator>
                     <KeyCodeCombination alt="UP" code="Q" control="UP" meta="DOWN" shift="UP" shortcut="UP"/>
@@ -53,33 +49,18 @@ Date: 10/12/18
             </MenuItem>
         </Menu>
         <Menu text="Edit">
-            <MenuItem fx:id="undoMenuItem" onAction="#handleUndoMenuItemAction" text="Undo" accelerator="Shortcut+Z">
-
-            </MenuItem>
-            <MenuItem fx:id="redoMenuItem" onAction="#handleRedoMenuItemAction" text="Redo" accelerator="Shortcut+Y">
-            </MenuItem>
-            <MenuItem fx:id="cutMenuItem" onAction="#handleCutMenuItemAction" text="Cut" accelerator="Shortcut+X">
-            </MenuItem>
-            <MenuItem fx:id="copyMenuItem" onAction="#handleCopyMenuItemAction" text="Copy" accelerator="Shortcut+C">
-            </MenuItem>
-            <MenuItem fx:id="pasteMenuItem" onAction="#handlePasteMenuItemAction" text="Paste" accelerator="Shortcut+V">
-            </MenuItem>
-            <MenuItem fx:id="selectAllMenuItem" onAction="#handleSelectAllMenuItemAction" text="Select all" accelerator="Shortcut+A">
-            </MenuItem>
-            <MenuItem fx:id="toggleCommentsMenuItem" onAction="#handleToggleComments" text="Toggle Comments">
-            </MenuItem>
-
-
-            <MenuItem fx:id="indentTextMenuItem" onAction="#handleIndentText" text="Indent Text">
-            </MenuItem>
-            <MenuItem fx:id="unindentTextMenuItem" onAction="#handleUnindentText" text="Unindent Text">
-            </MenuItem>
-            <MenuItem fx:id="entabTextMenuItem" onAction="#handleEntab" text="Entab">
-            </MenuItem>
-            <MenuItem fx:id="detabTextMenuItem" onAction="#handleDetab" text="Detab">
-            </MenuItem>
-
-
+            <MenuItem fx:id="undoMenuItem" onAction="#handleUndoMenuItemAction" text="Undo" accelerator="Shortcut+Z" />
+            <MenuItem fx:id="redoMenuItem" onAction="#handleRedoMenuItemAction" text="Redo" accelerator="Shortcut+Y" />
+            <MenuItem fx:id="cutMenuItem" onAction="#handleCutMenuItemAction" text="Cut" accelerator="Shortcut+X" />
+            <MenuItem fx:id="copyMenuItem" onAction="#handleCopyMenuItemAction" text="Copy" accelerator="Shortcut+C" />
+            <MenuItem fx:id="pasteMenuItem" onAction="#handlePasteMenuItemAction" text="Paste" accelerator="Shortcut+V" />
+            <MenuItem fx:id="selectAllMenuItem" onAction="#handleSelectAllMenuItemAction" text="Select all" accelerator="Shortcut+A" />
+            <SeparatorMenuItem />
+            <MenuItem fx:id="toggleCommentsMenuItem" onAction="#handleToggleComments" text="Toggle Comments" />
+            <MenuItem fx:id="indentTextMenuItem" onAction="#handleIndentText" text="Indent Text" />
+            <MenuItem fx:id="unindentTextMenuItem" onAction="#handleUnindentText" text="Unindent Text" />
+            <MenuItem fx:id="entabTextMenuItem" onAction="#handleEntab" text="Entab" />
+            <MenuItem fx:id="detabTextMenuItem" onAction="#handleDetab" text="Detab" />
         </Menu>
     </MenuBar>
     <ToolBar prefHeight="40.0" prefWidth="200.0">
