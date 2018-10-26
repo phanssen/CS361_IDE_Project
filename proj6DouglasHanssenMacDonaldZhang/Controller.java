@@ -11,17 +11,26 @@ import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.SimpleListProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
+import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.StyleClassedTextArea;
+import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.io.File;
 import java.util.Map;
 import java.util.HashMap;
 import javafx.event.Event;
+import javafx.stage.FileChooser;
+import java.util.Optional;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
 /**
@@ -75,6 +84,7 @@ public class Controller
      */
     public void initialize()
     {
+        // this.tabPane = new TabPaneInfo();
         tabFileMap = new HashMap<Tab,File>();
         MenuItem[] menuFields = {
                 this.closeMenuItem,
@@ -327,12 +337,6 @@ public class Controller
         editMenuController.handleDetab();
     }
 
-
-
-
-
-
-
     /**
      * Reads in the application's main stage.
      * For use in Filechooser dialogs
@@ -349,6 +353,7 @@ public class Controller
     @FXML
     private void handleCompileAction()
     {
+        this.promptSave();
         compilationController.handleCompileAction();
     }
 
@@ -359,6 +364,7 @@ public class Controller
     @FXML
     private void handleRunAction()
     {
+        this.promptSave();
         compilationController.handleCompileAndRunAction();
     }
 
@@ -379,5 +385,63 @@ public class Controller
     public void handleOnKeyPressedAction(javafx.scene.input.KeyEvent keyEvent)
     {
         compilationController.handleOnKeyPressedAction(keyEvent);
+    }
+
+    /**
+     * Promts the user to save when if the current tab has not been
+     * saved since the last change. If the tab has never been saved,
+     * will automatically open a FileChooser window to save the file.
+     */
+    private void promptSave() {
+        // get selected tab and the code area
+        Tab selectedTab = this.tabPane.getSelectionModel().getSelectedItem();
+        CodeArea activeCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
+
+        // no tabs open
+        if (this.tabPane.getTabs().isEmpty())
+            return;
+
+        if (this.fileMenuController.tabNeedsSaving(selectedTab)) {
+            if (this.tabFileMap.get(selectedTab) == null) {
+                // create a fileChooser and add file extension restrictions
+                FileChooser fileChooser = new FileChooser();
+
+                // file where the text content is to be saved
+                File saveFile = fileChooser.showSaveDialog(this.primaryStage);
+                if (saveFile != null) {
+                    // save the content of the active text area to the selected file
+                    this.fileMenuController.saveFile(activeCodeArea.getText(), saveFile);
+
+                    // set the title of the tab to the name of the saved file
+                    selectedTab.setText(saveFile.getName());
+
+                    // map the tab and the associated file
+                    this.tabFileMap.put(selectedTab, saveFile);
+
+                }
+                // else return if file is not saved
+                else {
+                    return;
+                }
+            } else {
+                Alert alert = new Alert(
+                        Alert.AlertType.CONFIRMATION,
+                        "Want to save before compiling?",
+                        ButtonType.YES,
+                        ButtonType.NO,
+                        ButtonType.CANCEL
+                );
+                alert.setTitle("Alert");
+
+                Optional<ButtonType> result = alert.showAndWait();
+
+                // if user presses Yes button, save the file and compile
+                if (result.get() == ButtonType.YES) {
+                    this.fileMenuController.saveFile(activeCodeArea.getText(), this.tabFileMap.get(selectedTab));
+                } else if (result.get() == ButtonType.CANCEL) {
+                    return;
+                }
+            }
+        }
     }
 }

@@ -9,8 +9,14 @@ import org.fxmisc.flowless.VirtualizedScrollPane;
  * Used by the edit menu controller and the file menu controller.
  * @author Evan Savillo
  */
-public class TabPaneInfo {
+public class TabPaneInfo extends TabPane {
+    // @FXML private TabPane tabPane;
 
+    // public TabPaneInfo(){
+        // super();
+        // this.getCurCodeArea(this);
+        // this.getCurTab(this);
+    // }
     /**
      * Returns the currently active code area given a TabPane object
      * @param tabPane the master TabPane object used to manage all tabs of the IDE

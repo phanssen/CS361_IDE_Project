@@ -19,6 +19,8 @@ Date: 10/12/18
 <?import org.fxmisc.richtext.StyleClassedTextArea?>
 <?import javafx.scene.control.Separator?>
 <!--<?import javafx.scene.control.SplitPane.Divider?>-->
+<!-- <?import proj6DouglasHanssenMacDonaldZhang.Main> -->
+<!-- <?import proj6DouglasHanssenMacDonaldZhang.Controller.tabPane> -->
 
 <?import javafx.scene.control.SplitPane?>
 <VBox fx:id="VBox" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"

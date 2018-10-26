@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -89,9 +90,11 @@ public class FileMenuController
     public void handleNewMenuItemAction()
     {
         Tab newTab = new Tab();
-        newTab.setText("untitled" + (untitledCounter++) + ".txt");
+        newTab.setText("Untitled" + (untitledCounter++) + ".txt");
 
-        newTab.setContent(new VirtualizedScrollPane<>(new JavaCodeArea()));
+        JavaCodeArea newCodeArea = new JavaCodeArea();
+        newCodeArea.setParagraphGraphicFactory(LineNumberFactory.get(newCodeArea));
+        newTab.setContent(new VirtualizedScrollPane<>(newCodeArea));
 
         // set close action (clicking the 'x')
         newTab.setOnCloseRequest(event -> closeTab(newTab, event));
@@ -166,9 +169,9 @@ public class FileMenuController
      */
     public void handleCloseMenuItemAction(Event event)
     {
-        if (!this.isTabless())
+        if (!this.tabPane.getTabs().isEmpty())
         {
-            this.closeTab( TabPaneInfo.getCurTab(this.tabPane), event);
+            this.closeTab(TabPaneInfo.getCurTab(this.tabPane), event);
         }
     }
 
@@ -275,7 +278,7 @@ public class FileMenuController
      * @param content String that is saved to the specified file
      * @param file    File that the input string is saved to
      */
-    private boolean saveFile(String content, File file)
+    public boolean saveFile(String content, File file)
     {
         if (!tabPane.getTabs().isEmpty())
         {
@@ -361,7 +364,7 @@ public class FileMenuController
      * @return true if the tab content has not been saved to any file yet,
      * or have been changed since last save.
      */
-    private boolean tabNeedsSaving(Tab tab)
+    public boolean tabNeedsSaving(Tab tab)
     {
         // check whether the embedded text has been saved or not
         if (this.tabFileMap.get(tab) == null)
@@ -419,7 +422,6 @@ public class FileMenuController
             // if user presses No button, close the tab without saving
             else if (buttonType == ButtonType.NO)
             {
-
                 this.removeTab(tab);
                 return true;
             }
@@ -436,17 +438,6 @@ public class FileMenuController
             this.removeTab(tab);
             return true;
         }
-    }
-
-
-    /**
-     * Simple helper method
-     *
-     * @return true if there aren't currently any tabs open, else false
-     */
-    boolean isTabless()
-    {
-        return this.tabPane.getTabs().isEmpty();
     }
 
     /**
