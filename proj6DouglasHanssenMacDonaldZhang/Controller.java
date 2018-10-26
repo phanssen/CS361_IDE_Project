@@ -50,15 +50,9 @@ public class Controller
     @FXML private MenuItem selectAllMenuItem;
     @FXML private MenuItem toggleCommentsMenuItem;
     @FXML private MenuItem indentTextMenuItem;
-
-    @FXML
-    private MenuItem unindentTextMenuItem;
-
-    @FXML
-    private MenuItem entabTextMenuItem;
-
-    @FXML
-    private MenuItem detabTextMenuItem;
+    @FXML private MenuItem unindentTextMenuItem;
+    @FXML private MenuItem entabTextMenuItem;
+    @FXML private MenuItem detabTextMenuItem;
 
     @FXML private Button compileButton;
     @FXML private Button compileAndRunButton;

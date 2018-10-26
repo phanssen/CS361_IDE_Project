@@ -205,7 +205,7 @@ public class EditMenuController
             curCodeArea.replaceSelection(selectedTextDetabbed);
         }
         catch (Exception e){
-            System.out.println("Here's the exception!");
+            // System.out.println("Here's the exception!");
             e.printStackTrace();
         }
     }

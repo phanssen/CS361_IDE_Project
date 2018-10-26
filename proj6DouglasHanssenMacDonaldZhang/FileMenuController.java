@@ -347,23 +347,9 @@ public class FileMenuController
      */
     private void removeTab(Tab tab)
     {
-//        this.tabPane.getSelectionModel().selectPrevious();
-//
-        System.out.println("tabs: " + this.tabPane.getTabs());
         this.tabPane.getSelectionModel().clearSelection();
         this.tabFileMap.remove(tab);
         this.tabPane.getTabs().remove(tab);
-        System.out.println("after removing: " + this.tabPane.getTabs());
-        System.out.println("selected: " + this.tabPane.getSelectionModel().getSelectedItem());
-
-//        this.tabPane.getSelectionModel().selectFirst();
-
-
-        System.out.println("tabPane1: " + tabPane);
-        System.out.println("model1: " + this.tabPane.getSelectionModel());
-        System.out.println("selected index1: " + this.tabPane.getSelectionModel().getSelectedIndex());
-
-
     }
 
 
