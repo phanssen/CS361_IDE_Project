@@ -365,7 +365,7 @@ public class Controller
      * after compiling the file
      */
     @FXML
-    private void handleRunAction()
+    private void handleRunAction() throws InterruptedException
     {
         this.promptSave();
         compilationController.handleCompileAndRunAction();

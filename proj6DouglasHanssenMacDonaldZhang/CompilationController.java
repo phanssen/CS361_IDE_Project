@@ -159,7 +159,7 @@ public class CompilationController
      * processBuilder and the current thread as long as that
      * thread is still alive
      */
-    public void handleCompileAndRunAction()
+    public void handleCompileAndRunAction() throws InterruptedException
     {
         this.consoleTextArea.requestFocus();
 
@@ -167,26 +167,8 @@ public class CompilationController
         if (!this.handleCompileAction())
             return;
 
-        // wait for thread that is currently running to complete????
-        // onSuceeded?
-        int timeout = 5000;
-        while (this.currentThread.isAlive() && timeout > 0)
-        {
-            try
-            {
-                Thread.sleep(100);
-            }
-            catch (InterruptedException e)
-            {
-                System.out.println("Interrupted");
-            }
-            timeout = timeout - 100;
-        }
-        if (timeout <= 0)
-        {
-            System.out.println("Failure");
-        }
-        // this.currentThread.wait();
+        // wait for thread that is currently running to finish
+        this.currentThread.join();
 
         // get class to prepare to run the file
         File curFile = tabFileMap.get(tabPane.getCurTab());
