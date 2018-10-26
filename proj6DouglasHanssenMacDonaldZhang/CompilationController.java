@@ -51,16 +51,12 @@ public class CompilationController
     private ProcessBuilder processBuilder;
     private ProcessBuilderTask currentProcessBuilderTask;
     private Thread currentThread;
-
     private Map<Tab, File> tabFileMap;
-
     private Stage primaryStage;
-
     private BooleanProperty isAnythingRunning;
-
-    private ByteArrayOutputStream outputStream;
-
     private BufferedWriter writer;
+    // outputStream holds user input data from the console
+    private ByteArrayOutputStream outputStream;
 
     /**
      * constructor for the Compilation Controller Class
@@ -69,15 +65,17 @@ public class CompilationController
      * @param consoleTextArea
      * @param tabFileMap
      */
-    public CompilationController(Object[] toolBarFields,
+    public CompilationController(TabPane tabPane,
+                                 Stage stage,
+                                 Button[] toolBarFields,
                                  StyleClassedTextArea consoleTextArea,
                                  Map<Tab, File> tabFileMap)
     {
-        this.tabPane = (TabPane) toolBarFields[0];
-        this.compileButton = (Button) toolBarFields[1];
-        this.compileAndRunButton = (Button) toolBarFields[2];
-        this.haltButton = (Button) toolBarFields[3];
-        this.primaryStage = (Stage) toolBarFields[4];
+        this.tabPane = tabPane;
+        this.compileButton = toolBarFields[0];
+        this.compileAndRunButton = toolBarFields[1];
+        this.haltButton = toolBarFields[2];
+        this.primaryStage = stage;
         this.processBuilder = new ProcessBuilder();
 
         String cwd = System.getProperty("user.dir");

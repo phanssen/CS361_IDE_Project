@@ -39,12 +39,6 @@ import java.util.*;
 public class FileMenuController
 {
     private TabPane tabPane;
-
-    private MenuItem closeMenuItem;
-    private MenuItem saveMenuItem;
-    private MenuItem saveAsMenuItem;
-    private MenuItem toggleCommentsMenuItem;
-
     private Stage primaryStage;
 
     /**
@@ -57,14 +51,11 @@ public class FileMenuController
     /**
      * Constructor for the File Menu Controller
      */
-    public FileMenuController(Object[] fileMenuFields, Map<Tab,File> savedFilesMap)
+    public FileMenuController(TabPane tabPane, Stage stage, Map<Tab,File> savedFilesMap)
     {
-        tabPane = (TabPane) fileMenuFields[0];
-        closeMenuItem = (MenuItem) fileMenuFields[1];
-        saveMenuItem = (MenuItem) fileMenuFields[2];
-        saveAsMenuItem = (MenuItem) fileMenuFields[3];
-        primaryStage = (Stage) fileMenuFields[4];
-        tabFileMap = savedFilesMap;
+        this.tabPane = tabPane;
+        this.primaryStage = stage;
+        this.tabFileMap = savedFilesMap;
     }
 
     /**

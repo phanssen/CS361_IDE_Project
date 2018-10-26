@@ -31,25 +31,11 @@ public class EditMenuController
 {
     private TabPane tabPane;
 
-    private MenuItem undoMenuItem;
-    private MenuItem redoMenuItem;
-    private MenuItem cutMenuItem;
-    private MenuItem copyMenuItem;
-    private MenuItem pasteMenuItem;
-    private MenuItem selectAllMenuItem;
-
-
     /**
      * Constructor for the Edit Menu Controller
      */
-    public EditMenuController(Object[] editMenuFields) {
-        this.tabPane = (TabPane) editMenuFields[0];
-        undoMenuItem = (MenuItem) editMenuFields[1];
-        redoMenuItem = (MenuItem) editMenuFields[2];
-        cutMenuItem = (MenuItem) editMenuFields[3];
-        copyMenuItem = (MenuItem) editMenuFields[4];
-        pasteMenuItem = (MenuItem) editMenuFields[5];
-        selectAllMenuItem = (MenuItem) editMenuFields[6];
+    public EditMenuController(TabPane tabPane) {
+        this.tabPane = tabPane;
     }
 
     /**
