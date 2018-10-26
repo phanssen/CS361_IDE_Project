@@ -1,8 +1,8 @@
 /*
 File: UserErrorDialog.java
-CS361 Project 5
-Names: Kevin Ahn, Lucas DeGraw, Wyett MacDonald, and Evan Savillo
-Date: 10/12/18
+CS361 Project 6
+Names: Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
+Date: 10/27/18
 */
 
 package proj6DouglasHanssenMacDonaldZhang;
@@ -18,7 +18,7 @@ import javafx.scene.control.ButtonType;
  * @see javafx.scene.control.Alert
  */
 class UserErrorDialog extends Alert
-{
+{ 
     /**
      * enumeration which defines the contents of error alerts of certain types
      */

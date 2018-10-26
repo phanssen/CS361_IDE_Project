@@ -1,8 +1,8 @@
 /*
 File: EditMenuController
-CS361 Project 5
-Names: Kevin Ahn, Lucas DeGraw, Wyett MacDonald, and Evan Savillo
-Date: 10/12/18
+CS361 Project 6
+Names:  Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
+Date: 10/27/18
 */
 
 package proj6DouglasHanssenMacDonaldZhang;
@@ -29,12 +29,12 @@ import java.util.regex.Pattern;
  */
 public class EditMenuController
 {
-    private TabPane tabPane;
+    private CodeAreaTabPane tabPane;
 
     /**
      * Constructor for the Edit Menu Controller
      */
-    public EditMenuController(TabPane tabPane) {
+    public EditMenuController(CodeAreaTabPane tabPane) {
         this.tabPane = tabPane;
     }
 
@@ -44,7 +44,7 @@ public class EditMenuController
      */
     public void handleUndoMenuItemAction()
     {
-        TabPaneInfo.getCurCodeArea(this.tabPane).undo();
+        tabPane.getCurCodeArea().undo();
     }
 
     /**
@@ -53,7 +53,7 @@ public class EditMenuController
      */
     public void handleRedoMenuItemAction()
     {
-        TabPaneInfo.getCurCodeArea(this.tabPane).redo();
+        tabPane.getCurCodeArea().redo();
     }
 
     /**
@@ -62,7 +62,7 @@ public class EditMenuController
      */
     public void handleCutMenuItemAction()
     {
-        TabPaneInfo.getCurCodeArea(this.tabPane).cut();
+        tabPane.getCurCodeArea().cut();
     }
 
     /**
@@ -71,7 +71,7 @@ public class EditMenuController
      */
     public void handleCopyMenuItemAction()
     {
-        TabPaneInfo.getCurCodeArea(this.tabPane).copy();
+        tabPane.getCurCodeArea().copy();
     }
 
     /**
@@ -80,7 +80,7 @@ public class EditMenuController
      */
     public void handlePasteMenuItemAction()
     {
-        TabPaneInfo.getCurCodeArea(this.tabPane).paste();
+        tabPane.getCurCodeArea().paste();
     }
 
     /**
@@ -89,7 +89,7 @@ public class EditMenuController
      */
     public void handleSelectAllMenuItemAction()
     {
-        TabPaneInfo.getCurCodeArea(this.tabPane).selectAll();
+        tabPane.getCurCodeArea().selectAll();
     }
 
 
@@ -103,9 +103,9 @@ public class EditMenuController
      * Does not handle /** style comments because that's usually documentation and documentation shouldn't be toggled
      */
     public void handleToggleComments() {
-        //System.out.println("A");
-        CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
-        String selectedText = TabPaneInfo.getCurCodeArea(this.tabPane).getSelectedText();
+
+        CodeArea curCodeArea = tabPane.getCurCodeArea();
+        String selectedText = tabPane.getCurCodeArea().getSelectedText();
 
         //Pattern for /* */ with any character (including whitespace) any number of times in between
         Pattern commentPattern = Pattern.compile("(/\\*)[\\s\\S]*(\\*/)");
@@ -120,7 +120,7 @@ public class EditMenuController
             String uncommentedText = selectedText.replace("/*", "");
             uncommentedText = uncommentedText.replace("*/", "");
             curCodeArea.replaceSelection(uncommentedText);
-            //System.out.println("B");
+
         }
 
         else{
@@ -137,12 +137,12 @@ public class EditMenuController
             if(commentedOut){
                 String uncommentedText = selectedText.replace("//", "");
                 curCodeArea.replaceSelection(uncommentedText);
-                //System.out.println("C");
+
             }
 
             else{ //In all other cases, put /* at beginning and */ at end of selection
                 curCodeArea.replaceSelection("/*" + selectedText + "*/");
-                //System.out.println("D");
+
             }
 
 
@@ -153,13 +153,9 @@ public class EditMenuController
     *Indents all highlighted text by one tab per line
     */
     public void handleIndentText() {
-        CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
-        String selectedText = TabPaneInfo.getCurCodeArea(this.tabPane).getSelectedText();
-        //Using a lookbehind to keep the new line character in the split
-        //String[] selectedTextByLine = selectedText.split("(?<=\n)");
-        //String[] selectedTextByLine = selectedText.split("\n");
+        CodeArea curCodeArea = tabPane.getCurCodeArea();
+        String selectedText = tabPane.getCurCodeArea().getSelectedText();
         String selectedTextTabbed = selectedText.replace("\n", "\n\t");
-        //First line won't have a new line char, so add a tab there too
         curCodeArea.replaceSelection("\t" + selectedTextTabbed);
 
     }
@@ -169,9 +165,10 @@ public class EditMenuController
      * If there's no tab, nothing happens on that line
      */
     public void handleUnindentText() {
-        CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
-        String selectedText = TabPaneInfo.getCurCodeArea(this.tabPane).getSelectedText();
+        CodeArea curCodeArea = tabPane.getCurCodeArea();
+        String selectedText = tabPane.getCurCodeArea().getSelectedText();
         String selectedTextUnTabbed = selectedText.replace("\n\t", "\n");
+        //The first line won't have a new line char and has to be handled separately
         String firstLine = selectedText.split("(?<=\n)")[0];
         int firstLineLength = firstLine.length();
         //replaceFirst in case there are multiple tabs on the first line
@@ -186,8 +183,8 @@ public class EditMenuController
     * Each section of four spaces in the highlighted text become a tab
     */
     public void handleEntab() {
-        CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
-        String selectedText = TabPaneInfo.getCurCodeArea(this.tabPane).getSelectedText();
+        CodeArea curCodeArea = tabPane.getCurCodeArea();
+        String selectedText = tabPane.getCurCodeArea().getSelectedText();
         String selectedTextEntabbed = selectedText.replace("    ", "\t");
         curCodeArea.replaceSelection(selectedTextEntabbed);
     }
@@ -197,17 +194,13 @@ public class EditMenuController
      * Each tab in the highlighted text becomes four spaces
      */
     public void handleDetab() {
-        CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
-        String selectedText = TabPaneInfo.getCurCodeArea(this.tabPane).getSelectedText();
+        CodeArea curCodeArea = tabPane.getCurCodeArea();
+        String selectedText = tabPane.getCurCodeArea().getSelectedText();
         String selectedTextDetabbed = selectedText.replace("\t", "    ");
+        //There appears to be a bug in replaceSelection, and this line has fixed it
         curCodeArea.replaceSelection("");
-        try {
-            curCodeArea.replaceSelection(selectedTextDetabbed);
-        }
-        catch (Exception e){
-            // System.out.println("Here's the exception!");
-            e.printStackTrace();
-        }
+        curCodeArea.replaceSelection(selectedTextDetabbed);
+
     }
 
 

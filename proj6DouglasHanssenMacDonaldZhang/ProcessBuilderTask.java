@@ -1,8 +1,8 @@
 /*
 File: ProcessBuilderTask.java
-CS361 Project 5
-Names: Kevin Ahn, Lucas DeGraw, Wyett MacDonald, and Evan Savillo
-Date: 10/12/18
+CS361 Project 6
+Names:  Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
+Date: 10/27/18
 */
 
 package proj6DouglasHanssenMacDonaldZhang;

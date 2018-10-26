@@ -1,8 +1,8 @@
 /*
 File: FileMenuController.java
-CS361 Project 5
-Names: Kevin Ahn, Lucas DeGraw, Wyett MacDonald, and Evan Savillo
-Date: 10/12/18
+CS361 Project 6
+Names: Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
+Date: 10/27/18
 */
 
 package proj6DouglasHanssenMacDonaldZhang;
@@ -39,7 +39,7 @@ import java.util.*;
  */
 public class FileMenuController
 {
-    private TabPane tabPane;
+    private CodeAreaTabPane tabPane;
     private Stage primaryStage;
 
     /**
@@ -52,7 +52,7 @@ public class FileMenuController
     /**
      * Constructor for the File Menu Controller
      */
-    public FileMenuController(TabPane tabPane, Stage stage, Map<Tab,File> savedFilesMap)
+    public FileMenuController(CodeAreaTabPane tabPane, Stage stage, Map<Tab,File> savedFilesMap)
     {
         this.tabPane = tabPane;
         this.primaryStage = stage;
@@ -73,11 +73,10 @@ public class FileMenuController
         window.setOnCloseRequest(event -> window.hide());
 
         dialog.setTitle("Authors");
-        dialog.setHeaderText("//Project 5//\n" +
-                "Kevin Ahn\nLucas DeGraw\nWyett MacDonald\nEvan Savillo");
+        dialog.setHeaderText("//Project 6//\n" +
+                "Kyle Douglas\nPaige Hanssen\nWyett MacDonald\nTia Zhang");
         dialog.setContentText("Pereant qui ante nos nostra dixerunt,\n\n" +
-                "/Project 4/\n" +
-                "Yi Feng, Iris Lian, Christopher Marcello, and Evan Savillo\n\n\n");
+                "/Project 6/\n\n\n\n");
 
         dialog.showAndWait();
     }
@@ -106,7 +105,7 @@ public class FileMenuController
 
         this.tabFileMap.put(newTab, null);
 
-        TabPaneInfo.getCurCodeArea(this.tabPane).requestFocus();
+        tabPane.getCurCodeArea().requestFocus();
     }
 
     /**
@@ -150,11 +149,11 @@ public class FileMenuController
             handleNewMenuItemAction();
 
             // set text of file to filename
-            Tab currentTab =  TabPaneInfo.getCurTab(this.tabPane);
+            Tab currentTab =  tabPane.getCurTab();
             String currentFileText = openFile.getName();
             currentTab.setText(currentFileText);
             // replace the codeArea with text from file
-            TabPaneInfo.getCurCodeArea(this.tabPane).replaceText(contentOpenedFile);
+            tabPane.getCurCodeArea().replaceText(contentOpenedFile);
 
             this.tabFileMap.put(currentTab, openFile);
         }
@@ -171,7 +170,7 @@ public class FileMenuController
     {
         if (!this.tabPane.getTabs().isEmpty())
         {
-            this.closeTab(TabPaneInfo.getCurTab(this.tabPane), event);
+            this.closeTab(tabPane.getCurTab(), event);
         }
     }
 
@@ -198,11 +197,11 @@ public class FileMenuController
         if (saveFile != null)
         {
             // get the selected tab from the tab pane
-            Tab selectedTab = TabPaneInfo.getCurTab(this.tabPane);
+            Tab selectedTab = tabPane.getCurTab();
 
             // get the text area embedded in the selected tab window
             // save the content of the active text area to the selected file
-            CodeArea activeCodeArea =  TabPaneInfo.getCurCodeArea(this.tabPane);
+            CodeArea activeCodeArea =  tabPane.getCurCodeArea();
 
             if (!this.saveFile(activeCodeArea.getText(), saveFile))
                 return false;
@@ -236,7 +235,7 @@ public class FileMenuController
         Tab selectedTab = this.tabPane.getSelectionModel().getSelectedItem();
 
         // get the text area embedded in the selected tab window
-        CodeArea activeCodeArea =  TabPaneInfo.getCurCodeArea(this.tabPane);
+        CodeArea activeCodeArea =  tabPane.getCurCodeArea();
 
         // if the tab content was not loaded from a file nor ever saved to a file
         // save the content of the active text area to the selected file path

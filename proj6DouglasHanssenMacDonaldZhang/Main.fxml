@@ -2,9 +2,9 @@
 
 <!--
 File: Main.fxml
-CS361 Project 5
-Names: Kevin Ahn, Lucas DeGraw, Wyett MacDonald, and Evan Savillo
-Date: 10/12/18
+CS361 Project 6
+Names:  Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
+Date: 10/27/18
 -->
 
 <?import javafx.scene.control.Menu?>
@@ -73,9 +73,8 @@ Date: 10/12/18
             <Button fx:id="haltButton" mnemonicParsing="false" text="Halt" onAction="#handleHaltAction"/>
         </items>
     </ToolBar>
-    <SplitPane orientation="VERTICAL" VBox.vgrow="ALWAYS" >
-        <TabPane fx:id="tabPane">
-        </TabPane>
+    <SplitPane orientation="VERTICAL" VBox.vgrow="ALWAYS" fx:id = "splitPane" >
+
         <StyleClassedTextArea fx:id="consoleTextArea" showCaret="ON" onKeyTyped="#handleOnKeyPressedAction">
         </StyleClassedTextArea>
     </SplitPane>

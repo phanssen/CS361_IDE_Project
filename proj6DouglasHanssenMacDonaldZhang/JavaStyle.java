@@ -8,6 +8,10 @@
  * Edited By: Zena Abulhab, Paige Hanssen, Kyle Slager, Kevin Zhou
  * Project 5
  * Date: October 12, 2018
+ *
+ * Edited by: Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
+ * Project 6
+ * Date: 10/27/18
  */
 
 package proj6DouglasHanssenMacDonaldZhang;

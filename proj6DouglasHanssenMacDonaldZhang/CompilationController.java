@@ -1,28 +1,22 @@
 /*
 File: CompilationController.java
-CS361 Project 5
-Names: Kevin Ahn, Lucas DeGraw, Wyett MacDonald, and Evan Savillo
-Date: 10/12/18
+CS361 Project 6
+Names:  Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
+Date: 10/27/18
 */
 
 package proj6DouglasHanssenMacDonaldZhang;
 
 import java.io.*;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Optional;
-import javafx.application.Platform;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.fxmisc.flowless.VirtualizedScrollPane;
-import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
 /**
@@ -43,7 +37,7 @@ public class CompilationController
     private Button compileButton;
     private Button compileAndRunButton;
     private Button haltButton;
-    private TabPane tabPane;
+    private CodeAreaTabPane tabPane;
     private StyleClassedTextArea consoleTextArea;
     private ProcessBuilder processBuilder;
     private ProcessBuilderTask currentProcessBuilderTask;
@@ -64,7 +58,7 @@ public class CompilationController
      * @param consoleTextArea
      * @param tabFileMap
      */
-    public CompilationController(TabPane tabPane,
+    public CompilationController(CodeAreaTabPane tabPane,
                                  Stage stage,
                                  Button[] toolBarFields,
                                  StyleClassedTextArea consoleTextArea,
@@ -110,7 +104,7 @@ public class CompilationController
     {
         ArrayList<String> commandInput = new ArrayList<>();
 
-        Tab currentTab = TabPaneInfo.getCurTab(this.tabPane);
+        Tab currentTab = tabPane.getCurTab();
         String filename = this.tabFileMap.get(currentTab).getPath();
 
         commandInput.add("javac");
@@ -195,7 +189,7 @@ public class CompilationController
         // this.currentThread.wait();
 
         // get class to prepare to run the file
-        File curFile = tabFileMap.get(TabPaneInfo.getCurTab(this.tabPane));
+        File curFile = tabFileMap.get(tabPane.getCurTab());
         String filename = curFile.getName();
         filename = filename.substring(0, filename.length() - 5); // remove ".class" from filename
 

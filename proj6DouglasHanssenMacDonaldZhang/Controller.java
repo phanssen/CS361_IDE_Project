@@ -1,8 +1,8 @@
 /*
 File: Controller.java
-CS361 Project 5
-Names: Kevin Ahn, Lucas DeGraw, Wyett MacDonald, and Evan Savillo
-Date: 10/12/18
+CS361 Project 6
+Names:  Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
+Date: 10/27/18
 */
 
 package proj6DouglasHanssenMacDonaldZhang;
@@ -11,16 +11,11 @@ import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.SimpleListProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
+import javafx.scene.control.*;
+
 import javafx.stage.Stage;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.StyleClassedTextArea;
-import org.fxmisc.flowless.VirtualizedScrollPane;
 
 import java.io.File;
 import java.util.Map;
@@ -28,9 +23,7 @@ import java.util.HashMap;
 import javafx.event.Event;
 import javafx.stage.FileChooser;
 import java.util.Optional;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+
 
 
 /**
@@ -46,8 +39,8 @@ import java.nio.file.Paths;
  */
 public class Controller
 {
-    @FXML private TabPane tabPane;
 
+    @FXML private SplitPane splitPane;
     @FXML private MenuItem closeMenuItem;
     @FXML private MenuItem saveMenuItem;
     @FXML private MenuItem saveAsMenuItem;
@@ -71,6 +64,7 @@ public class Controller
 
     @FXML private StyleClassedTextArea consoleTextArea;
 
+    private CodeAreaTabPane tabPane;
     private FileMenuController fileMenuController;
     private EditMenuController editMenuController;
     private CompilationController compilationController;
@@ -84,6 +78,8 @@ public class Controller
      */
     public void initialize()
     {
+        tabPane = new CodeAreaTabPane();
+        splitPane.getItems().add(0, tabPane);
         tabFileMap = new HashMap<Tab,File>();
         MenuItem[] menuFields = {
                 this.closeMenuItem,
@@ -144,15 +140,15 @@ public class Controller
         {
             // Boolean Property for availability of undo and redo
             // Must 'cast' to use not() method
+            CodeArea curCodeArea = this.tabPane.getCurCodeArea();
+
             BooleanExpression undoableProperty =
                     BooleanExpression.booleanExpression(
-                            TabPaneInfo.getCurCodeArea(
-                                    this.tabPane).undoAvailableProperty());
+                            curCodeArea.undoAvailableProperty());
 
             BooleanExpression redoableProperty =
                     BooleanExpression.booleanExpression(
-                            TabPaneInfo.getCurCodeArea(
-                                    this.tabPane).redoAvailableProperty());
+                          curCodeArea.redoAvailableProperty());
 
             this.undoMenuItem.disableProperty().bind(undoableProperty.not());
             this.redoMenuItem.disableProperty().bind(redoableProperty.not());
@@ -393,8 +389,8 @@ public class Controller
      */
     private void promptSave() {
         // get selected tab and the code area
-        Tab selectedTab = this.tabPane.getSelectionModel().getSelectedItem();
-        CodeArea activeCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
+        Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+        CodeArea activeCodeArea = tabPane.getCurCodeArea();
 
         // no tabs open
         if (this.tabPane.getTabs().isEmpty())

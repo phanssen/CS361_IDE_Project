@@ -1,3 +1,10 @@
+/*
+File: CodeAreaTabPane.java
+CS361 Project 6
+Names:  Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
+Date: 10/27/18
+*/
+
 package proj6DouglasHanssenMacDonaldZhang;
 
 import org.fxmisc.richtext.CodeArea;
