@@ -84,7 +84,6 @@ public class Controller
      */
     public void initialize()
     {
-        // this.tabPane = new TabPaneInfo();
         tabFileMap = new HashMap<Tab,File>();
         MenuItem[] menuFields = {
                 this.closeMenuItem,
