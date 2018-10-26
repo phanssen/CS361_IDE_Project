@@ -37,63 +37,36 @@ import javafx.event.Event;
  */
 public class Controller
 {
-    @FXML
-    private TabPane tabPane;
+    @FXML private TabPane tabPane;
 
-    @FXML
-    private MenuItem closeMenuItem;
-    @FXML
-    private MenuItem saveMenuItem;
-    @FXML
-    private MenuItem saveAsMenuItem;
+    @FXML private MenuItem closeMenuItem;
+    @FXML private MenuItem saveMenuItem;
+    @FXML private MenuItem saveAsMenuItem;
+    @FXML private MenuItem undoMenuItem;
+    @FXML private MenuItem redoMenuItem;
+    @FXML private MenuItem cutMenuItem;
+    @FXML private MenuItem copyMenuItem;
+    @FXML private MenuItem pasteMenuItem;
+    @FXML private MenuItem selectAllMenuItem;
+    @FXML private MenuItem toggleCommentsMenuItem;
+    @FXML private MenuItem indentTextMenuItem;
+    @FXML private MenuItem unindentTextMenuItem;
+    @FXML private MenuItem entabTextMenuItem;
+    @FXML private MenuItem detabTextMenuItem;
 
-    @FXML
-    private MenuItem undoMenuItem;
-    @FXML
-    private MenuItem redoMenuItem;
-    @FXML
-    private MenuItem cutMenuItem;
-    @FXML
-    private MenuItem copyMenuItem;
-    @FXML
-    private MenuItem pasteMenuItem;
-    @FXML
-    private MenuItem selectAllMenuItem;
-    @FXML
-    private MenuItem toggleCommentsMenuItem;
+    @FXML private Button compileButton;
+    @FXML private Button compileAndRunButton;
+    @FXML private Button haltButton;
 
-    @FXML
-    private MenuItem indentTextMenuItem;
+    @FXML private Stage primaryStage;
 
-    @FXML
-    private MenuItem unindentTextMenuItem;
-
-    @FXML
-    private MenuItem entabTextMenuItem;
-
-    @FXML
-    private MenuItem detabTextMenuItem;
-
-
-    @FXML
-    private Button compileButton;
-    @FXML
-    private Button compileAndRunButton;
-    @FXML
-    private Button haltButton;
-
-    @FXML
-    private Stage primaryStage;
+    @FXML private StyleClassedTextArea consoleTextArea;
 
     private FileMenuController fileMenuController;
     private EditMenuController editMenuController;
     private CompilationController compilationController;
 
     private Map<Tab, File> tabFileMap;
-
-    @FXML
-    private StyleClassedTextArea consoleTextArea;
-
 
     /**
      * This function is called after the FXML fields are populated.
@@ -103,17 +76,10 @@ public class Controller
     public void initialize()
     {
         tabFileMap = new HashMap<Tab,File>();
-        Object[] fileMenuFields = {
-                this.tabPane,
+        MenuItem[] menuFields = {
                 this.closeMenuItem,
                 this.saveMenuItem,
                 this.saveAsMenuItem,
-                this.primaryStage,
-                this.tabFileMap
-        };
-
-        Object[] editMenuFields = {
-                this.tabPane,
                 this.undoMenuItem,
                 this.redoMenuItem,
                 this.cutMenuItem,
@@ -127,20 +93,17 @@ public class Controller
                 this.detabTextMenuItem,
         };
 
-        Object[] toolBarFields = {
-                this.tabPane,
+        Button[] toolbarButtons = {
                 this.compileButton,
                 this.compileAndRunButton,
-                this.haltButton,
-                this.primaryStage
+                this.haltButton
         };
 
         fileMenuController = new FileMenuController(
-                fileMenuFields, tabFileMap);
-        editMenuController = new EditMenuController(
-                editMenuFields);
+            this.tabPane, this.primaryStage, this.tabFileMap);
+        editMenuController = new EditMenuController(this.tabPane);
         compilationController = new CompilationController(
-                toolBarFields, consoleTextArea, tabFileMap);
+            tabPane, primaryStage, toolbarButtons, consoleTextArea, tabFileMap);
 
         this.tabFileMap = fileMenuController.tabFileMap;
 
@@ -151,33 +114,22 @@ public class Controller
         SimpleListProperty<Tab> tablessListProperty =
                 new SimpleListProperty<>(this.tabPane.getTabs());
 
-        for (Object fxmlItem : fileMenuFields)
-        {
-            if (fxmlItem != null)
-            {
-                if (fxmlItem.getClass() == MenuItem.class)
-                    ((MenuItem) fxmlItem).disableProperty().bind(
-                            tablessListProperty.emptyProperty());
+        for (MenuItem fxmlItem : menuFields) {
+            if (fxmlItem != null) {
+                fxmlItem.disableProperty().bind(tablessListProperty.emptyProperty());
             }
         }
 
-        for (Object fxmlItem : editMenuFields)
-        {
-            if (fxmlItem != null)
-            {
-                if (fxmlItem.getClass() == MenuItem.class)
-                    ((MenuItem) fxmlItem).disableProperty().bind(
-                            tablessListProperty.emptyProperty());
-            }
-        }
+        // CompilationController Bindings:
+        // By having these bindings here, causes the bindings in Compilation
+        // Controller to not work correctly
 
-        // CompilationController Bindings
-        {
-            this.compileButton.disableProperty().bind(
-                    tablessListProperty.emptyProperty());
-            this.compileAndRunButton.disableProperty().bind(
-                    tablessListProperty.emptyProperty());
-        }
+        // {
+        //     this.compileButton.disableProperty().bind(
+        //             tablessListProperty.emptyProperty());
+        //     this.compileAndRunButton.disableProperty().bind(
+        //             tablessListProperty.emptyProperty());
+        // }
 
         // Undo/Redo bindings (implemented before Clarification#1)
         {

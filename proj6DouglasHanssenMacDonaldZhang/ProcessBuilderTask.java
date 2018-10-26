@@ -11,16 +11,17 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import java.io.*;
 
-
 /**
  * Task which takes in a ProcessBuilder to manage the process created in this Thread.
- *
+ * @author Kevin Ahn, Lucas DeGraw, Wyett MacDonald, Evan Savillo
+ * @author Kyle Douglas, Paige Hanssen, Tia Zhang
+ * @version 2.0
  */
 public class ProcessBuilderTask extends Task<String>
 {
     private final ProcessBuilder processBuilder;
-    public Process process;
-    public String consoleOutput;
+    private Process process;
+    private String consoleOutput;
 
 
     ProcessBuilderTask(ProcessBuilder processBuilder)
@@ -39,6 +40,7 @@ public class ProcessBuilderTask extends Task<String>
     {
         InputStream inputStream;
 
+        // try to start the processBuilder, send error message to console if it fails
         try
         {
             this.process = this.processBuilder.start();
@@ -49,6 +51,7 @@ public class ProcessBuilderTask extends Task<String>
             return consoleOutput;
         }
 
+        // get input and/or error stream from the process
         String commandType = this.processBuilder.command().get(0);
         if (commandType.equals("javac"))
             inputStream = this.process.getErrorStream();
@@ -59,16 +62,18 @@ public class ProcessBuilderTask extends Task<String>
         int readCharacter;
         while (this.process.isAlive())
         {
-            if (isCancelled())
-            {
+            // check if the process has been stopped
+            if (isCancelled()){
                 consoleOutput += "\nProcess Obliterated\n\n";
                 break;
             }
 
-            if ((readCharacter = reader.read()) != -1)
-            {
+            // check for user input and assign it to the consoleOutput variable
+            if ((readCharacter = reader.read()) != -1) {
                 consoleOutput += Character.toString((char)readCharacter);
             }
+
+            // print output to console
             Platform.runLater(() -> updateValue(consoleOutput));
         }
         reader.close();
@@ -79,6 +84,21 @@ public class ProcessBuilderTask extends Task<String>
                     ("Trying to compile was a mistake.\n");
         
         return consoleOutput;
+    }
+
+    /**
+     * @return returns the process so that other classes can access it
+     */
+    public Process getProcess() {
+        return this.process;
+    }
+
+    /**
+     * @return returns the console output so that other classes can access it
+     * @throws Exception
+     */
+    public String getConsoleOutput() {
+        return this.consoleOutput;
     }
 }
 

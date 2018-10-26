@@ -7,7 +7,13 @@ Date: 10/12/18
 
 package proj6DouglasHanssenMacDonaldZhang;
 
-
+import java.io.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Optional;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -18,15 +24,6 @@ import javafx.stage.Stage;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.StyleClassedTextArea;
-
-import java.io.*;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Controller that handles the compilation and
@@ -51,16 +48,14 @@ public class CompilationController
     private ProcessBuilder processBuilder;
     private ProcessBuilderTask currentProcessBuilderTask;
     private Thread currentThread;
-
     private Map<Tab, File> tabFileMap;
-
     private Stage primaryStage;
-
     private BooleanProperty isAnythingRunning;
-
-    private ByteArrayOutputStream outputStream;
-
     private BufferedWriter writer;
+    /**
+     * ByteArrayOutputstream outputStream holds user input data from the console
+     */
+    private ByteArrayOutputStream outputStream;
 
     /**
      * constructor for the Compilation Controller Class
@@ -69,20 +64,21 @@ public class CompilationController
      * @param consoleTextArea
      * @param tabFileMap
      */
-    public CompilationController(Object[] toolBarFields,
+    public CompilationController(TabPane tabPane,
+                                 Stage stage,
+                                 Button[] toolBarFields,
                                  StyleClassedTextArea consoleTextArea,
                                  Map<Tab, File> tabFileMap)
     {
-        this.tabPane = (TabPane) toolBarFields[0];
-        this.compileButton = (Button) toolBarFields[1];
-        this.compileAndRunButton = (Button) toolBarFields[2];
-        this.haltButton = (Button) toolBarFields[3];
-        this.primaryStage = (Stage) toolBarFields[4];
+        this.tabPane = tabPane;
+        this.compileButton = toolBarFields[0];
+        this.compileAndRunButton = toolBarFields[1];
+        this.haltButton = toolBarFields[2];
+        this.primaryStage = stage;
         this.processBuilder = new ProcessBuilder();
 
         String cwd = System.getProperty("user.dir");
         this.processBuilder.directory(new File(cwd));
-        System.out.println(cwd);
 
         this.consoleTextArea = consoleTextArea;
         this.tabFileMap = tabFileMap;
@@ -222,7 +218,8 @@ public class CompilationController
         }
         catch (IOException e)
         {
-            System.out.println("IO exception from closing");
+            Alert alert = new Alert(Alert.AlertType.WARNING,  "IO exception from closing");
+            alert.setTitle("Warning");
         }
         this.currentThread.start();
         return true;
@@ -238,9 +235,12 @@ public class CompilationController
     {
         this.consoleTextArea.requestFocus();
 
+        // check if handleCompileAction() has completed
         if (!this.handleCompileAction())
             return;
 
+        // wait for thread that is currently running to complete????
+        // onSuceeded?
         int timeout = 5000;
         while (this.currentThread.isAlive() && timeout > 0)
         {
@@ -258,17 +258,21 @@ public class CompilationController
         {
             System.out.println("Failure");
         }
+        // this.currentThread.wait();
 
+        // get class to prepare to run the file
         File curFile = tabFileMap.get(TabPaneInfo.getCurTab(this.tabPane));
         String filename = curFile.getName();
         filename = filename.substring(0, filename.length() - 5); // remove ".class" from filename
 
+        // use the java command to run the process through the process builder
         ArrayList<String> commandInput = new ArrayList<>();
         commandInput.add("java");
         commandInput.add(filename);
 
         this.processBuilder.command(commandInput);
 
+        // set up the current thread to prepare to run it
         this.currentProcessBuilderTask = new ProcessBuilderTask(this.processBuilder
         );
         this.currentThread = new Thread(this.currentProcessBuilderTask);
@@ -291,6 +295,7 @@ public class CompilationController
             );
         }
 
+        // try to close the input/output writer
         try
         {
             if (this.writer != null)
@@ -298,8 +303,10 @@ public class CompilationController
         }
         catch (IOException e)
         {
-            System.out.println("IO exception from closing");
+            Alert alert = new Alert(Alert.AlertType.WARNING, "IO exception from closing");
+            alert.setTitle("Warning");
         }
+        // start the thread
         this.currentThread.start();
     }
 
@@ -307,19 +314,17 @@ public class CompilationController
     /**
      * Handles the canceling of the current process
      */
-    public void handleHaltAction()
-    {
+    public void handleHaltAction() {
         this.currentProcessBuilderTask.cancel();
         try
         {
             this.currentThread.join(3000);
-
         }
         catch (InterruptedException e)
         {
-            System.out.println("Interrupted Join");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Could not halt program. Please try again.");
+            alert.setTitle("Error");
         }
-        System.out.println(this.currentThread.getState());
     }
 
     /**
@@ -340,15 +345,15 @@ public class CompilationController
             {
                 try
                 {
-                    System.out.println("return hit");
                     this.outputStream.flush();
 
                     OutputStream stdin =
-                            this.currentProcessBuilderTask.process.getOutputStream();
+                            this.currentProcessBuilderTask.getProcess().getOutputStream();
 
                     String content = this.outputStream.toString() + System.lineSeparator();
 
-                    this.currentProcessBuilderTask.consoleOutput += System.lineSeparator();
+                    String consoleOutput = this.currentProcessBuilderTask.getConsoleOutput();
+                    consoleOutput += System.lineSeparator();
 
                     if (this.writer == null)
                         this.writer = new BufferedWriter(new OutputStreamWriter(stdin));
@@ -363,7 +368,8 @@ public class CompilationController
                 }
                 catch (IOException e)
                 {
-                    System.out.println("IO exception from outputStream");
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "IO exception from outputStream");
+                    alert.setTitle("IO exception from outputStream");
                 }
 
             }
@@ -375,10 +381,10 @@ public class CompilationController
                 }
                 catch (IOException e)
                 {
-                    System.out.println("IO exception from outputStream");
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "IO exception from outputStream");
+                    alert.setTitle("IO exception from outputStream");
                 }
             }
-            System.out.println("break");
         }
     }
 

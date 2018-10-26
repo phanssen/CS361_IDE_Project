@@ -39,12 +39,6 @@ import java.util.*;
 public class FileMenuController
 {
     private TabPane tabPane;
-
-    private MenuItem closeMenuItem;
-    private MenuItem saveMenuItem;
-    private MenuItem saveAsMenuItem;
-    private MenuItem toggleCommentsMenuItem;
-
     private Stage primaryStage;
 
     /**
@@ -57,14 +51,11 @@ public class FileMenuController
     /**
      * Constructor for the File Menu Controller
      */
-    public FileMenuController(Object[] fileMenuFields, Map<Tab,File> savedFilesMap)
+    public FileMenuController(TabPane tabPane, Stage stage, Map<Tab,File> savedFilesMap)
     {
-        tabPane = (TabPane) fileMenuFields[0];
-        closeMenuItem = (MenuItem) fileMenuFields[1];
-        saveMenuItem = (MenuItem) fileMenuFields[2];
-        saveAsMenuItem = (MenuItem) fileMenuFields[3];
-        primaryStage = (Stage) fileMenuFields[4];
-        tabFileMap = savedFilesMap;
+        this.tabPane = tabPane;
+        this.primaryStage = stage;
+        this.tabFileMap = savedFilesMap;
     }
 
     /**
@@ -100,7 +91,7 @@ public class FileMenuController
         Tab newTab = new Tab();
         newTab.setText("untitled" + (untitledCounter++) + ".txt");
 
-        newTab.setContent(new VirtualizedScrollPane<>(JavaCodeArea.createCodeArea()));
+        newTab.setContent(new VirtualizedScrollPane<>(new JavaCodeArea()));
 
         // set close action (clicking the 'x')
         newTab.setOnCloseRequest(event -> closeTab(newTab, event));
@@ -356,23 +347,9 @@ public class FileMenuController
      */
     private void removeTab(Tab tab)
     {
-//        this.tabPane.getSelectionModel().selectPrevious();
-//
-        System.out.println("tabs: " + this.tabPane.getTabs());
         this.tabPane.getSelectionModel().clearSelection();
         this.tabFileMap.remove(tab);
         this.tabPane.getTabs().remove(tab);
-        System.out.println("after removing: " + this.tabPane.getTabs());
-        System.out.println("selected: " + this.tabPane.getSelectionModel().getSelectedItem());
-
-//        this.tabPane.getSelectionModel().selectFirst();
-
-
-        System.out.println("tabPane1: " + tabPane);
-        System.out.println("model1: " + this.tabPane.getSelectionModel());
-        System.out.println("selected index1: " + this.tabPane.getSelectionModel().getSelectedIndex());
-
-
     }
 
 
