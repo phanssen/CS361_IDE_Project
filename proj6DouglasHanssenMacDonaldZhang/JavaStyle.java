@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
+import java.util.ArrayList;
 
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
@@ -95,8 +96,8 @@ public class JavaStyle {
                                                     matcher.group("STRING") != null ? "string" :
                                                             matcher.group("COMMENT") != null ? "comment" :
                                                                     matcher.group("IDENTIFIER") != null ? "identifier" :
-                                                                                    matcher.group("INTCONST") != null ? "intconst" :
-                                                                                            null; /* never happens */
+                                                                            matcher.group("INTCONST") != null ? "intconst" :
+                                                                                    null; /* never happens */
             assert styleClass != null;
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
             spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
