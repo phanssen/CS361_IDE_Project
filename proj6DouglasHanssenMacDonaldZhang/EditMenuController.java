@@ -214,7 +214,7 @@ public class EditMenuController
      * textField
      */
     public void handleFind() {
-        CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
+        CodeArea curCodeArea = this.tabPane.getCurCodeArea();
         this.textField.setVisible(true);
         this.textField.requestFocus();
         this.textField.textProperty().addListener(new ChangeListener<String>() {
@@ -237,7 +237,7 @@ public class EditMenuController
 
     public ArrayList<String> matchesString(String input) {
         ArrayList<String> inputArray = new ArrayList<String>();
-        CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
+        CodeArea curCodeArea = this.tabPane.getCurCodeArea();
 
         if(input.length() == 0) {
             return null;
