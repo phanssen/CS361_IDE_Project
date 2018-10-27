@@ -7,14 +7,20 @@ Date: 10/27/18
 
 package proj6DouglasHanssenMacDonaldZhang;
 
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tab;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventType;
+import javafx.scene.control.*;
 import javafx.scene.control.TabPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 
+import javax.xml.soap.Text;
+import java.util.TooManyListenersException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
+import javafx.stage.Window;
 
 /**
  * This class handles the Edit menu, as a helper to the main Controller.
@@ -30,12 +36,14 @@ import java.util.regex.Pattern;
 public class EditMenuController
 {
     private CodeAreaTabPane tabPane;
+    private TextField textField;
 
     /**
      * Constructor for the Edit Menu Controller
      */
-    public EditMenuController(CodeAreaTabPane tabPane) {
+    public EditMenuController(CodeAreaTabPane tabPane, TextField textField) {
         this.tabPane = tabPane;
+        this.textField = textField;
     }
 
     /**
@@ -203,7 +211,64 @@ public class EditMenuController
 
     }
 
+    /**
+     * Finds text in the current code area that matches the text in the
+     * textField
+     */
+    public void handleFind() {
+        CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
+//        TextField findBar = new TextField();
+//        TabPaneInfo.getCurTab(this.tabPane).setContent(findBar);
+        this.textField.setVisible(true);
+        this.textField.requestFocus();
+        this.textField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                ArrayList<String> matches = matchesString(newValue);
+                if(matches != null) {
+                        System.out.println(matchesString(newValue).toString());
+                }
+            }
+        });
+    }
 
+    /**
+     * Helper method for handleFind
+     * Iterates through codeArea to find matching text
+     * @param input
+     * @return ArrayList of type String with matching text
+     */
+
+    public ArrayList<String> matchesString(String input) {
+        ArrayList<String> inputArray = new ArrayList<String>();
+        CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
+
+        if(input.length() == 0) {
+            return null;
+        }
+
+        String myString = "";
+        int inputCount = 0;
+        for(int i = 0; i < curCodeArea.getLength(); i++) {
+            if(Character.toString(curCodeArea.getText().charAt(i)).equalsIgnoreCase(
+                    Character.toString(input.charAt(inputCount)))) {
+                inputCount++;
+                myString += Character.toString(curCodeArea.getText().charAt(i));
+                if(inputCount == input.length()) {
+                    inputArray.add(myString);
+                    inputCount = 0;
+                    myString = "";
+                }
+            }
+            else {
+                inputCount = 0;
+                myString = "";
+            }
+        }
+
+        return inputArray;
+
+    }
 
     /**
      * Simple helper method

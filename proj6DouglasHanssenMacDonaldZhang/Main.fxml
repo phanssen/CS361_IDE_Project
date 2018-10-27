@@ -16,6 +16,7 @@ Date: 10/27/18
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
 <?import org.fxmisc.richtext.StyleClassedTextArea?>
 <?import javafx.scene.control.Separator?>
 <!--<?import javafx.scene.control.SplitPane.Divider?>-->
@@ -63,6 +64,7 @@ Date: 10/27/18
             <MenuItem fx:id="unindentTextMenuItem" onAction="#handleUnindentText" text="Unindent Text" />
             <MenuItem fx:id="entabTextMenuItem" onAction="#handleEntab" text="Entab" />
             <MenuItem fx:id="detabTextMenuItem" onAction="#handleDetab" text="Detab" />
+            <MenuItem fx:id="findMenuItem" onAction="#handleFind" text="Find" />
         </Menu>
     </MenuBar>
     <ToolBar prefHeight="40.0" prefWidth="200.0">
@@ -71,6 +73,7 @@ Date: 10/27/18
             <Button fx:id="compileAndRunButton" mnemonicParsing="false" text="Compile &amp; Run"
                     onAction="#handleRunAction"/>
             <Button fx:id="haltButton" mnemonicParsing="false" text="Halt" onAction="#handleHaltAction"/>
+            <TextField fx:id="findTextField" visible="false"></TextField>
         </items>
     </ToolBar>
     <SplitPane orientation="VERTICAL" VBox.vgrow="ALWAYS" fx:id = "splitPane" >

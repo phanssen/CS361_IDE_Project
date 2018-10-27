@@ -55,10 +55,12 @@ public class Controller
     @FXML private MenuItem unindentTextMenuItem;
     @FXML private MenuItem entabTextMenuItem;
     @FXML private MenuItem detabTextMenuItem;
+    @FXML private MenuItem findMenuItem;
 
     @FXML private Button compileButton;
     @FXML private Button compileAndRunButton;
     @FXML private Button haltButton;
+    @FXML private TextField findTextField;
 
     @FXML private Stage primaryStage;
 
@@ -96,6 +98,7 @@ public class Controller
                 this.unindentTextMenuItem,
                 this.entabTextMenuItem,
                 this.detabTextMenuItem,
+                this.findMenuItem
         };
 
         Button[] toolbarButtons = {
@@ -106,7 +109,7 @@ public class Controller
 
         fileMenuController = new FileMenuController(
             this.tabPane, this.primaryStage, this.tabFileMap);
-        editMenuController = new EditMenuController(this.tabPane);
+        editMenuController = new EditMenuController(this.tabPane, this.findTextField);
         compilationController = new CompilationController(
             tabPane, primaryStage, toolbarButtons, consoleTextArea, tabFileMap);
 
@@ -330,6 +333,11 @@ public class Controller
     private void handleDetab()
     {
         editMenuController.handleDetab();
+    }
+
+    @FXML
+    private void handleFind() {
+        editMenuController.handleFind();
     }
 
     /**
