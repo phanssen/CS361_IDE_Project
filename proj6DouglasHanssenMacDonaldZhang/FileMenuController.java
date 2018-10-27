@@ -13,6 +13,8 @@ import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ChangeListener;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
@@ -106,6 +108,21 @@ public class FileMenuController
         this.tabFileMap.put(newTab, null);
 
         tabPane.getCurCodeArea().requestFocus();
+
+        newCodeArea.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (newValue.length() != 0) {
+                    String lastChar = Character.toString(newValue.charAt(newValue.length() - 1));
+                    if (lastChar.equalsIgnoreCase("(")) {
+                        newCodeArea.appendText(")");
+                    }
+                    else if(lastChar.equalsIgnoreCase("{")) {
+                        newCodeArea.appendText("\n}");
+                    }
+                }
+            }
+        });
     }
 
     /**
