@@ -77,7 +77,6 @@ Date: 10/27/18
         </items>
     </ToolBar>
     <SplitPane orientation="VERTICAL" VBox.vgrow="ALWAYS" fx:id = "splitPane" >
-
         <StyleClassedTextArea fx:id="consoleTextArea" showCaret="ON" onKeyTyped="#handleOnKeyPressedAction">
         </StyleClassedTextArea>
     </SplitPane>

@@ -14,7 +14,7 @@ import java.io.*;
 /**
  * Task which takes in a ProcessBuilder to manage the process created in this Thread.
  * @author Kevin Ahn, Lucas DeGraw, Wyett MacDonald, Evan Savillo
- * @author Kyle Douglas, Paige Hanssen, Tia Zhang
+ * @author Kyle Douglas, Wyett MacDonald Paige Hanssen, Tia Zhang
  * @version 2.0
  */
 public class ProcessBuilderTask extends Task<String>

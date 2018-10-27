@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
@@ -31,6 +32,8 @@ import org.fxmisc.richtext.StyleClassedTextArea;
  * @author Lucas DeGraw
  * @author Wyett MacDonald
  * @author Kevin Ahn
+ * @author Paige Hanssen
+ * @author Tia Zhang
  */
 public class CompilationController
 {
@@ -43,7 +46,6 @@ public class CompilationController
     private ProcessBuilderTask currentProcessBuilderTask;
     private Thread currentThread;
     private Map<Tab, File> tabFileMap;
-    private Stage primaryStage;
     private BooleanProperty isAnythingRunning;
     private BufferedWriter writer;
     /**
@@ -54,21 +56,21 @@ public class CompilationController
     /**
      * constructor for the Compilation Controller Class
      *
-     * @param toolBarFields
-     * @param consoleTextArea
-     * @param tabFileMap
+     * @param tabPane - where all the open tabs are stored
+     * @param toolBarFields - button array holding the toolbar buttons
+     * @param consoleTextArea - the textArea holding an open file's contents
+     * @param tabFileMap - map of all open files
      */
     public CompilationController(CodeAreaTabPane tabPane,
-                                 Stage stage,
                                  Button[] toolBarFields,
                                  StyleClassedTextArea consoleTextArea,
-                                 Map<Tab, File> tabFileMap)
+                                 Map<Tab, File> tabFileMap,
+                                 SimpleListProperty<Tab> tablessListProperty)
     {
         this.tabPane = tabPane;
         this.compileButton = toolBarFields[0];
         this.compileAndRunButton = toolBarFields[1];
         this.haltButton = toolBarFields[2];
-        this.primaryStage = stage;
         this.processBuilder = new ProcessBuilder();
 
         String cwd = System.getProperty("user.dir");
@@ -82,9 +84,9 @@ public class CompilationController
         //Bindings
         {
             this.compileButton.disableProperty().bind(
-                    this.isAnythingRunningProperty());
+                    this.isAnythingRunningProperty().or(tablessListProperty.emptyProperty()));
             this.compileAndRunButton.disableProperty().bind(
-                    this.isAnythingRunningProperty());
+                    this.isAnythingRunningProperty().or(tablessListProperty.emptyProperty()));
             this.haltButton.disableProperty().bind(
                     this.isAnythingRunningProperty().not());
         }
@@ -183,8 +185,7 @@ public class CompilationController
         this.processBuilder.command(commandInput);
 
         // set up the current thread to prepare to run it
-        this.currentProcessBuilderTask = new ProcessBuilderTask(this.processBuilder
-        );
+        this.currentProcessBuilderTask = new ProcessBuilderTask(this.processBuilder);
         this.currentThread = new Thread(this.currentProcessBuilderTask);
         this.currentThread.setDaemon(true);
 
@@ -249,29 +250,31 @@ public class CompilationController
         // Wrapped in this conditional for pressing delete.
         if (event.getCharacter().length() > 0)
         {
+            // check if enter key is pressed
             if (event.getCode().equals(KeyCode.ENTER) ||
                     event.getCharacter().getBytes()[0] == '\n' ||
                     event.getCharacter().getBytes()[0] == '\r')
             {
                 try
                 {
+                    // send data to program console
                     this.outputStream.flush();
 
+                    // get standard input
                     OutputStream stdin =
                             this.currentProcessBuilderTask.getProcess().getOutputStream();
-
+                    
                     String content = this.outputStream.toString() + System.lineSeparator();
-
                     String consoleOutput = this.currentProcessBuilderTask.getConsoleOutput();
                     consoleOutput += System.lineSeparator();
 
                     if (this.writer == null)
                         this.writer = new BufferedWriter(new OutputStreamWriter(stdin));
 
+                    // write content to program console
                     this.writer.write(content);
                     this.writer.newLine();
                     this.writer.flush();
-                    //writer.close();
 
                     this.outputStream.close();
                     this.outputStream = new ByteArrayOutputStream();
