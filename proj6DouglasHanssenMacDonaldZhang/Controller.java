@@ -107,42 +107,31 @@ public class Controller
                 this.haltButton
         };
 
+        // List Property for case of no tabs
+        SimpleListProperty<Tab> tablessListProperty =
+                new SimpleListProperty<>(this.tabPane.getTabs());
+
         fileMenuController = new FileMenuController(
             this.tabPane, this.primaryStage, this.tabFileMap);
         editMenuController = new EditMenuController(this.tabPane, this.findTextField);
         compilationController = new CompilationController(
-            tabPane, primaryStage, toolbarButtons, consoleTextArea, tabFileMap);
+            tabPane, toolbarButtons, consoleTextArea, tabFileMap, tablessListProperty);
 
         this.tabFileMap = fileMenuController.tabFileMap;
 
         // Start program with one new tab
         this.handleNewMenuItemAction();
 
-        // List Property for case of no tabs
-        SimpleListProperty<Tab> tablessListProperty =
-                new SimpleListProperty<>(this.tabPane.getTabs());
-
+        // bind menu items to tabless list
         for (MenuItem fxmlItem : menuFields) {
             if (fxmlItem != null) {
                 fxmlItem.disableProperty().bind(tablessListProperty.emptyProperty());
             }
         }
 
-        // CompilationController Bindings:
-        // By having these bindings here, causes the bindings in Compilation
-        // Controller to not work correctly
-
-        // {
-        //     this.compileButton.disableProperty().bind(
-        //             tablessListProperty.emptyProperty());
-        //     this.compileAndRunButton.disableProperty().bind(
-        //             tablessListProperty.emptyProperty());
-        // }
-
-        // Undo/Redo bindings (implemented before Clarification#1)
+        // Undo/Redo bindings
         {
             // Boolean Property for availability of undo and redo
-            // Must 'cast' to use not() method
             CodeArea curCodeArea = this.tabPane.getCurCodeArea();
 
             BooleanExpression undoableProperty =
@@ -356,7 +345,7 @@ public class Controller
     @FXML
     private void handleCompileAction()
     {
-        this.promptSave();
+        this.promptCompileSave();
         compilationController.handleCompileAction();
     }
 
@@ -365,9 +354,9 @@ public class Controller
      * after compiling the file
      */
     @FXML
-    private void handleRunAction()
+    private void handleRunAction() throws InterruptedException
     {
-        this.promptSave();
+        this.promptCompileSave();
         compilationController.handleCompileAndRunAction();
     }
 
@@ -395,7 +384,7 @@ public class Controller
      * saved since the last change. If the tab has never been saved,
      * will automatically open a FileChooser window to save the file.
      */
-    private void promptSave() {
+    private void promptCompileSave() {
         // get selected tab and the code area
         Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
         CodeArea activeCodeArea = tabPane.getCurCodeArea();

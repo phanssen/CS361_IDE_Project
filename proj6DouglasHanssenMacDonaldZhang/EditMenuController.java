@@ -108,7 +108,8 @@ public class EditMenuController
      * This includes if /* is in the middle of the highlighted text block and not the beginning and end
      * If every line has single line comment "//", removes // from every line
      * Else, adds multiline comments in style of "/*" to beginning and end of text
-     * Does not handle /** style comments because that's usually documentation and documentation shouldn't be toggled
+     * Does not handle /** style comments because that's usually documentation and
+     * documentation shouldn't be toggled
      */
     public void handleToggleComments() {
 
@@ -120,7 +121,8 @@ public class EditMenuController
 
         Matcher matcher = commentPattern.matcher(Pattern.quote(selectedText));
 
-        //Not using String.matches() because it doesn't account for a section where the commented code is in the middle
+        //Not using String.matches() because it doesn't account for a section where the
+        //commented code is in the middle
         // of the highlighted selection.
         //If highlighted text contains /* and */ in that order:
         if( matcher.find() ){
@@ -152,8 +154,6 @@ public class EditMenuController
                 curCodeArea.replaceSelection("/*" + selectedText + "*/");
 
             }
-
-
         }
     }
 
@@ -165,7 +165,6 @@ public class EditMenuController
         String selectedText = tabPane.getCurCodeArea().getSelectedText();
         String selectedTextTabbed = selectedText.replace("\n", "\n\t");
         curCodeArea.replaceSelection("\t" + selectedTextTabbed);
-
     }
 
     /*
@@ -183,7 +182,6 @@ public class EditMenuController
         String firstLineUntabbed = firstLine.replaceFirst("\t", "");
         selectedTextUnTabbed = firstLineUntabbed + selectedTextUnTabbed.substring(firstLineLength);
         curCodeArea.replaceSelection(selectedTextUnTabbed);
-
     }
 
 
@@ -217,8 +215,6 @@ public class EditMenuController
      */
     public void handleFind() {
         CodeArea curCodeArea = TabPaneInfo.getCurCodeArea(this.tabPane);
-//        TextField findBar = new TextField();
-//        TabPaneInfo.getCurTab(this.tabPane).setContent(findBar);
         this.textField.setVisible(true);
         this.textField.requestFocus();
         this.textField.textProperty().addListener(new ChangeListener<String>() {
@@ -267,7 +263,6 @@ public class EditMenuController
         }
 
         return inputArray;
-
     }
 
     /**
@@ -279,6 +274,4 @@ public class EditMenuController
     {
         return this.tabPane.getTabs().isEmpty();
     }
-
-
 }

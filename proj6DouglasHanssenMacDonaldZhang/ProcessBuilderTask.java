@@ -14,7 +14,7 @@ import java.io.*;
 /**
  * Task which takes in a ProcessBuilder to manage the process created in this Thread.
  * @author Kevin Ahn, Lucas DeGraw, Wyett MacDonald, Evan Savillo
- * @author Kyle Douglas, Paige Hanssen, Tia Zhang
+ * @author Kyle Douglas, Wyett MacDonald Paige Hanssen, Tia Zhang
  * @version 2.0
  */
 public class ProcessBuilderTask extends Task<String>
@@ -38,7 +38,8 @@ public class ProcessBuilderTask extends Task<String>
     @Override
     protected String call() throws Exception
     {
-        InputStream inputStream;
+        // redirect any errors
+        processBuilder.redirectErrorStream(true);
 
         // try to start the processBuilder, send error message to console if it fails
         try
@@ -51,13 +52,8 @@ public class ProcessBuilderTask extends Task<String>
             return consoleOutput;
         }
 
-        // get input and/or error stream from the process
-        String commandType = this.processBuilder.command().get(0);
-        if (commandType.equals("javac"))
-            inputStream = this.process.getErrorStream();
-        else
-            inputStream = this.process.getInputStream();
-
+        // get input stream from the process
+        InputStream inputStream = this.process.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         int readCharacter;
         while (this.process.isAlive())
@@ -78,6 +74,7 @@ public class ProcessBuilderTask extends Task<String>
         }
         reader.close();
         
+        String commandType = this.processBuilder.command().get(0);
         if (commandType.equals("javac"))
             consoleOutput += (this.process.exitValue() == 0) ? 
                     ("Compilation Successful!\n") :

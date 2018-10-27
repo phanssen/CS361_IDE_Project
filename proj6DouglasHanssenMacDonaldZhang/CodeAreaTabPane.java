@@ -24,8 +24,7 @@ import java.io.IOException;
  * @author Tia Zhang
  */
 public class CodeAreaTabPane extends TabPane {
-    //@FXML private TabPane tabPane;
-
+    
     public CodeAreaTabPane(){
         super();
     }
