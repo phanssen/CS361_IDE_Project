@@ -78,6 +78,7 @@ public class Controller
     private FileMenuController fileMenuController;
     private EditMenuController editMenuController;
     private CompilationController compilationController;
+    private HelpMenuController helpMenuController;
 
     private Map<Tab, File> tabFileMap;
 
@@ -124,6 +125,7 @@ public class Controller
         editMenuController = new EditMenuController(this.tabPane, this.findTextField);
         compilationController = new CompilationController(
             tabPane, toolbarButtons, consoleTextArea, tabFileMap, tablessListProperty);
+        helpMenuController = new HelpMenuController();
 
         this.tabFileMap = fileMenuController.tabFileMap;
 
@@ -164,6 +166,17 @@ public class Controller
     {
         fileMenuController.handleAboutMenuItemAction();
     }
+
+    /**
+     * Handles the Help Menu Items.
+     * Will open a URL with default browser.
+     * Supports Windows, Linux and Mac OS
+     */
+    @FXML
+    private void handleHelpMenuItemAction() { helpMenuController.handleHelpMenuItemAction(); }
+
+    @FXML
+    private void handleUrlMenuItemAction() { helpMenuController.handleUrlMenuItemAction(); }
 
     /**
      * Handles the New button action.

@@ -74,6 +74,12 @@ Date: 10/27/18
             <MenuItem fx:id="funModeMenuItem" mnemonicParsing="false" onAction="#handleFunMode" text="Fun Mode"/>
             <MenuItem fx:id="hallowThemeItem" mnemonicParsing="false" onAction="#handleHallowThemeMode" text="HallowTheme"/>
         </Menu>
+        <Menu text="Help" fx:id="helpMenu">
+            <MenuItem fx:id="javaHelpMenuItem" onAction="#handleHelpMenuItemAction"
+                      text="About Java"></MenuItem>
+            <MenuItem fx:id="urlHelpMenuItem" onAction="#handleUrlMenuItemAction"
+                      text="Reference: Open Url"></MenuItem>
+        </Menu>
     </MenuBar>
     <ToolBar prefHeight="40.0" prefWidth="200.0">
         <items>
