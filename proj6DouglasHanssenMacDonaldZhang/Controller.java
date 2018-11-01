@@ -56,6 +56,7 @@ public class Controller
     @FXML private MenuItem entabTextMenuItem;
     @FXML private MenuItem detabTextMenuItem;
     @FXML private MenuItem findMenuItem;
+    @FXML private MenuItem handleCheckWellFormed;
 
     @FXML private Button compileButton;
     @FXML private Button compileAndRunButton;
@@ -377,6 +378,11 @@ public class Controller
     public void handleOnKeyPressedAction(javafx.scene.input.KeyEvent keyEvent)
     {
         compilationController.handleOnKeyPressedAction(keyEvent);
+    }
+
+    @FXML
+    public void handleCheckWellFormedAction() {
+        tabPane.handleCheckWellFormed();
     }
 
     /**

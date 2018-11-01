@@ -65,6 +65,7 @@ Date: 10/27/18
             <MenuItem fx:id="entabTextMenuItem" onAction="#handleEntab" text="Entab" />
             <MenuItem fx:id="detabTextMenuItem" onAction="#handleDetab" text="Detab" />
             <MenuItem fx:id="findMenuItem" onAction="#handleFind" text="Find" />
+            <MenuItem fx:id="checkWellFormedMenuItem" onAction="#handleCheckWellFormedAction" text="Check Well-Formed Groupings" />
         </Menu>
     </MenuBar>
     <ToolBar prefHeight="40.0" prefWidth="200.0">
