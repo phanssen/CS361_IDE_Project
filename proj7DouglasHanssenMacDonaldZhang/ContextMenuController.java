@@ -182,9 +182,6 @@ public class ContextMenuController {
                                                ReadOnlyBooleanProperty isAnythingRunning) {
         ContextMenu rightClickMenu = new ContextMenu();
 
-        // MenuItem ClearAllItem = new MenuItem("ClearAll");
-        // ClearAllItem.setOnAction(e -> this.compilationController.clearConsole());
-
         MenuItem StopItem = new MenuItem("Stop Program");
         StopItem.setOnAction(e -> this.compilationController.handleHaltAction());
 
