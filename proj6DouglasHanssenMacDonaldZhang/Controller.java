@@ -12,6 +12,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 
 import javafx.stage.Stage;
 import org.fxmisc.richtext.CodeArea;
@@ -40,10 +41,15 @@ import java.util.Optional;
 public class Controller
 {
 
+    @FXML private VBox vBox;
     @FXML private SplitPane splitPane;
     @FXML private MenuItem closeMenuItem;
     @FXML private MenuItem saveMenuItem;
     @FXML private MenuItem saveAsMenuItem;
+    @FXML private MenuItem darkModeMenuItem;
+    @FXML private MenuItem normalModeMenuItem;
+    @FXML private MenuItem funModeMenuItem;
+    @FXML private MenuItem hallowThemeItem;
     @FXML private MenuItem undoMenuItem;
     @FXML private MenuItem redoMenuItem;
     @FXML private MenuItem cutMenuItem;
@@ -62,6 +68,7 @@ public class Controller
     @FXML private Button compileAndRunButton;
     @FXML private Button haltButton;
     @FXML private TextField findTextField;
+    @FXML private Menu prefMenu;
 
     @FXML private Stage primaryStage;
 
@@ -293,6 +300,70 @@ public class Controller
     private void handleSelectAllMenuItemAction()
     {
         editMenuController.handleSelectAllMenuItemAction();
+    }
+
+    /**
+     * Changes the theme of the IDE to Dark
+     */
+    @FXML
+    public void handleDarkMode(){
+        handleThemeChange("proj6DouglasHanssenMacDonaldZhang/DarkMode.css", darkModeMenuItem);
+    }
+
+    /**
+     * Changes the theme of the IDE back to normal
+     */
+    @FXML
+    public void handleNormalMode(){
+        vBox.getStylesheets().remove(vBox.getStylesheets().size()-1);
+        enableUnselectedThemes(normalModeMenuItem);
+    }
+
+    /**
+     * Changes the theme of the IDE to Fun Mode
+     */
+    @FXML
+    public void handleFunMode(){
+        handleThemeChange("proj6DouglasHanssenMacDonaldZhang/FunMode.css", funModeMenuItem);
+    }
+
+
+    /**
+     * Changes the theme of the IDE to HallowTheme--
+     * a fun Halloween extra!
+     */
+    @FXML
+    public void handleHallowThemeMode(){
+        handleThemeChange("proj6DouglasHanssenMacDonaldZhang/HallowTheme.css", hallowThemeItem);
+    }
+    /**
+     * Helper method to change the theme
+     * @param themeCSS
+     */
+    private void handleThemeChange(String themeCSS, MenuItem menuItem){
+        if(vBox.getStylesheets().size() > 1){
+            vBox.getStylesheets().remove(vBox.getStylesheets().size()-1);
+        }
+        vBox.getStylesheets().add(themeCSS);
+        enableUnselectedThemes(menuItem);
+    }
+
+    /**
+     * Enables the menu items of themes that aren't currently used and
+     * disables the menu item of the theme that is currently on
+     * display
+     *
+     * @param menItem the menu item that needs to be disabled
+     */
+    private void enableUnselectedThemes(MenuItem menItem){
+        for(MenuItem item: prefMenu.getItems()){
+            if(!item.equals(menItem)){
+                item.setDisable(false);
+            }
+            else{
+                item.setDisable(true);
+            }
+        }
     }
 
     @FXML
