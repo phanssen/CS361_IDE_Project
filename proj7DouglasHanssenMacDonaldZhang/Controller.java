@@ -12,6 +12,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 
 import javafx.stage.Stage;
 import org.fxmisc.richtext.CodeArea;
@@ -40,10 +41,15 @@ import java.util.Optional;
 public class Controller
 {
 
+    @FXML private VBox vBox;
     @FXML private SplitPane splitPane;
     @FXML private MenuItem closeMenuItem;
     @FXML private MenuItem saveMenuItem;
     @FXML private MenuItem saveAsMenuItem;
+    @FXML private MenuItem darkModeMenuItem;
+    @FXML private MenuItem normalModeMenuItem;
+    @FXML private MenuItem funModeMenuItem;
+    @FXML private MenuItem hallowThemeItem;
     @FXML private MenuItem undoMenuItem;
     @FXML private MenuItem redoMenuItem;
     @FXML private MenuItem cutMenuItem;
@@ -56,11 +62,13 @@ public class Controller
     @FXML private MenuItem entabTextMenuItem;
     @FXML private MenuItem detabTextMenuItem;
     @FXML private MenuItem findMenuItem;
+    @FXML private MenuItem handleCheckWellFormed;
 
     @FXML private Button compileButton;
     @FXML private Button compileAndRunButton;
     @FXML private Button haltButton;
     @FXML private TextField findTextField;
+    @FXML private Menu prefMenu;
 
     @FXML private Stage primaryStage;
 
@@ -70,6 +78,7 @@ public class Controller
     private FileMenuController fileMenuController;
     private EditMenuController editMenuController;
     private CompilationController compilationController;
+    private HelpMenuController helpMenuController;
 
     private Map<Tab, File> tabFileMap;
 
@@ -121,6 +130,7 @@ public class Controller
         editMenuController = new EditMenuController(this.tabPane, this.findTextField);
         compilationController = new CompilationController(
             tabPane, toolbarButtons, consoleTextArea, tabFileMap, tablessListProperty);
+        helpMenuController = new HelpMenuController();
 
         this.tabFileMap = fileMenuController.tabFileMap;
         this.setupContextMenuController();
@@ -173,10 +183,20 @@ public class Controller
      * Creates a dialog window that displays the authors' names.
      */
     @FXML
-    private void handleAboutMenuItemAction()
-    {
+    private void handleAboutMenuItemAction() {
         fileMenuController.handleAboutMenuItemAction();
     }
+
+    /**
+     * Handles the Help Menu Items.
+     * Will open a URL with default browser.
+     * Supports Windows, Linux and Mac OS
+     */
+    @FXML
+    private void handleHelpMenuItemAction() { helpMenuController.handleHelpMenuItemAction(); }
+    
+    @FXML
+    private void handleUrlMenuItemAction() { helpMenuController.handleUrlMenuItemAction(); }
 
     /**
      * Handles the New button action.
@@ -315,6 +335,70 @@ public class Controller
         editMenuController.handleSelectAllMenuItemAction();
     }
 
+    /**
+     * Changes the theme of the IDE to Dark
+     */
+    @FXML
+    public void handleDarkMode(){
+        handleThemeChange("proj7DouglasHanssenMacDonaldZhang/DarkMode.css", darkModeMenuItem);
+    }
+
+    /**
+     * Changes the theme of the IDE back to normal
+     */
+    @FXML
+    public void handleNormalMode(){
+        vBox.getStylesheets().remove(vBox.getStylesheets().size()-1);
+        enableUnselectedThemes(normalModeMenuItem);
+    }
+
+    /**
+     * Changes the theme of the IDE to Fun Mode
+     */
+    @FXML
+    public void handleFunMode(){
+        handleThemeChange("proj7DouglasHanssenMacDonaldZhang/FunMode.css", funModeMenuItem);
+    }
+
+    /**
+     * Changes the theme of the IDE to HallowTheme--
+     * a fun Halloween extra!
+     */
+    @FXML
+    public void handleHallowThemeMode(){
+        handleThemeChange("proj7DouglasHanssenMacDonaldZhang/HallowTheme.css", hallowThemeItem);
+    }
+
+    /**
+     * Helper method to change the theme
+     * @param themeCSS
+     */
+    private void handleThemeChange(String themeCSS, MenuItem menuItem){
+        if(vBox.getStylesheets().size() > 1){
+            vBox.getStylesheets().remove(vBox.getStylesheets().size()-1);
+        }
+        vBox.getStylesheets().add(themeCSS);
+        enableUnselectedThemes(menuItem);
+    }
+
+    /**
+     * Enables the menu items of themes that aren't currently used and
+     * disables the menu item of the theme that is currently on
+     * display
+     *
+     * @param menItem the menu item that needs to be disabled
+     */
+    private void enableUnselectedThemes(MenuItem menItem){
+        for(MenuItem item: prefMenu.getItems()){
+            if(!item.equals(menItem)){
+                item.setDisable(false);
+            }
+            else{
+                item.setDisable(true);
+            }
+        }
+    }
+
     @FXML
     private void handleToggleComments()
     {
@@ -398,6 +482,11 @@ public class Controller
     public void handleOnKeyPressedAction(javafx.scene.input.KeyEvent keyEvent)
     {
         compilationController.handleOnKeyPressedAction(keyEvent);
+    }
+
+    @FXML
+    public void handleCheckWellFormedAction() {
+        tabPane.handleCheckWellFormed();
     }
 
     /**
