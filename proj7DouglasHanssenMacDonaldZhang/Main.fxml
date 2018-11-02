@@ -25,9 +25,9 @@ Date: 10/27/18
       fx:controller="proj7DouglasHanssenMacDonaldZhang.Controller" stylesheets = "@javaKeywords.css">
     <MenuBar VBox.vgrow="NEVER">
         <Menu text="File">
-            <MenuItem fx:id="aboutMenuItem" onAction="#handleAboutMenuItemAction" text="About..."/>
+            <MenuItem fx:id="aboutMenuItem" onAction="#handleAboutMenuItemAction" text="About..."
+                      accelerator="Shortcut+I"/>
             <SeparatorMenuItem/>
-
             <MenuItem fx:id="newMenuItem" onAction="#handleNewMenuItemAction" text="New"
                       accelerator="Shortcut+N" />
             <MenuItem fx:id="openMenuItem" onAction="#handleOpenMenuItemAction" text="Open..."
@@ -41,6 +41,7 @@ Date: 10/27/18
                     <KeyCodeCombination alt="UP" code="S" control="UP" meta="DOWN" shift="DOWN" shortcut="UP"/>
                 </accelerator>
             </MenuItem>
+            <MenuItem fx:id="findMenuItem" onAction="#handleFind" text="Find" accelerator="Shortcut+F" />
             <SeparatorMenuItem />
             <MenuItem fx:id="exitMenuItem" onAction="#handleExitMenuItemAction" text="Exit">
                 <accelerator>
@@ -55,27 +56,24 @@ Date: 10/27/18
             <MenuItem fx:id="copyMenuItem" onAction="#handleCopyMenuItemAction" text="Copy" accelerator="Shortcut+C" />
             <MenuItem fx:id="pasteMenuItem" onAction="#handlePasteMenuItemAction" text="Paste" accelerator="Shortcut+V" />
             <MenuItem fx:id="selectAllMenuItem" onAction="#handleSelectAllMenuItemAction" text="Select all" accelerator="Shortcut+A" />
+            <MenuItem fx:id="toggleCommentsMenuItem" onAction="#handleToggleComments" text="Toggle Comments" accelerator="Shortcut+/" />
             <SeparatorMenuItem />
-            <MenuItem fx:id="toggleCommentsMenuItem" onAction="#handleToggleComments" text="Toggle Comments" />
-            <MenuItem fx:id="indentTextMenuItem" onAction="#handleIndentText" text="Indent Text" />
-            <MenuItem fx:id="unindentTextMenuItem" onAction="#handleUnindentText" text="Unindent Text" />
-            <MenuItem fx:id="entabTextMenuItem" onAction="#handleEntab" text="Entab" />
-            <MenuItem fx:id="detabTextMenuItem" onAction="#handleDetab" text="Detab" />
-            <MenuItem fx:id="findMenuItem" onAction="#handleFind" text="Find" />
-            <MenuItem fx:id="checkWellFormedMenuItem" onAction="#handleCheckWellFormedAction" text="Check Well-Formed Groupings" />
+            <MenuItem fx:id="indentTextMenuItem" onAction="#handleIndentText" text="Indent Text" accelerator="Shortcut+}" />
+            <MenuItem fx:id="unindentTextMenuItem" onAction="#handleUnindentText" text="Unindent Text" accelerator="Shortcut+{" />
+            <MenuItem fx:id="entabTextMenuItem" onAction="#handleEntab" text="Entab" accelerator="Shortcut+}T" />
+            <MenuItem fx:id="detabTextMenuItem" onAction="#handleDetab" text="Detab" accelerator="Shortcut+{T"/>
+            <MenuItem fx:id="checkWellFormedMenuItem" onAction="#handleCheckWellFormedAction" text="Check Well-Formed Groupings" accelerator="Shortcut+Shift+(" />
         </Menu>
         <Menu fx:id="prefMenu" mnemonicParsing="false" text="Preferences">
             <MenuItem fx:id="normalModeMenuItem" mnemonicParsing="false" onAction="#handleNormalMode"
-                      text="Normal Mode" disable="true"/>
-            <MenuItem fx:id="darkModeMenuItem" mnemonicParsing="false" onAction="#handleDarkMode" text="Dark Mode"/>
-            <MenuItem fx:id="funModeMenuItem" mnemonicParsing="false" onAction="#handleFunMode" text="Fun Mode"/>
-            <MenuItem fx:id="hallowThemeItem" mnemonicParsing="false" onAction="#handleHallowThemeMode" text="HallowTheme"/>
+                      text="Normal Mode" disable="true" accelerator="Shortcut+Shift+N"/>
+            <MenuItem fx:id="darkModeMenuItem" mnemonicParsing="false" onAction="#handleDarkMode" text="Dark Mode" accelerator="Shortcut+Shift+D" />
+            <MenuItem fx:id="funModeMenuItem" mnemonicParsing="false" onAction="#handleFunMode" text="Fun Mode" accelerator="Shortcut+Shift+R"/>
+            <MenuItem fx:id="hallowThemeItem" mnemonicParsing="false" onAction="#handleHallowThemeMode" text="HallowTheme" accelerator="Shortcut+Shift+H"/>
         </Menu>
         <Menu text="Help" fx:id="helpMenu">
-            <MenuItem fx:id="javaHelpMenuItem" onAction="#handleHelpMenuItemAction"
-                      text="About Java"></MenuItem>
-            <MenuItem fx:id="urlHelpMenuItem" onAction="#handleUrlMenuItemAction"
-                      text="Reference: Open Url"></MenuItem>
+            <MenuItem fx:id="javaHelpMenuItem" onAction="#handleHelpMenuItemAction" text="About Java" accelerator="Shortcut+2"></MenuItem>
+            <MenuItem fx:id="urlHelpMenuItem" onAction="#handleUrlMenuItemAction" text="Reference: Open Url" accelerator="Shortcut+3"></MenuItem>
         </Menu>
     </MenuBar>
     <ToolBar prefHeight="40.0" prefWidth="200.0">

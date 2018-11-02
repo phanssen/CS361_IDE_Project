@@ -220,9 +220,11 @@ public class EditMenuController
         this.textField.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                ArrayList<String> matches = matchesString(newValue);
-                if(matches != null) {
-                        System.out.println(matchesString(newValue).toString());
+                ArrayList<Integer> matchIndices = matchesString(newValue);
+                if(matchIndices != null) {
+                    for (Integer index : matchIndices) {
+                        curCodeArea.setStyleClass(index, index + newValue.length(), "find");
+                    }
                 }
             }
         });
@@ -230,38 +232,27 @@ public class EditMenuController
 
     /**
      * Helper method for handleFind
-     * Iterates through codeArea to find matching text
+     * Finds matching text in the CodeArea by getting the index
+     * of the text that matches the search input.
      * @param input
-     * @return ArrayList of type String with matching text
+     * @return ArrayList of type Integer with indices of matching text
      */
 
-    public ArrayList<String> matchesString(String input) {
-        ArrayList<String> inputArray = new ArrayList<String>();
+    public ArrayList<Integer> matchesString(String input) {
+        ArrayList<Integer> inputArray = new ArrayList<Integer>();
         CodeArea curCodeArea = this.tabPane.getCurCodeArea();
 
         if(input.length() == 0) {
             return null;
         }
 
-        String myString = "";
-        int inputCount = 0;
-        for(int i = 0; i < curCodeArea.getLength(); i++) {
-            if(Character.toString(curCodeArea.getText().charAt(i)).equalsIgnoreCase(
-                    Character.toString(input.charAt(inputCount)))) {
-                inputCount++;
-                myString += Character.toString(curCodeArea.getText().charAt(i));
-                if(inputCount == input.length()) {
-                    inputArray.add(myString);
-                    inputCount = 0;
-                    myString = "";
-                }
-            }
-            else {
-                inputCount = 0;
-                myString = "";
+        if (curCodeArea.getText().contains(input)) {
+            int index = curCodeArea.getText().indexOf(input);
+            while (index != -1) {
+                inputArray.add(index);
+                index = curCodeArea.getText().indexOf(input, index + 1);
             }
         }
-
         return inputArray;
     }
 

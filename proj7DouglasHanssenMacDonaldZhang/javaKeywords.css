@@ -40,6 +40,13 @@ Date: 10/27/18
     -fx-background-color: #f2f9fc;
 }
 
+/* highlighting found words */
+.find {
+    -fx-fill: rgb(230, 4, 4);
+    -fx-font-weight: 900;
+    -fx-font-style: oblique;
+}
+
 #compileButton {
     -fx-font: 13 arial;
     -fx-base: paleTurquoise;

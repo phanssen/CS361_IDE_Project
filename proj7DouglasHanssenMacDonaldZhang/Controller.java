@@ -450,8 +450,9 @@ public class Controller
     @FXML
     private void handleCompileAction()
     {
-        this.promptCompileSave();
-        compilationController.handleCompileAction();
+        if(this.promptCompileSave()) {
+            compilationController.handleCompileAction();
+        }
     }
 
     /**
@@ -461,8 +462,9 @@ public class Controller
     @FXML
     private void handleRunAction() throws InterruptedException
     {
-        this.promptCompileSave();
-        compilationController.handleCompileAndRunAction();
+        if(this.promptCompileSave()) {
+            compilationController.handleCompileAndRunAction();
+        }
     }
 
     /**
@@ -493,15 +495,13 @@ public class Controller
      * Promts the user to save when if the current tab has not been
      * saved since the last change. If the tab has never been saved,
      * will automatically open a FileChooser window to save the file.
+     * Returns true if the user chooses to save or not to save (Yes
+     * or No buttons), returns false if the user selects Cancel.
      */
-    private void promptCompileSave() {
+    private boolean promptCompileSave() {
         // get selected tab and the code area
         Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
         CodeArea activeCodeArea = tabPane.getCurCodeArea();
-
-        // no tabs open
-        if (this.tabPane.getTabs().isEmpty())
-            return;
 
         if (this.fileMenuController.tabNeedsSaving(selectedTab)) {
             if (this.tabFileMap.get(selectedTab) == null) {
@@ -523,9 +523,10 @@ public class Controller
                 }
                 // else return if file is not saved
                 else {
-                    return;
+                    return false;
                 }
             } else {
+                // prompt user with save dialog
                 Alert alert = new Alert(
                         Alert.AlertType.CONFIRMATION,
                         "Want to save before compiling?",
@@ -540,10 +541,12 @@ public class Controller
                 // if user presses Yes button, save the file and compile
                 if (result.get() == ButtonType.YES) {
                     this.fileMenuController.saveFile(activeCodeArea.getText(), this.tabFileMap.get(selectedTab));
+                    return true;
                 } else if (result.get() == ButtonType.CANCEL) {
-                    return;
+                    return false;
                 }
             }
         }
+        return true;
     }
 }
