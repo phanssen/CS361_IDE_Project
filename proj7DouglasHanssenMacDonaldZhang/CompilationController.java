@@ -121,8 +121,7 @@ public class CompilationController
 
         this.processBuilder.command(commandInput);
 
-        this.currentProcessBuilderTask = new ProcessBuilderTask(this.processBuilder
-        );
+        this.currentProcessBuilderTask = new ProcessBuilderTask(this.processBuilder);
         this.currentThread = new Thread(this.currentProcessBuilderTask);
         //Set it as a daemon so if the app is closed and process is still running,
         // processBuilder is cancelled.

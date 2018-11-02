@@ -35,7 +35,7 @@ public class Main extends Application
     private static final int SCENE_WIDTH = 640;
     private static final int SCENE_HEIGHT = 480;
     private static final String STAGE_TITLE =
-            "Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang's Project 6";
+            "Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang's Project 7";
 
     /**
      * Takes in a stage and loads the FXML, creates the controller,

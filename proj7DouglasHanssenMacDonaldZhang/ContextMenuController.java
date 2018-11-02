@@ -65,7 +65,7 @@ public class ContextMenuController {
      */
     private void setOnShown(ContextMenu rightClickMenu, final Node node) {
         rightClickMenu.setOnShown(onShowEvent -> {
-            node.setOnMouseClicked(e -> {
+            node.setOnMouseReleased(e -> {
                 // clicking on the left button hides the context menu
                 if (e.getButton() == MouseButton.PRIMARY) {
                     rightClickMenu.hide();
