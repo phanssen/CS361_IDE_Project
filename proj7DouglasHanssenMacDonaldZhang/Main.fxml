@@ -22,7 +22,7 @@ Date: 10/27/18
 
 <?import javafx.scene.control.SplitPane?>
 <VBox fx:id="vBox" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="proj7DouglasHanssenMacDonaldZhang.Controller" stylesheets = "@javaKeywords.css">
+      fx:controller="proj7DouglasHanssenMacDonaldZhang.Controller" > <!--stylesheets = "@javaKeywords.css"-->
     <MenuBar VBox.vgrow="NEVER">
         <Menu text="File">
             <MenuItem fx:id="aboutMenuItem" onAction="#handleAboutMenuItemAction" text="About..."

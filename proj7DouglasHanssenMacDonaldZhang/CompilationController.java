@@ -48,6 +48,7 @@ public class CompilationController
     private Map<Tab, File> tabFileMap;
     private BooleanProperty isAnythingRunning;
     private BufferedWriter writer;
+    private int lastIndex = 0;
     /**
      * ByteArrayOutputstream outputStream holds user input data from the console
      */
@@ -128,10 +129,13 @@ public class CompilationController
         this.currentThread.setDaemon(true);
 
         // Adds Listeners for relevant thread properties
+
         {
             this.currentProcessBuilderTask.valueProperty().addListener(
-                    (observable, oldValue, newValue) ->
-                            this.consoleTextArea.replaceText(newValue)
+                    (observable, oldValue, newValue) -> {
+                        writeToConsole(newValue, currentProcessBuilderTask.getConsoleOutputType());
+                        //this.consoleTextArea.appendText(newValue)
+                    }
             );
             this.currentProcessBuilderTask.runningProperty().addListener(
                     (observable, oldValue, newValue) ->
@@ -169,7 +173,8 @@ public class CompilationController
             return;
 
         // wait for thread that is currently running to finish
-        this.currentThread.join();
+        //this.currentThread.join();
+
 
         // get class to prepare to run the file
         File curFile = tabFileMap.get(tabPane.getCurTab());
@@ -193,8 +198,9 @@ public class CompilationController
             this.currentProcessBuilderTask.valueProperty().addListener(
                     (observable, oldValue, newValue) ->
                     {
-                        this.consoleTextArea.replaceText(newValue);
-                        this.consoleTextArea.requestFollowCaret();
+                        writeToConsole(newValue, currentProcessBuilderTask.getConsoleOutputType());
+                        //this.consoleTextArea.appendText(newValue);
+                        //this.consoleTextArea.requestFollowCaret();
                     }
             );
             this.currentProcessBuilderTask.runningProperty().addListener(
@@ -264,8 +270,8 @@ public class CompilationController
                             this.currentProcessBuilderTask.getProcess().getOutputStream();
                     
                     String content = this.outputStream.toString() + System.lineSeparator();
-                    String consoleOutput = this.currentProcessBuilderTask.getConsoleOutput();
-                    consoleOutput += System.lineSeparator();
+                    //String consoleOutput = this.currentProcessBuilderTask.getConsoleOutput();
+                    //consoleOutput += System.lineSeparator();
 
                     if (this.writer == null)
                         this.writer = new BufferedWriter(new OutputStreamWriter(stdin));
@@ -319,5 +325,57 @@ public class CompilationController
     {
         this.isAnythingRunning.set(bool);
     }
+
+
+    /**
+     * Taken from Zeb Keith-Hardy, Mingchen Li, Iris Lian, Kevin Zhou.
+     * Docstring (except for the @param type line) is also theirs
+     * Adds a new, separate line of text to this console.
+     * Used when printing to the console.
+     * @param newString the string to add to the console
+     * @param type is the type of console message newString is. It should be "Output", "Error" or "ProcessInfo"
+     */
+    public void writeToConsole(String newString, String type){
+
+        int fromIndex = 0;
+        //int fromIndex = consoleTextArea.getText().length();
+        consoleTextArea.replaceText(newString);
+        //consoleTextArea.appendText(newString);
+        /*if(currentProcessBuilderTask.isCancelled()){
+            consoleTextArea.appendText(newString);
+        }
+        else{
+            consoleTextArea.replaceText(newString);
+        }*/
+
+        //System.out.println("1");
+        //Style the texts differently base on their source provided
+        int toIndex = consoleTextArea.getText().length();
+
+        if(type.equals("Output")) {
+            consoleTextArea.setStyleClass(0, toIndex, "output");
+        }
+        else if(type.equals("Error")){
+            consoleTextArea.setStyleClass(0, toIndex, "error");
+        }
+        else if(type.equals("ProcessInfo")){
+            consoleTextArea.setStyleClass(0, toIndex, "processInfo");
+        }
+        this.moveCaretToEnd();
+        consoleTextArea.setStyleClass(toIndex, toIndex, "default");
+    }
+
+    /**
+     * Taken from Zeb Keith-Hardy, Mingchen Li, Iris Lian, Kevin Zhou.
+     * Docstring is also theirs
+     * Moves the caret to the end of the text and moves the scroll bar to the caret position
+     */
+    private void moveCaretToEnd(){
+        int length = consoleTextArea.getText().length();
+        consoleTextArea.moveTo(length);
+        consoleTextArea.requestFollowCaret();
+    }
+
+
 
 }
