@@ -65,27 +65,20 @@ public class ProcessBuilderTask extends Task<String>
         while (this.process.isAlive())
         {
             // check if the process has been stopped
-            /*if (isCancelled()){
+            if (isCancelled()){
                 consoleOutputType = "ProcessInfo";
                 consoleOutput += "\nProcess Obliterated\n\n";
-                //updateValue(consoleOutput);
                 break;
-                //return consoleOutput;
-            }*/
+            }
 
             // check for user input and assign it to the consoleOutput variable
-            /*if(reader.readLine() != null){
-                consoleOutput += reader.readLine() +"\n";
-        }*/
             if ((readCharacter = reader.read()) != -1) {
                 consoleOutputType = "Output";
                 consoleOutput += Character.toString((char)readCharacter);
-                //System.out.println("X");
             }
 
             //If you use an if, then the output won't print
             else if((errCharacter = errorReader.read()) != -1){
-                System.out.println("Error");
                 consoleOutput+= Character.toString((char)errCharacter);
                 //Have to add char and the line together because for some reason,
                  //it doesn't process the rest of the line in the loop so it won't print after the first char
@@ -130,19 +123,11 @@ public class ProcessBuilderTask extends Task<String>
 
     public String getConsoleOutputType(){ return consoleOutputType;}
 
-    protected void cancelled(){
+    protected void cancelled() {
         super.cancelled();
-        System.out.println("Canceling");
         consoleOutputType = "ProcessInfo";
         consoleOutput = "\nProcess Obliterated\n\n"; //Not concatenation because then everything before goes green too
-        process.destroy();
-        //process.destroyForcibly();
-        /*try{
-            process.waitFor();
-            process.destroy();}
-        catch(InterruptedException e){
-            System.out.println("Blah");
-        }*/
+        this.process.destroy();
     }
 }
 

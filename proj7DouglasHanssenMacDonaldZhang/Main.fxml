@@ -56,7 +56,7 @@ Date: 10/27/18
             <MenuItem fx:id="copyMenuItem" onAction="#handleCopyMenuItemAction" text="Copy" accelerator="Shortcut+C" />
             <MenuItem fx:id="pasteMenuItem" onAction="#handlePasteMenuItemAction" text="Paste" accelerator="Shortcut+V" />
             <MenuItem fx:id="selectAllMenuItem" onAction="#handleSelectAllMenuItemAction" text="Select all" accelerator="Shortcut+A" />
-            <MenuItem fx:id="toggleCommentsMenuItem" onAction="#handleToggleComments" text="Toggle Comments" accelerator="Shortcut+/" />
+            <MenuItem fx:id="toggleCommentsMenuItem" onAction="#handleToggleCommenting" text="Toggle Comments" accelerator="Shortcut+/" />
             <SeparatorMenuItem />
             <MenuItem fx:id="indentTextMenuItem" onAction="#handleIndentText" text="Indent Text" accelerator="Shortcut+}" />
             <MenuItem fx:id="unindentTextMenuItem" onAction="#handleUnindentText" text="Unindent Text" accelerator="Shortcut+{" />

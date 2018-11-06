@@ -172,10 +172,6 @@ public class CompilationController
         if (!this.handleCompileAction())
             return;
 
-        // wait for thread that is currently running to finish
-        //this.currentThread.join();
-
-
         // get class to prepare to run the file
         File curFile = tabFileMap.get(tabPane.getCurTab());
         String filename = curFile.getName();
@@ -225,7 +221,6 @@ public class CompilationController
         // start the thread
         this.currentThread.start();
     }
-
 
     /**
      * Handles the canceling of the current process
@@ -338,18 +333,7 @@ public class CompilationController
     public void writeToConsole(String newString, String type){
 
         int fromIndex = 0;
-        //int fromIndex = consoleTextArea.getText().length();
         consoleTextArea.replaceText(newString);
-        //consoleTextArea.appendText(newString);
-        /*if(currentProcessBuilderTask.isCancelled()){
-            consoleTextArea.appendText(newString);
-        }
-        else{
-            consoleTextArea.replaceText(newString);
-        }*/
-
-        //System.out.println("1");
-        //Style the texts differently base on their source provided
         int toIndex = consoleTextArea.getText().length();
 
         if(type.equals("Output")) {

@@ -146,10 +146,7 @@ public class ContextMenuController {
         SelectAllItem.setOnAction(e -> javaCodeArea.selectAll());
 
         MenuItem ToggleCommentItem = new MenuItem("Toggle Comment");
-        ToggleCommentItem.setOnAction(e -> this.editMenuController.handleToggleComments());
-
-        // MenuItem ToggleBlockCommentItem = new MenuItem("Toggle Block Comment");
-        // ToggleBlockCommentItem.setOnAction(e -> this.editMenuController.handleToggleBlockCommentAction());
+        ToggleCommentItem.setOnAction(e -> this.editMenuController.handleToggleCommenting(javaCodeArea));
 
         MenuItem indentItem = new MenuItem("Indent");
         indentItem.setOnAction(e -> this.editMenuController.handleIndentText());
