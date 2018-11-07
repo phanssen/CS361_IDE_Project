@@ -14,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.TabPane;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.Selection;
 
 import javax.xml.soap.Text;
 import java.util.TooManyListenersException;
@@ -100,59 +101,43 @@ public class EditMenuController
         tabPane.getCurCodeArea().selectAll();
     }
 
-
     /**
-     * Comments out highlighted code if not yet commented out and uncomments it if it's commented out
-     * Behavior generally modelled off of Toggle Block Comment in SublimeText
-     * If highlighted text has multiline /*, removes beginning and closing /*
-     * This includes if /* is in the middle of the highlighted text block and not the beginning and end
-     * If every line has single line comment "//", removes // from every line
-     * Else, adds multiline comments in style of "/*" to beginning and end of text
-     * Does not handle /** style comments because that's usually documentation and
-     * documentation shouldn't be toggled
+     * Handles commenting and uncommenting of the selected text in the code area
+     * @param selectedCodeArea
      */
-    public void handleToggleComments() {
+    public void handleToggleCommenting(CodeArea selectedCodeArea)
+    {
+        // get the start paragraph and the end paragraph of the selection
+        Selection<?, ?, ?> selection = selectedCodeArea.getCaretSelectionBind();
+        int startIdx = selection.getStartParagraphIndex();
+        int endIdx = selection.getEndParagraphIndex();
 
-        CodeArea curCodeArea = tabPane.getCurCodeArea();
-        String selectedText = tabPane.getCurCodeArea().getSelectedText();
-
-        //Pattern for /* */ with any character (including whitespace) any number of times in between
-        Pattern commentPattern = Pattern.compile("(/\\*)[\\s\\S]*(\\*/)");
-
-        Matcher matcher = commentPattern.matcher(Pattern.quote(selectedText));
-
-        //Not using String.matches() because it doesn't account for a section where the
-        //commented code is in the middle
-        // of the highlighted selection.
-        //If highlighted text contains /* and */ in that order:
-        if( matcher.find() ){
-            //Replace /* and */ with empty space.
-            String uncommentedText = selectedText.replace("/*", "");
-            uncommentedText = uncommentedText.replace("*/", "");
-            curCodeArea.replaceSelection(uncommentedText);
-
+        // If there is one line that is not commented in the selected paragraphs,
+        // comment all selected paragraphs.
+        boolean shouldComment = false;
+        for (int lineNum = startIdx; lineNum <= endIdx; lineNum++)
+        {
+            if (!(selectedCodeArea.getParagraph(lineNum).getText().startsWith("//")))
+            {
+                shouldComment = true;
+            }
         }
 
-        else{
-            //If every line in the block has // at the beginning
-            String[] selectedTextByLine = selectedText.split("/n");
-            boolean commentedOut = true;
-            for(int i = 0; i < selectedTextByLine.length; i++){
-                if(! ("//").equals( selectedTextByLine[i].trim().substring(0, 2) ) ){
-                    commentedOut = false;
-                    break;
-                }
+        // If we should comment all paragraphs, comment all paragraphs.
+        // If all selected the paragraphs are commented,
+        // uncomment the selected paragraphs.
+        if (shouldComment)
+        {
+            for (int lineNum = startIdx; lineNum <= endIdx; lineNum++)
+            {
+                selectedCodeArea.insertText(lineNum, 0, "//");
             }
-            //Then remove all the //
-            if(commentedOut){
-                String uncommentedText = selectedText.replace("//", "");
-                curCodeArea.replaceSelection(uncommentedText);
-
-            }
-
-            else{ //In all other cases, put /* at beginning and */ at end of selection
-                curCodeArea.replaceSelection("/*" + selectedText + "*/");
-
+        }
+        else
+        {
+            for (int lineNum = startIdx; lineNum <= endIdx; lineNum++)
+            {
+                selectedCodeArea.deleteText(lineNum, 0, lineNum, 2);
             }
         }
     }

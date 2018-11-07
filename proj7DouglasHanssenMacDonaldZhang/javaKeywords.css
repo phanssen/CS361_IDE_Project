@@ -74,3 +74,29 @@ Date: 10/27/18
     -fx-border-color: black;
     -fx-background-color: black;
 }
+
+
+
+.output{
+    -fx-fill: blue;
+}
+
+.error{
+    -fx-fill: red;
+}
+
+.processInfo{
+    -fx-fill: green;
+}
+
+.default{
+    -fx-fill: black;
+}
+
+.code-area .lineno .text{
+    -fx-fill: black;
+}
+
+#console .caret{
+    -fx-stroke: black;
+}

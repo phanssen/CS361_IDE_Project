@@ -399,36 +399,54 @@ public class Controller
         }
     }
 
+    /**
+     * Calls the handle toggle commenting method from edit menu controller
+     */
     @FXML
-    private void handleToggleComments()
+    private void handleToggleCommenting()
     {
-        editMenuController.handleToggleComments();
+        editMenuController.handleToggleCommenting(this.tabPane.getCurCodeArea());
     }
 
+    /**
+     * Calls the indent text method from edit menu controller
+     */
     @FXML
     private void handleIndentText()
     {
         editMenuController.handleIndentText();
     }
-
+    
+    /**
+     * Calls the unindent text method from edit menu controller
+     */
     @FXML
     private void handleUnindentText()
     {
         editMenuController.handleUnindentText();
     }
 
+    /**
+     * Calls the handle entab method from edit menu controller
+     */
     @FXML
     private void handleEntab()
     {
         editMenuController.handleEntab();
     }
 
+    /**
+     * Calls the handle detab method from edit menu controller
+     */
     @FXML
     private void handleDetab()
     {
         editMenuController.handleDetab();
     }
 
+    /**
+     * Calls the handle find method from edit menu controller
+     */
     @FXML
     private void handleFind() {
         editMenuController.handleFind();
@@ -471,7 +489,7 @@ public class Controller
      * Handles stopping the program running
      */
     @FXML
-    private void handleHaltAction()
+    private void handleHaltAction() throws InterruptedException
     {
         compilationController.handleHaltAction();
     }
@@ -486,6 +504,9 @@ public class Controller
         compilationController.handleOnKeyPressedAction(keyEvent);
     }
 
+    /**
+     * Calls the handle check well formed method from edit menu controller
+     */
     @FXML
     public void handleCheckWellFormedAction() {
         tabPane.handleCheckWellFormed();

@@ -48,7 +48,7 @@ public class Main extends Application
     {
         // load the fxml file to create the stage and get the root
         FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("Main.fxml"));
+                getClass().getResource("/proj7DouglasHanssenMacDonaldZhang/Main.fxml"));
         Parent root = loader.load();
 
         // set controller and stage
