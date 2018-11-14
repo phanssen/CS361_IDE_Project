@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+File: Main.fxml
+CS361 Project 6
+Names:  Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
+Date: 10/27/18
+-->
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import org.fxmisc.richtext.StyleClassedTextArea?>
+<?import javafx.scene.control.Separator?>
+
+<?import javafx.scene.control.SplitPane?>
+<VBox fx:id="vBox" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="proj8DouglasHanssenMacDonaldZhang.Controller" stylesheets = "@javaKeywords.css">
+    <MenuBar VBox.vgrow="NEVER">
+        <Menu text="File">
+            <MenuItem fx:id="aboutMenuItem" onAction="#handleAboutMenuItemAction" text="About..."
+                      accelerator="Shortcut+I"/>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="newMenuItem" onAction="#handleNewMenuItemAction" text="New"
+                      accelerator="Shortcut+N" />
+            <MenuItem fx:id="openMenuItem" onAction="#handleOpenMenuItemAction" text="Open..."
+                      accelerator="Shortcut+O" />
+            <MenuItem fx:id="closeMenuItem" onAction="#handleCloseMenuItemAction" text="Close"
+                      accelerator="Shortcut+W" />
+            <MenuItem fx:id="saveMenuItem" onAction="#handleSaveMenuItemAction" text="Save"
+                      accelerator="Shortcut+S" />
+            <MenuItem fx:id="saveAsMenuItem" onAction="#handleSaveAsMenuItemAction" text="Save as...">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="S" control="UP" meta="DOWN" shift="DOWN" shortcut="UP"/>
+                </accelerator>
+            </MenuItem>
+            <MenuItem fx:id="findMenuItem" onAction="#handleFind" text="Find" accelerator="Shortcut+F" />
+            <SeparatorMenuItem />
+            <MenuItem fx:id="exitMenuItem" onAction="#handleExitMenuItemAction" text="Exit">
+                <accelerator>
+                    <KeyCodeCombination alt="UP" code="Q" control="UP" meta="DOWN" shift="UP" shortcut="UP"/>
+                </accelerator>
+            </MenuItem>
+        </Menu>
+        <Menu text="Edit">
+            <MenuItem fx:id="undoMenuItem" onAction="#handleUndoMenuItemAction" text="Undo" accelerator="Shortcut+Z" />
+            <MenuItem fx:id="redoMenuItem" onAction="#handleRedoMenuItemAction" text="Redo" accelerator="Shortcut+Y" />
+            <MenuItem fx:id="cutMenuItem" onAction="#handleCutMenuItemAction" text="Cut" accelerator="Shortcut+X" />
+            <MenuItem fx:id="copyMenuItem" onAction="#handleCopyMenuItemAction" text="Copy" accelerator="Shortcut+C" />
+            <MenuItem fx:id="pasteMenuItem" onAction="#handlePasteMenuItemAction" text="Paste" accelerator="Shortcut+V" />
+            <MenuItem fx:id="selectAllMenuItem" onAction="#handleSelectAllMenuItemAction" text="Select all" accelerator="Shortcut+A" />
+            <MenuItem fx:id="toggleCommentsMenuItem" onAction="#handleToggleComments" text="Toggle Comments" accelerator="Shortcut+/" />
+            <SeparatorMenuItem />
+            <MenuItem fx:id="indentTextMenuItem" onAction="#handleIndentText" text="Indent Text" accelerator="Shortcut+}" />
+            <MenuItem fx:id="unindentTextMenuItem" onAction="#handleUnindentText" text="Unindent Text" accelerator="Shortcut+{" />
+            <MenuItem fx:id="entabTextMenuItem" onAction="#handleEntab" text="Entab" accelerator="Shortcut+}T" />
+            <MenuItem fx:id="detabTextMenuItem" onAction="#handleDetab" text="Detab" accelerator="Shortcut+{T"/>
+            <MenuItem fx:id="checkWellFormedMenuItem" onAction="#handleCheckWellFormedAction" text="Check Well-Formed Groupings" accelerator="Shortcut+Shift+(" />
+        </Menu>
+        <Menu fx:id="prefMenu" mnemonicParsing="false" text="Preferences">
+            <MenuItem fx:id="normalModeMenuItem" mnemonicParsing="false" onAction="#handleNormalMode"
+                      text="Normal Mode" disable="true" accelerator="Shortcut+Shift+N"/>
+            <MenuItem fx:id="darkModeMenuItem" mnemonicParsing="false" onAction="#handleDarkMode" text="Dark Mode" accelerator="Shortcut+Shift+D" />
+            <MenuItem fx:id="funModeMenuItem" mnemonicParsing="false" onAction="#handleFunMode" text="Fun Mode" accelerator="Shortcut+Shift+R"/>
+            <MenuItem fx:id="hallowThemeItem" mnemonicParsing="false" onAction="#handleHallowThemeMode" text="HallowTheme" accelerator="Shortcut+Shift+H"/>
+        </Menu>
+        <Menu text="Help" fx:id="helpMenu">
+            <MenuItem fx:id="javaHelpMenuItem" onAction="#handleHelpMenuItemAction" text="About Java" accelerator="Shortcut+2"></MenuItem>
+            <MenuItem fx:id="urlHelpMenuItem" onAction="#handleUrlMenuItemAction" text="Reference: Open Url" accelerator="Shortcut+3"></MenuItem>
+        </Menu>
+    </MenuBar>
+    <ToolBar prefHeight="40.0" prefWidth="200.0">
+        <items>
+            <Button fx:id="compileButton" text="Compile" onAction="#handleCompileAction"/>
+            <Button fx:id="compileAndRunButton" mnemonicParsing="false" text="Compile &amp; Run"
+                    onAction="#handleRunAction"/>
+            <Button fx:id="haltButton" mnemonicParsing="false" text="Halt" onAction="#handleHaltAction"/>
+            <TextField fx:id="findTextField" visible="false"></TextField>
+        </items>
+    </ToolBar>
+    <SplitPane orientation="VERTICAL" VBox.vgrow="ALWAYS" fx:id = "splitPane" >
+        <StyleClassedTextArea fx:id="consoleTextArea" showCaret="ON" onKeyTyped="#handleOnKeyPressedAction">
+        </StyleClassedTextArea>
+    </SplitPane>
+</VBox>
