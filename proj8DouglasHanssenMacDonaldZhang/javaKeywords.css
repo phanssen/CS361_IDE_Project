@@ -1,0 +1,76 @@
+/*
+File: javaKeywords.css
+CS361 Project 6
+Names:  Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
+Date: 10/27/18
+*/
+
+.keyword {
+    -fx-fill: purple;
+    -fx-font-weight: bold;
+}
+.semicolon {
+    -fx-font-weight: bold;
+}
+.paren {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.bracket {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.brace {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.string {
+    -fx-fill: blue;
+}
+
+.comment {
+	-fx-fill: cadetblue;
+}
+
+.intconst {
+    -fx-fill: firebrick;
+}
+
+.paragraph-box:has-caret {
+    -fx-background-color: #f2f9fc;
+}
+
+/* highlighting found words */
+.find {
+    -fx-fill: rgb(230, 4, 4);
+    -fx-font-weight: 900;
+    -fx-font-style: oblique;
+}
+
+#compileButton {
+    -fx-font: 13 arial;
+    -fx-base: paleTurquoise;
+    -fx-background-radius: 100;
+}
+
+#compileAndRunButton {
+    -fx-font: 13 arial;
+    -fx-base: PaleGreen;
+    -fx-background-radius: 100;
+}
+
+#haltButton {
+    -fx-font: 13 arial;
+    -fx-base: lightpink;
+    -fx-background-radius: 100;
+}
+
+#consoleTextArea {
+    -fx-background-color: #FFF0F5;
+    -fx-border-color: #000000;
+}
+
+#separator {
+    -fx-border-color: black;
+    -fx-background-color: black;
+}
