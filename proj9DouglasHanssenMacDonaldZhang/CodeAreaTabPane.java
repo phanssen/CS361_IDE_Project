@@ -55,8 +55,7 @@ public class CodeAreaTabPane extends TabPane {
     }
 
     /*
-     *
-     * 
+     * Check for any missing braces, brackets or parentheses
      */
     public void handleCheckWellFormed() {
         CodeArea activeCodeArea = this.getCurCodeArea();
