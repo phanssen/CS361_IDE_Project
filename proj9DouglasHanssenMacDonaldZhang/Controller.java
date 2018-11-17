@@ -8,7 +8,6 @@ Date: 10/27/18
 package proj9DouglasHanssenMacDonaldZhang;
 
 import proj9DouglasHanssenMacDonaldZhang.Controllers.*;
-import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
 
 
 import java.io.File;
@@ -29,6 +28,8 @@ import javafx.stage.Stage;
 
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.StyleClassedTextArea;
+import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
+import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
 
 /**
  * Controller is the main controller for the application.
@@ -80,7 +81,8 @@ public class Controller
 
     private CodeAreaTabPane tabPane;
     private Map<Tab, File> tabFileMap;
-    private Scanner scanner;
+    private ErrorHandler errorHandler = new ErrorHandler(); //TODO find a better place for this
+    private Scanner scanner = new Scanner(errorHandler);
 
     // All the sub-controller items (found in Controllers package)
     private FileMenuController fileMenuController;
