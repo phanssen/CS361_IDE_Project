@@ -8,8 +8,11 @@ Date: 10/27/18
 package proj9DouglasHanssenMacDonaldZhang;
 
 import proj9DouglasHanssenMacDonaldZhang.Controllers.*;
+import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
+
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Optional;
@@ -77,6 +80,7 @@ public class Controller
 
     private CodeAreaTabPane tabPane;
     private Map<Tab, File> tabFileMap;
+    private Scanner scanner;
 
     // All the sub-controller items (found in Controllers package)
     private FileMenuController fileMenuController;
@@ -129,7 +133,7 @@ public class Controller
         fileMenuController = new FileMenuController(this.tabPane, this.primaryStage, this.tabFileMap);
         editMenuController = new EditMenuController(this.tabPane, this.findTextField);
         helpMenuController = new HelpMenuController();
-        toolbarController = new ToolbarController(this.scanButton);
+        toolbarController = new ToolbarController(this.scanButton, this.scanner);
 
         this.tabFileMap = fileMenuController.tabFileMap;
         this.setupContextMenuController();
@@ -450,9 +454,10 @@ public class Controller
      * Scan file and break into tokens
      */
     @FXML
-    private void handleScan() {
+    private void handleScan() throws IOException {
         // call scan from Scanner
         System.out.println("Scanning!");
+        scanner.scan();
     }
 
     /**

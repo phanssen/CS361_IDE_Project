@@ -6,16 +6,25 @@ Date: 11/14/18
 */
 package proj9DouglasHanssenMacDonaldZhang.Controllers;
 import proj9DouglasHanssenMacDonaldZhang.*;
+import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
 
 import javafx.scene.control.*;
 
+import java.io.IOException;
+
 public class ToolbarController {
     Button scanButton;
+    Scanner scanner;
 
     //constructor method
-    public ToolbarController(Button scanButton) {
+    public ToolbarController(Button scanButton, Scanner scanner) {
         this.scanButton = scanButton;
+        this.scanner = scanner;
     }
+
+//    public void handlescanButton() throws IOException {
+//        scanner.scan();
+//    }
 
     // scan control
 }
