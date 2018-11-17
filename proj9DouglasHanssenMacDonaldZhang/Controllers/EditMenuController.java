@@ -8,20 +8,14 @@ Date: 10/27/18
 package proj9DouglasHanssenMacDonaldZhang.Controllers;
 import proj9DouglasHanssenMacDonaldZhang.*;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventType;
 import javafx.scene.control.*;
 import javafx.scene.control.TabPane;
-import org.fxmisc.flowless.VirtualizedScrollPane;
+import javafx.scene.input.KeyCode;
 import org.fxmisc.richtext.CodeArea;
-
 import javax.xml.soap.Text;
-import java.util.TooManyListenersException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
-import javafx.stage.Window;
 
 /**
  * This class handles the Edit menu, as a helper to the main Controller.
@@ -212,21 +206,31 @@ public class EditMenuController
 
     /**
      * Finds text in the current code area that matches the text in the
-     * textField
+     * textField. Is case-sensitive.
      */
     public void handleFind() {
         CodeArea curCodeArea = this.tabPane.getCurCodeArea();
         this.textField.setVisible(true);
         this.textField.requestFocus();
-        this.textField.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                ArrayList<Integer> matchIndices = matchesString(newValue);
+        this.textField.setOnKeyPressed(keyEvent -> {
+            KeyCode keyCode = keyEvent.getCode();
+            String searchedText = this.textField.getText();
+
+            // check for enter key and find search results
+            if(keyCode.equals(KeyCode.ENTER)) {
+                resetHighlighting(curCodeArea);
+
+                ArrayList<Integer> matchIndices = this.matchesString(searchedText);
                 if(matchIndices != null) {
                     for (Integer index : matchIndices) {
-                        curCodeArea.setStyleClass(index, index + newValue.length(), "find");
+                        curCodeArea.setStyleClass(index, index + searchedText.length(), "find");
                     }
                 }
+            }
+            // check if the search field is empty, reset text
+            // this currently is delayed by one character
+            if(searchedText.trim().isEmpty()) {
+                resetHighlighting(curCodeArea);
             }
         });
     }
@@ -238,8 +242,7 @@ public class EditMenuController
      * @param input
      * @return ArrayList of type Integer with indices of matching text
      */
-
-    public ArrayList<Integer> matchesString(String input) {
+    private ArrayList<Integer> matchesString(String input) {
         ArrayList<Integer> inputArray = new ArrayList<Integer>();
         CodeArea curCodeArea = this.tabPane.getCurCodeArea();
 
@@ -255,6 +258,17 @@ public class EditMenuController
             }
         }
         return inputArray;
+    }
+
+    /**
+     * Reset highlighting for current code area
+     * @param curCodeArea is the current code area being viewed in the tab pane
+     */
+    private void resetHighlighting(CodeArea curCodeArea) {
+        // reset the highlighting
+        curCodeArea.setStyleClass(0, curCodeArea.getText().length(), "reset-found-words");
+        // re-compute the text styling, because it gets removed when found words is reset
+        curCodeArea.setStyleSpans(0, JavaCodeArea.computeHighlighting(curCodeArea.getText()));
     }
 
     /**

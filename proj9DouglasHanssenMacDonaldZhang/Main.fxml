@@ -66,7 +66,7 @@ Date: 10/27/18
         </Menu>
         <Menu fx:id="prefMenu" mnemonicParsing="false" text="Preferences">
             <MenuItem fx:id="normalModeMenuItem" mnemonicParsing="false" onAction="#handleNormalMode"
-                      text="Normal Mode" disable="true" accelerator="Shortcut+Shift+N"/>
+                      text="Normal Mode" accelerator="Shortcut+Shift+N"/>
             <MenuItem fx:id="darkModeMenuItem" mnemonicParsing="false" onAction="#handleDarkMode" text="Dark Mode" accelerator="Shortcut+Shift+D" />
             <MenuItem fx:id="funModeMenuItem" mnemonicParsing="false" onAction="#handleFunMode" text="Fun Mode" accelerator="Shortcut+Shift+R"/>
             <MenuItem fx:id="hallowThemeItem" mnemonicParsing="false" onAction="#handleHallowThemeMode" text="HallowTheme" accelerator="Shortcut+Shift+H"/>

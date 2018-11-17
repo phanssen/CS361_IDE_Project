@@ -103,7 +103,7 @@ public class JavaCodeArea extends CodeArea {
      *
      * @param text a string analyzed for proper syntax highlighting
      */
-    private static StyleSpans<Collection<String>> computeHighlighting(String text) {
+    public static StyleSpans<Collection<String>> computeHighlighting(String text) {
         Matcher matcher = PATTERN.matcher(text);
         int lastKwEnd = 0;
         StyleSpansBuilder<Collection<String>> spansBuilder
