@@ -53,7 +53,7 @@ public class Scanner
         boolean commentOpen = false;
         String filename;
         try {
-            Reader reader = new BufferedReader(new FileReader("/Users/macdonaldw15/Documents/CS361/Projects/Project9/proj9DouglasHanssenMacDonaldZhang/A.java"));
+            Reader reader = new BufferedReader(new FileReader("/Users/paigehanssen/Repos/CS361_IDE_Project/proj9DouglasHanssenMacDonaldZhang/A.java"));
 
             int count = 1;
             int c;

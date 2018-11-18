@@ -83,6 +83,7 @@ public class Controller
     private Map<Tab, File> tabFileMap;
     private ErrorHandler errorHandler = new ErrorHandler(); //TODO find a better place for this
     private Scanner scanner = new Scanner(errorHandler);
+    // private Scanner scanner = new Scanner(this.tabPane.)
 
     // All the sub-controller items (found in Controllers package)
     private FileMenuController fileMenuController;
@@ -433,13 +434,11 @@ public class Controller
     }
 
     /**
-     * Scan file and break into tokens
+     * Handles scanning
      */
     @FXML
     private void handleScan() throws IOException {
-        // call scan from Scanner
-        System.out.println("Scanning!");
-        scanner.scan();
+        this.toolbarController.handleScanButton();
     }
 
     /**
