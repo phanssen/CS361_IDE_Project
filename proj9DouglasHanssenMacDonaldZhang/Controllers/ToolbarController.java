@@ -22,9 +22,9 @@ public class ToolbarController {
         this.scanner = scanner;
     }
 
-//    public void handlescanButton() throws IOException {
-//        scanner.scan();
-//    }
+    public void handleScanButton() throws IOException {
+        scanner.scan();
+    }
 
     // scan control
 }
