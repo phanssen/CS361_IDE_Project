@@ -14,44 +14,34 @@
     -fx-base: #3399ff;
     -fx-background-radius: 100;
 }
-
 #tabPane {
     -pref-height: 200px;
     -pref-width: 200px;
 }
-
 #console{
      -fx-background-color: #247D03;
 }
-
 .menu-item{
     -fx-background-color: #57534E;
 }
-
 .menu-bar{
     -fx-background-color: #57534E;
 }
-
 .tab-pane{
     -fx-background-image: url(../pictures/pumpkin.jpg)
 }
-
 .tab{
     -fx-background-color: #DF7802;
 }
-
 .code-area{
     -fx-background-color: #DF7802;
 }
-
 .tool-bar{
     -fx-background-color:#247D03;
 }
 .text{
     -fx-fill: white;
 }
-
-
 .keyword {
     -fx-fill: #9966ff;
     -fx-font-weight: bold;
@@ -74,22 +64,18 @@
 .string {
     -fx-fill: #008ae6;
 }
-
 .comment {
     -fx-fill: cadetblue;
 }
-
 .intconst {
     -fx-fill: #037D44;
 }
 .paragraph-box:has-caret {
     -fx-background-color: #595959;
 }
-
 .lineno{
     -fx-background-color: #262626;
 }
-
 #errorLine{
     -fx-fill: red;
 }

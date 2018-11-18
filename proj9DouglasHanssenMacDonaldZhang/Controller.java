@@ -349,7 +349,6 @@ public class Controller
     @FXML
     public void handleNormalMode(){
         vBox.getStylesheets().remove(vBox.getStylesheets().size()-1);
-        enableUnselectedThemes(normalModeMenuItem);
     }
 
     /**
@@ -378,25 +377,6 @@ public class Controller
             vBox.getStylesheets().remove(vBox.getStylesheets().size()-1);
         }
         vBox.getStylesheets().add(themeCSS);
-        enableUnselectedThemes(menuItem);
-    }
-
-    /**
-     * Enables the menu items of themes that aren't currently used and
-     * disables the menu item of the theme that is currently on
-     * display
-     *
-     * @param menItem the menu item that needs to be disabled
-     */
-    private void enableUnselectedThemes(MenuItem menItem){
-        for(MenuItem item: prefMenu.getItems()){
-            if(!item.equals(menItem)){
-                item.setDisable(false);
-            }
-            else{
-                item.setDisable(true);
-            }
-        }
     }
 
     /**
@@ -476,6 +456,6 @@ public class Controller
      */
     @FXML
     public void handleCheckWellFormedAction() {
-        tabPane.handleCheckWellFormed();
+        this.editMenuController.handleCheckWellFormed();
     }
 }

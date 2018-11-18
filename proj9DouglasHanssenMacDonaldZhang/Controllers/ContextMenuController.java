@@ -19,6 +19,7 @@ import javafx.scene.control.SeparatorMenuItem;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
+import org.fxmisc.richtext.CodeArea;
 
 /**
  * ContextMenu Controller, handling context menu related actions.
@@ -112,9 +113,9 @@ public class ContextMenuController {
      * After the context menu pops up, left mouse click will make the context menu disappear;
      * right mouse click will move the context menu to the location of the mouse click.
      *
-     * @param javaCodeArea JavaCodeArea being clicked on
+     * @param javaCodeArea the CodeArea being clicked on
      */
-    public void setupJavaCodeAreaContextMenuHandler(JavaCodeArea javaCodeArea) {
+    public void setupJavaCodeAreaContextMenuHandler(CodeArea javaCodeArea) {
         ContextMenu rightClickMenu = new ContextMenu();
 
         MenuItem UndoItem = new MenuItem("Undo");

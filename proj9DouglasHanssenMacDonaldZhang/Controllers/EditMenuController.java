@@ -8,20 +8,14 @@ Date: 10/27/18
 package proj9DouglasHanssenMacDonaldZhang.Controllers;
 import proj9DouglasHanssenMacDonaldZhang.*;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventType;
 import javafx.scene.control.*;
 import javafx.scene.control.TabPane;
-import org.fxmisc.flowless.VirtualizedScrollPane;
+import javafx.scene.input.KeyCode;
 import org.fxmisc.richtext.CodeArea;
-
 import javax.xml.soap.Text;
-import java.util.TooManyListenersException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
-import javafx.stage.Window;
 
 /**
  * This class handles the Edit menu, as a helper to the main Controller.
@@ -100,7 +94,6 @@ public class EditMenuController
     {
         tabPane.getCurCodeArea().selectAll();
     }
-
 
     /**
      * Comments out highlighted code if not yet commented out and uncomments it if it's commented out
@@ -185,7 +178,6 @@ public class EditMenuController
         curCodeArea.replaceSelection(selectedTextUnTabbed);
     }
 
-
     /*
     * Each section of four spaces in the highlighted text become a tab
     */
@@ -195,7 +187,6 @@ public class EditMenuController
         String selectedTextEntabbed = selectedText.replace("    ", "\t");
         curCodeArea.replaceSelection(selectedTextEntabbed);
     }
-
 
     /*
      * Each tab in the highlighted text becomes four spaces
@@ -210,23 +201,87 @@ public class EditMenuController
 
     }
 
+    /*
+     * Check for any missing braces, brackets or parentheses
+     */
+    public void handleCheckWellFormed() {
+        // get the text of the current codeArea
+        String text = this.tabPane.getCurCodeArea().getText();
+        // now go through the text to check if it is malformed
+        long nOpenBraces = text.chars().filter(ch -> ch == '{').count();
+        long nCloseBraces= text.chars().filter(ch -> ch == '}').count();
+        long nOpenParens = text.chars().filter(ch -> ch == '(').count();
+        long nCloseParens = text.chars().filter(ch -> ch == ')').count();
+        long nOpenBrackets = text.chars().filter(ch -> ch == '[').count();
+        long nCloseBrackets = text.chars().filter(ch -> ch == ']').count();
+        String bracesMessage;
+        String parensMessage;
+        String bracketsMessage;
+        // determine if brackets are well formed
+        if (nOpenBraces > nCloseBraces) {
+            bracesMessage = "Missing " + (nOpenBraces - nCloseBraces) + " close braces\n";
+        }
+        else if (nOpenBraces < nCloseBraces) {
+            bracesMessage = "Missing " + (nCloseBraces - nOpenBraces) + " open braces\n";
+        }
+        else {
+            bracesMessage = "Braces are well formed\n";
+        }
+        // determine if parenthesis are well formed
+        if (nOpenParens > nCloseParens) {
+            parensMessage = "Missing " + (nOpenParens - nCloseParens) + " close parenthesis\n";
+        }
+        else if (nOpenParens < nCloseParens) {
+            parensMessage = "Missing " + (nCloseParens - nOpenParens) + " open parenthesis\n";
+        }
+        else {
+            parensMessage = "Parenthesis are well formed\n";
+        }
+        // determine if brackets are well formed
+        if (nOpenBrackets > nCloseBrackets) {
+            bracketsMessage = "Missing " + (nOpenBrackets - nCloseBrackets) + " close brackets\n";
+        }
+        else if (nOpenBrackets < nCloseBrackets) {
+            bracketsMessage = "Missing " + (nCloseBrackets - nOpenBrackets) + " open brackets\n";
+        }
+        else {
+            bracketsMessage = "Brackets are well formed\n";
+        }
+        // show messages
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Code formation report");
+        alert.setHeaderText("Checking brackets, parentheses and braces");
+        alert.setContentText(bracesMessage + parensMessage + bracketsMessage);
+        alert.showAndWait();
+    }
+
     /**
      * Finds text in the current code area that matches the text in the
-     * textField
+     * textField. Is case-sensitive.
      */
     public void handleFind() {
         CodeArea curCodeArea = this.tabPane.getCurCodeArea();
         this.textField.setVisible(true);
         this.textField.requestFocus();
-        this.textField.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                ArrayList<Integer> matchIndices = matchesString(newValue);
+        this.textField.setOnKeyPressed(keyEvent -> {
+            KeyCode keyCode = keyEvent.getCode();
+            String searchedText = this.textField.getText();
+
+            // check for enter key and find search results
+            if(keyCode.equals(KeyCode.ENTER)) {
+                resetHighlighting(curCodeArea);
+
+                ArrayList<Integer> matchIndices = this.matchesString(searchedText);
                 if(matchIndices != null) {
                     for (Integer index : matchIndices) {
-                        curCodeArea.setStyleClass(index, index + newValue.length(), "find");
+                        curCodeArea.setStyleClass(index, index + searchedText.length(), "find");
                     }
                 }
+            }
+            // check if the search field is empty, reset text
+            // this currently is delayed by one character
+            if(searchedText.trim().isEmpty()) {
+                resetHighlighting(curCodeArea);
             }
         });
     }
@@ -238,8 +293,7 @@ public class EditMenuController
      * @param input
      * @return ArrayList of type Integer with indices of matching text
      */
-
-    public ArrayList<Integer> matchesString(String input) {
+    private ArrayList<Integer> matchesString(String input) {
         ArrayList<Integer> inputArray = new ArrayList<Integer>();
         CodeArea curCodeArea = this.tabPane.getCurCodeArea();
 
@@ -255,6 +309,17 @@ public class EditMenuController
             }
         }
         return inputArray;
+    }
+
+    /**
+     * Reset highlighting for current code area
+     * @param curCodeArea is the current code area being viewed in the tab pane
+     */
+    private void resetHighlighting(CodeArea curCodeArea) {
+        // reset the highlighting
+        curCodeArea.setStyleClass(0, curCodeArea.getText().length(), "reset-found-words");
+        // re-compute the text styling, because it gets removed when found words is reset
+        curCodeArea.setStyleSpans(0, JavaCodeArea.computeHighlighting(curCodeArea.getText()));
     }
 
     /**

@@ -13,12 +13,8 @@ import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import javafx.beans.value.ObservableValue;
-import javafx.beans.value.ChangeListener;
-import javafx.scene.layout.VBox;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -56,7 +52,7 @@ public class FileMenuController
      */
     public Map<Tab, File> tabFileMap;// = new HashMap<>();
 
-    private int untitledCounter = 1;
+    private int untitledTabNameCounter = 1;
 
     /**
      * Constructor for the File Menu Controller
@@ -106,15 +102,15 @@ public class FileMenuController
      */
     public void handleNewMenuItemAction()
     {
+        // create new tab
         Tab newTab = new Tab();
-        newTab.setText("Untitled" + (untitledCounter++) + ".txt");
+        newTab.setText("Untitled" + (untitledTabNameCounter++) + ".txt");
 
-        JavaCodeArea newCodeArea = new JavaCodeArea();
-        newCodeArea.setParagraphGraphicFactory(LineNumberFactory.get(newCodeArea));
+        // create new code area
+        CodeArea newCodeArea = new JavaCodeArea();
         this.contextMenuController.setupJavaCodeAreaContextMenuHandler(newCodeArea);
 
         newTab.setContent(new VirtualizedScrollPane<>(newCodeArea));
-
         // set close action (clicking the 'x')
         newTab.setOnCloseRequest(event -> closeTab(newTab, event));
 
@@ -126,22 +122,7 @@ public class FileMenuController
 
         this.tabFileMap.put(newTab, null);
 
-        tabPane.getCurCodeArea().requestFocus();
-
-        newCodeArea.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if (newValue.length() != 0) {
-                    String lastChar = Character.toString(newValue.charAt(newValue.length() - 1));
-                    if (lastChar.equalsIgnoreCase("(")) {
-                        newCodeArea.appendText(")");
-                    }
-                    else if(lastChar.equalsIgnoreCase("{")) {
-                        newCodeArea.appendText("\n}");
-                    }
-                }
-            }
-        });
+        this.tabPane.getCurCodeArea().requestFocus();
     }
 
     /**
@@ -483,5 +464,4 @@ public class FileMenuController
     {
         this.primaryStage = primaryStage;
     }
-
 }
