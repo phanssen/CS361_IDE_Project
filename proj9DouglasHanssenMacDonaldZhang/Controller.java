@@ -456,6 +456,6 @@ public class Controller
      */
     @FXML
     public void handleCheckWellFormedAction() {
-        tabPane.handleCheckWellFormed();
+        this.editMenuController.handleCheckWellFormed();
     }
 }

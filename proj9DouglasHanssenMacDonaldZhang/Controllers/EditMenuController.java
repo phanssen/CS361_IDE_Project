@@ -95,7 +95,6 @@ public class EditMenuController
         tabPane.getCurCodeArea().selectAll();
     }
 
-
     /**
      * Comments out highlighted code if not yet commented out and uncomments it if it's commented out
      * Behavior generally modelled off of Toggle Block Comment in SublimeText
@@ -179,7 +178,6 @@ public class EditMenuController
         curCodeArea.replaceSelection(selectedTextUnTabbed);
     }
 
-
     /*
     * Each section of four spaces in the highlighted text become a tab
     */
@@ -189,7 +187,6 @@ public class EditMenuController
         String selectedTextEntabbed = selectedText.replace("    ", "\t");
         curCodeArea.replaceSelection(selectedTextEntabbed);
     }
-
 
     /*
      * Each tab in the highlighted text becomes four spaces
@@ -202,6 +199,60 @@ public class EditMenuController
         curCodeArea.replaceSelection("");
         curCodeArea.replaceSelection(selectedTextDetabbed);
 
+    }
+
+    /*
+     * Check for any missing braces, brackets or parentheses
+     */
+    public void handleCheckWellFormed() {
+        // get the text of the current codeArea
+        String text = this.tabPane.getCurCodeArea().getText();
+        // now go through the text to check if it is malformed
+        long nOpenBraces = text.chars().filter(ch -> ch == '{').count();
+        long nCloseBraces= text.chars().filter(ch -> ch == '}').count();
+        long nOpenParens = text.chars().filter(ch -> ch == '(').count();
+        long nCloseParens = text.chars().filter(ch -> ch == ')').count();
+        long nOpenBrackets = text.chars().filter(ch -> ch == '[').count();
+        long nCloseBrackets = text.chars().filter(ch -> ch == ']').count();
+        String bracesMessage;
+        String parensMessage;
+        String bracketsMessage;
+        // determine if brackets are well formed
+        if (nOpenBraces > nCloseBraces) {
+            bracesMessage = "Missing " + (nOpenBraces - nCloseBraces) + " close braces\n";
+        }
+        else if (nOpenBraces < nCloseBraces) {
+            bracesMessage = "Missing " + (nCloseBraces - nOpenBraces) + " open braces\n";
+        }
+        else {
+            bracesMessage = "Braces are well formed\n";
+        }
+        // determine if parenthesis are well formed
+        if (nOpenParens > nCloseParens) {
+            parensMessage = "Missing " + (nOpenParens - nCloseParens) + " close parenthesis\n";
+        }
+        else if (nOpenParens < nCloseParens) {
+            parensMessage = "Missing " + (nCloseParens - nOpenParens) + " open parenthesis\n";
+        }
+        else {
+            parensMessage = "Parenthesis are well formed\n";
+        }
+        // determine if brackets are well formed
+        if (nOpenBrackets > nCloseBrackets) {
+            bracketsMessage = "Missing " + (nOpenBrackets - nCloseBrackets) + " close brackets\n";
+        }
+        else if (nOpenBrackets < nCloseBrackets) {
+            bracketsMessage = "Missing " + (nCloseBrackets - nOpenBrackets) + " open brackets\n";
+        }
+        else {
+            bracketsMessage = "Brackets are well formed\n";
+        }
+        // show messages
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Code formation report");
+        alert.setHeaderText("Checking brackets, parentheses and braces");
+        alert.setContentText(bracesMessage + parensMessage + bracketsMessage);
+        alert.showAndWait();
     }
 
     /**

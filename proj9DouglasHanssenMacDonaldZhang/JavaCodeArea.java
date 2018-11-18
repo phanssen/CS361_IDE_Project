@@ -10,13 +10,15 @@ package proj9DouglasHanssenMacDonaldZhang;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.fxmisc.richtext.LineNumberFactory;
 import org.reactfx.Subscription;
 import java.time.Duration;
 import java.util.regex.Pattern;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.regex.Matcher;
-import java.util.ArrayList;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 /**
  * This class handles the creation of CodeAreas, as well as keyword
@@ -33,6 +35,8 @@ public class JavaCodeArea extends CodeArea {
 
     public JavaCodeArea(){
         super();
+        this.setParagraphGraphicFactory(LineNumberFactory.get(this));
+        this.addTextListener();
         this.subscribe();
     }
 
@@ -126,5 +130,27 @@ public class JavaCodeArea extends CodeArea {
         }
         spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
         return spansBuilder.create();
+    }
+
+    /**
+     * A listener that looks for when the user has typed either ( or {
+     * in the current code area, and automatically adds a closing ) or }
+     * to match the opening one.
+     */
+    private void addTextListener() {
+        this.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (newValue.length() != 0) {
+                    String lastChar = Character.toString(newValue.charAt(newValue.length() - 1));
+                    if (lastChar.equalsIgnoreCase("(")) {
+                        appendText(")");
+                    }
+                    else if(lastChar.equalsIgnoreCase("{")) {
+                        appendText("\n}");
+                    }
+                }
+            }
+        });
     }
 }
