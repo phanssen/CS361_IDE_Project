@@ -8,6 +8,7 @@ package proj9DouglasHanssenMacDonaldZhang.Controllers;
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
 
 import javafx.scene.control.*;
+import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Token;
 
 import java.io.IOException;
 
@@ -22,7 +23,9 @@ public class ToolbarController {
     }
 
     public void handleScanButton() throws IOException {
-        scanner.scan();
+        while(scanner.scan().kind != Token.Kind.EOF){
+                scanner.scan();
+        }
     }
 
     // scan control
