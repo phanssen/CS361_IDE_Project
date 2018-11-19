@@ -10,27 +10,32 @@ import proj9DouglasHanssenMacDonaldZhang.UserErrorDialog;
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Token;
+import proj9DouglasHanssenMacDonaldZhang.bantam.util.Error;
 import javafx.scene.control.*;
 import java.io.IOException;
 import java.io.File;
-import java.util.ArrayList;
+import java.util.List;
+import org.fxmisc.richtext.StyleClassedTextArea;
+
 
 public class ToolbarController {
     private ErrorHandler errorHandler;
     private CodeAreaTabPane tabPane;
+    private StyleClassedTextArea console;
 
     //constructor method
-    public ToolbarController(CodeAreaTabPane tabPane) {
+    public ToolbarController(CodeAreaTabPane tabPane, StyleClassedTextArea console) {
         // initialize error handler to be used for Scanner
         this.errorHandler = new ErrorHandler();
         this.tabPane = tabPane;
+        this.console = console;
     }
 
     /**
-     * Scans a file by first checking to see if file requested to
-     * be scanned exists, then either creates a Scanner object
-     * and scans, or displays error message.
-     * @param curFile is the current file open in the tab pane
+     * Scans a file by creating a a Scanner object and
+     * scanning, printing out the tokens to a new file.
+     * Checks for errors found and prints those to the console.
+     * @param filename is the name of the current file open
      * @throws IOException
      */
     public void handleScanButton(String filename) throws IOException {
@@ -39,6 +44,13 @@ public class ToolbarController {
         Scanner scanner = new Scanner(filename, this.errorHandler);
         while(scanner.scan().kind != Token.Kind.EOF){
             tokenString += scanner.scan().toString();
+        }
+        if(this.errorHandler.errorsFound()) {
+            List<Error> errorList = this.errorHandler.getErrorList();
+            for(Error error : errorList) {
+                this.console.appendText(error.toString() + "\n");
+            }
+            this.console.appendText("Errors found: " + errorList.size() + "\n");
         }
         this.tabPane.getCurCodeArea().replaceText(String.join("\n", scanner.getTokens()));
     }

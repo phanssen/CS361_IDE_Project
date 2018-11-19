@@ -130,7 +130,7 @@ public class Controller
         fileMenuController = new FileMenuController(this.tabPane, this.primaryStage, this.tabFileMap);
         editMenuController = new EditMenuController(this.tabPane, this.findTextField);
         helpMenuController = new HelpMenuController();
-        toolbarController = new ToolbarController(this.tabPane);
+        toolbarController = new ToolbarController(this.tabPane, this.consoleTextArea);
 
         this.tabFileMap = fileMenuController.tabFileMap;
         this.setupContextMenuController();
