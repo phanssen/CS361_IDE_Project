@@ -1,6 +1,6 @@
 package proj9DouglasHanssenMacDonaldZhang.bantam.lexer;
 
-import proj7DouglasHanssenMacDonaldZhang.FileMenuController;
+import proj9DouglasHanssenMacDonaldZhang.Controllers.FileMenuController;
 import proj9DouglasHanssenMacDonaldZhang.Controllers.ToolbarController;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
 
