@@ -33,21 +33,13 @@ public class ToolbarController {
      * @param curFile is the current file open in the tab pane
      * @throws IOException
      */
-    public void handleScanButton(File curFile) throws IOException {
+    public void handleScanButton(String filename) throws IOException {
         String tokenString = "";
-        // check that current file is not null, in the event that a new, unsaved file is passed in
-        if(curFile != null) {
-            // create scanner and scan file
-            Scanner scanner = new Scanner(curFile.getPath(), this.errorHandler);
-            while(scanner.scan().kind != Token.Kind.EOF){
-                tokenString += scanner.scan().toString();
-            }
-            this.tabPane.getCurCodeArea().replaceText(String.join("\n", scanner.getTokens()));
-        } else {
-            // Display File Not Found error dialog for the user
-            UserErrorDialog errorDialog = new UserErrorDialog(UserErrorDialog.ErrorType.FNF_ERROR);
-            errorDialog.showAndWait();
+        // create scanner and scan file
+        Scanner scanner = new Scanner(filename, this.errorHandler);
+        while(scanner.scan().kind != Token.Kind.EOF){
+            tokenString += scanner.scan().toString();
         }
-
+        this.tabPane.getCurCodeArea().replaceText(String.join("\n", scanner.getTokens()));
     }
 }
