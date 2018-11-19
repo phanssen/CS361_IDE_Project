@@ -1,37 +1,29 @@
 package proj9DouglasHanssenMacDonaldZhang.bantam.lexer;
 
-import proj9DouglasHanssenMacDonaldZhang.Controllers.FileMenuController;
-import proj9DouglasHanssenMacDonaldZhang.Controllers.ToolbarController;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
-import proj9DouglasHanssenMacDonaldZhang.CodeAreaTabPane;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Token.Kind;
-import proj9DouglasHanssenMacDonaldZhang.bantam.util.*;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.Error;
 
-import java.util.Arrays;
 
 public class Scanner
 {
     private SourceFile sourceFile;
     private ErrorHandler errorHandler;
-    private Error error;
     private String token;
-    char currentChar;
-    boolean tokenDone;
-    Kind type;
-    boolean isNotLetters;
-    boolean multilineCommentOpen;
-    boolean singlelineCommentOpen;
-    boolean stringOpen;
+    private char currentChar;
+    private boolean tokenDone;
+    private Kind type;
+    private boolean isNotLetters;
+    private boolean multilineCommentOpen;
+    private boolean singlelineCommentOpen;
+    private boolean stringOpen;
     //String tokenString;
-    String lostChar;
-    Token completeToken;
-    List<String> tokenList;
+    private String lostChar;
+    //private Error error;
+    //Token completeToken;
 
     public Scanner(ErrorHandler handler) {
         errorHandler = handler;
@@ -45,7 +37,6 @@ public class Scanner
         stringOpen = false;
         multilineCommentOpen = false;
         lostChar = null; //Needed solely to avoid losing an char to division
-        tokenList = new ArrayList<>();
     }
 
     public Scanner(String filename, ErrorHandler handler) {
@@ -60,7 +51,6 @@ public class Scanner
         stringOpen = false;
         multilineCommentOpen = false;
         lostChar = null; //Needed solely to avoid losing an char to division
-        tokenList = new ArrayList<>();
     }
 
     public Scanner(Reader reader, ErrorHandler handler) {
@@ -74,7 +64,6 @@ public class Scanner
         stringOpen = false;
         multilineCommentOpen = false;
         lostChar = null; //Needed solely to avoid losing an char to division
-        tokenList = new ArrayList<>();
     }
 
 
@@ -86,9 +75,6 @@ public class Scanner
         return token.charAt(token.length()-1);
     }
 
-    public List<String> getTokens() {
-        return tokenList;
-    }
 
     private Token makeNewToken(){
         //System.out.println("New token " + type + " " + token + " line num: " + sourceFile.getCurrentLineNumber());
@@ -104,17 +90,14 @@ public class Scanner
         else {
             token = "";
         }
-        System.out.println(newToken.toString());
+        //System.out.println(newToken.toString());
         //tokenString += newToken.toString();
-//        insertToken(newToken.toString());
-        tokenList.add(newToken.toString());
-
-
         return newToken;
     }
 
-    private void notifyErrorHandler(Error error) {
-        this.errorHandler.register(error.getKind(), error.getFilename(), error.getLineNum(), error.getMessage());
+
+    private void notifyErrorHandler(Error error){
+        this.errorHandler.register(error.getKind(), error.getFilename(), error.getLineNum(), error.getMessage());;
     }
 
     public Token scan() {
@@ -123,7 +106,9 @@ public class Scanner
         }
         else {
             try {
+                boolean whitespaceToken = false; //TODO GET RID OF THIS DEBUG VARIABLE
                 //Reader reader = new BufferedReader(new FileReader("Users\\Tear\\Downloads\\CS361_IDE_Project-master-9-V2\\CS361_IDE_Project-master\\proj9DouglasHanssenMacDonaldZhang\\A.java"));
+
                 while ((currentChar = sourceFile.getNextChar()) != '\u0000') {
                     //System.out.println(currentChar);
                     if ((!stringOpen) && (!multilineCommentOpen) && (!singlelineCommentOpen)) {
@@ -134,6 +119,7 @@ public class Scanner
                             Token completeToken = handleLetter();
                             if (completeToken != null) return completeToken;
                         } else {
+                            Token completeToken = null;
                             switch (currentChar) {
                                 case '{':
                                     if (token.length() > 0) {
@@ -142,101 +128,112 @@ public class Scanner
                                     token = "{";
                                     type = Kind.LCURLY;
                                     tokenDone = true;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '}':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token = "}";
                                     type = Kind.RCURLY;
                                     tokenDone = true;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '(':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken  = finishToken();
                                     }
                                     token = "(";
                                     type = Kind.LPAREN;
                                     tokenDone = true;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case ')':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token = ")";
                                     type = Kind.RPAREN;
                                     tokenDone = true;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '[':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token += "[";
                                     type = Kind.LBRACKET;
                                     tokenDone = true;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case ']':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token += "]";
                                     type = Kind.RBRACKET;
                                     tokenDone = true;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case ':':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token += ":";
                                     type = Kind.COLON;
                                     tokenDone = true;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case ';':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token += ";";
                                     type = Kind.SEMICOLON;
                                     tokenDone = true;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case ',':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token = ",";
                                     type = Kind.COMMA;
                                     tokenDone = true;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '_': //Part of constants' identifiers
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token += "_";
                                     type = Kind.IDENTIFIER;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '!':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token = "!";
                                     type = Kind.UNARYNOT;
                                     //If it begins a !=, that's comparison, not unary not, and it won't be done yet
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '=':
                                     if (token.length() > 0) {
                                         if ((getLastTokenChar() != '!') && (getLastTokenChar() != '=')) {
-                                            finishToken();
+                                            completeToken = finishToken();
                                             token = "=";
                                             type = Kind.ASSIGN;
                                         } else {
@@ -248,6 +245,7 @@ public class Scanner
                                         token += "=";
                                         type = Kind.ASSIGN;
                                     }
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '+':
@@ -257,9 +255,10 @@ public class Scanner
                                             token = "++";
                                             tokenDone = true;
                                         } else {
-                                            finishToken();
+                                            completeToken = finishToken();
                                             token = "+";
                                             type = Kind.PLUSMINUS;
+                                            return completeToken;
                                         }
                                     } else {
                                         token += "+";
@@ -277,9 +276,10 @@ public class Scanner
                                             token = "--";
                                             tokenDone = true;
                                         } else {
-                                            finishToken();
+                                            completeToken = finishToken();
                                             token = "-";
                                             type = Kind.PLUSMINUS;
+                                            return completeToken;
                                         }
                                     } else {
                                         token += "-";
@@ -290,53 +290,57 @@ public class Scanner
 
                                 case '/':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token += "/";
                                     handleForwardSlash();
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '\"':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token = "\"";
                                     stringOpen = true; //Closing open strings is handled elsewhere
                                     type = Kind.STRCONST;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '.':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token = ".";
                                     type = Kind.DOT;
                                     tokenDone = true;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '*':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token = "*";
-                                    type = Token.Kind.MULDIV;
+                                    type = Kind.MULDIV;
                                     tokenDone = true;
-
+                                    if(completeToken!= null) return completeToken;
 
                                     break;
 
                                 case '<': //<= is not legal, so don't need to account for that
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token = "<";
                                     type = Kind.COMPARE;
                                     tokenDone = true;
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '>':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token = ">";
                                     type = Kind.COMPARE;
@@ -345,26 +349,33 @@ public class Scanner
 
                                 case '%':
                                     if (token.length() > 0) {
-                                        finishToken();
+                                        completeToken = finishToken();
                                     }
                                     token = "%";
                                     type = Kind.BINARYLOGIC;
                                     tokenDone = true;
+                                    if(completeToken!= null) return completeToken;
                                     break;
                                 case ' ': //Empty space means any current token is over, then we handle crap
                                     if (token.length() > 0) {
+                                        System.out.println("Done, space, token = " + token);
                                         tokenDone = true;
+                                        whitespaceToken = true;
                                     }
                                     break;
                                 case '\n':
                                     if (token.length() > 0) {
+                                        System.out.println("Done, newline, token = " + token);
                                         tokenDone = true;
+                                        whitespaceToken = true;
                                     }
                                     //count++;
                                     break;
                                 case '\t':
                                     if (token.length() > 0) {
+                                        System.out.println("Done, tab, token = " + token);
                                         tokenDone = true;
+                                        whitespaceToken = true;
                                     }
                                     //count++;
                                     break;
@@ -375,12 +386,16 @@ public class Scanner
                                 default:
                                     type = Kind.ERROR;
                                     token += Character.toString(currentChar);
-                                    this.error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Illegal character(s)");
-                                    this.notifyErrorHandler(this.error);
+                                    Error error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Illegal character(s)");
+                                    this.notifyErrorHandler(error);
                                     tokenDone = true;
                             } //Close switch statement for char
 
                             if (tokenDone) {
+                                if(whitespaceToken){
+                                    whitespaceToken = false;
+                                    //System.out.println(finishToken().toString());
+                                }
                                 return finishToken();
 
                             }
@@ -409,9 +424,10 @@ public class Scanner
                             }
                         }
 
-                        // make token for string or comment
+                        // make token for string or comment. Type should've already been set by the case statements
                         if (tokenDone) {
                             Token newToken = makeNewToken();
+                            System.out.println("Made a new string or comment token " + newToken);
                             return newToken;
                             //System.out.println(newToken.toString());
 //                          return newToken;
@@ -422,10 +438,13 @@ public class Scanner
 
                 } //Close while loop
 
+
+
                 if ((multilineCommentOpen) | (singlelineCommentOpen) | (stringOpen)) {
-                    this.error = new Error(Error.Kind.PARSE_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Found end of file before program was properly closed.");
-                    this.notifyErrorHandler(this.error);
+                    Error error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Found end of file before program was properly closed.");
+                    this.notifyErrorHandler(error);
                     return new Token(Kind.ERROR, token, sourceFile.getCurrentLineNumber());
+                    //make an error token(stringOpen) {
                 }
 
                 /*type = Kind.EOF; //Once the SourceFile only sends the end of file char, then only this section should be triggered
@@ -457,7 +476,7 @@ public class Scanner
     }
 
     private Token handleDigit(){
-        completeToken = null;
+        Token completeToken = null;
         //Manual check to see if this terminated a +,-, =. ++, -- etc should've already been terminated
         //the types should've already been set by the case statements, so they don't have to be set
         if (token.length() == 1) {
@@ -471,25 +490,25 @@ public class Scanner
     }
 
     private void handleForwardSlash(){
-        char nextNextChar = sourceFile.getNextChar();
-        if(nextNextChar == '/'){
-            type = Kind.COMMENT;
-            token += nextNextChar;
-            singlelineCommentOpen = true;
-        }
-        else if (nextNextChar == '*'){
-            token += "*";
-            type = Kind.COMMENT;
-            multilineCommentOpen = true;
-        }
-        else{ //TODO How do you avoid eating the next char here? Lost char variable?
-            //Tia just added this
-            type = Kind.MULDIV;
-            tokenDone = true;
-            if(!Character.isWhitespace(nextNextChar)){
-                lostChar = Character.toString(nextNextChar);
+            char nextNextChar = sourceFile.getNextChar();
+            if(nextNextChar == '/'){
+                type = Kind.COMMENT;
+                token += nextNextChar;
+                singlelineCommentOpen = true;
             }
-        }
+            else if (nextNextChar == '*'){
+                token += "*";
+                type = Kind.COMMENT;
+                multilineCommentOpen = true;
+            }
+            else{ //TODO How do you avoid eating the next char here? Lost char variable?
+                //Tia just added this
+                type = Kind.MULDIV;
+                tokenDone = true;
+                if(!Character.isWhitespace(nextNextChar)){
+                    lostChar = Character.toString(nextNextChar);
+                }
+            }
     }
 
     private void handleStringProcessing(){
@@ -500,24 +519,24 @@ public class Scanner
             if( (nextNextChar != 't') && (nextNextChar!= 'n') && (nextNextChar != '\\') &&
                     (nextNextChar !='\"') && (nextNextChar != 'f')){
                 type = Kind.ERROR;
-                this.error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Illegal character(s)");
-                this.notifyErrorHandler(this.error);
+                Error error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Illegal character(s)");
+                this.notifyErrorHandler(error);
             }
+
         } else if (currentChar == '\"') {
             stringOpen = false;
             tokenDone = true;
             if (token.length() > 5000) {
-                // string exceeds 5000 characters
                 type = Kind.ERROR;
-                this.error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "String exceeds 5000 characters");
-                this.notifyErrorHandler(this.error);
+                Error error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "String exceeds 5000 characters");
+                this.notifyErrorHandler(error);
             }
         } else if (currentChar == '\n') {
-            // string goes into two lines
             type = Kind.ERROR;
-            this.error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "String not properly closed");
-            this.notifyErrorHandler(this.error);        }
-    }
+            Error error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "String not properly closed");
+            this.notifyErrorHandler(error);
+            }
+        }
 
     private void handleCommentProcessing(){
         if (currentChar == '*') {
@@ -554,8 +573,8 @@ public class Scanner
         if (type == Kind.IDENTIFIER) {
             if (!Character.isLetter(token.charAt(0))) { //if the first letter of the identifier isn't a letter
                 type = Kind.ERROR;
-                this.error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Not a legal identifier.");
-                this.notifyErrorHandler(this.error);
+                Error error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Not a legal identifier.");
+                this.notifyErrorHandler(error);
                 //illegal identifier token
             }
         }
