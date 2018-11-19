@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Optional;
 
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.SimpleListProperty;
@@ -23,6 +24,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser;
 
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.StyleClassedTextArea;
@@ -433,15 +435,10 @@ public class Controller
      */
     @FXML
     private void handleScan() throws IOException {
-        File curFile = this.tabFileMap.get(this.tabPane.getCurTab());
-        // check that current file is not null, in the event that a new, unsaved file is the curTab
-        if(curFile != null) {
+        if(this.promptSave()) {
+            File curFile = this.tabFileMap.get(this.tabPane.getCurTab());
             this.fileMenuController.handleNewMenuItemAction();
             this.toolbarController.handleScanButton(curFile.getPath());
-        } else {
-            // Display File Not Found error dialog for the user
-            UserErrorDialog errorDialog = new UserErrorDialog(UserErrorDialog.ErrorType.FNF_ERROR);
-            errorDialog.showAndWait();
         }
     }
 
@@ -460,5 +457,64 @@ public class Controller
     @FXML
     public void handleCheckWellFormedAction() {
         this.editMenuController.handleCheckWellFormed();
+    }
+
+    /**
+     * Prompts the user to save if the current tab has not been
+     * saved since the last change.
+     * If the tab has never been saved, will automatically open
+     * a FileChooser window to save the file.
+     * Returns true if the user chooses to save or not to save (Yes
+     * or No buttons), returns false if the user selects Cancel.
+     */
+    private boolean promptSave() {
+        // get selected tab and the code area
+        Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+        CodeArea activeCodeArea = tabPane.getCurCodeArea();
+
+        if (this.fileMenuController.tabNeedsSaving(selectedTab)) {
+            if (this.tabFileMap.get(selectedTab) == null) {
+                // create a fileChooser and add file extension restrictions
+                FileChooser fileChooser = new FileChooser();
+
+                // file where the text content is to be saved
+                File saveFile = fileChooser.showSaveDialog(this.primaryStage);
+                if (saveFile != null) {
+                    // save the content of the active text area to the selected file
+                    this.fileMenuController.saveFile(activeCodeArea.getText(), saveFile);
+
+                    // set the title of the tab to the name of the saved file
+                    selectedTab.setText(saveFile.getName());
+
+                    // map the tab and the associated file
+                    this.tabFileMap.put(selectedTab, saveFile);
+                }
+                // else return if file is not saved
+                else {
+                    return false;
+                }
+            } else {
+                // prompt user with save dialog
+                Alert alert = new Alert(
+                        Alert.AlertType.CONFIRMATION,
+                        "Want to save before compiling?",
+                        ButtonType.YES,
+                        ButtonType.NO,
+                        ButtonType.CANCEL
+                );
+                alert.setTitle("Alert");
+
+                Optional<ButtonType> result = alert.showAndWait();
+
+                // if user presses Yes button, save the file and compile
+                if (result.get() == ButtonType.YES) {
+                    this.fileMenuController.saveFile(activeCodeArea.getText(), this.tabFileMap.get(selectedTab));
+                    return true;
+                } else if (result.get() == ButtonType.CANCEL) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
