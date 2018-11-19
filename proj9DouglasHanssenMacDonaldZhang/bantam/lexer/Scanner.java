@@ -1,6 +1,6 @@
 package proj9DouglasHanssenMacDonaldZhang.bantam.lexer;
 
-import proj7DouglasHanssenMacDonaldZhang.FileMenuController;
+import proj9DouglasHanssenMacDonaldZhang.Controllers.FileMenuController;
 import proj9DouglasHanssenMacDonaldZhang.Controllers.ToolbarController;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
 
@@ -113,7 +113,6 @@ public class Scanner
     }
 
     public Token scan() {
-
         if(tokenDone){ //If there's already a finished token caught on the last round but a previous token had to be handled
             return finishToken();
         }

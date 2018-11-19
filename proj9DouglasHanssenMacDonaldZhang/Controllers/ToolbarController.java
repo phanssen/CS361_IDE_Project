@@ -34,12 +34,13 @@ public class ToolbarController {
      * @throws IOException
      */
     public void handleScanButton(File curFile) throws IOException {
+        String tokenString = "";
         // check that current file is not null, in the event that a new, unsaved file is passed in
         if(curFile != null) {
             // create scanner and scan file
             Scanner scanner = new Scanner(curFile.getPath(), this.errorHandler);
             while(scanner.scan().kind != Token.Kind.EOF){
-                scanner.scan();
+                tokenString += scanner.scan().toString();
             }
             this.tabPane.getCurCodeArea().replaceText(String.join("\n", scanner.getTokens()));
         } else {
