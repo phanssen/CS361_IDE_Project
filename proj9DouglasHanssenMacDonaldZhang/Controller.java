@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Optional;
 
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.SimpleListProperty;
@@ -22,7 +21,6 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.stage.FileChooser;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -82,7 +80,7 @@ public class Controller
     private CodeAreaTabPane tabPane;
     private Map<Tab, File> tabFileMap;
     private ErrorHandler errorHandler = new ErrorHandler(); //TODO find a better place for this
-    private Scanner scanner = new Scanner(errorHandler);
+    private Scanner scanner = new Scanner("\\Users\\Tear\\Downloads\\CS361_IDE_Project-master-9-V2\\CS361_IDE_Project-master\\proj9DouglasHanssenMacDonaldZhang\\proj9DouglasHanssenMacDonaldZhang\\A.java", errorHandler);
     // private Scanner scanner = new Scanner(this.tabPane.)
 
     // All the sub-controller items (found in Controllers package)
