@@ -9,10 +9,9 @@ package proj9DouglasHanssenMacDonaldZhang.Controllers;
 import proj9DouglasHanssenMacDonaldZhang.*;
 
 import javafx.scene.control.*;
-import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import org.fxmisc.richtext.CodeArea;
-import javax.xml.soap.Text;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.ArrayList;

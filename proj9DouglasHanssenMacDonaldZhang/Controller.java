@@ -70,7 +70,6 @@ public class Controller
     @FXML private Menu prefMenu;
 
     // Toolbar menu items
-    @FXML private Button scanButton;
     @FXML private TextField findTextField;
 
     @FXML private SplitPane splitPane;
@@ -79,9 +78,6 @@ public class Controller
 
     private CodeAreaTabPane tabPane;
     private Map<Tab, File> tabFileMap;
-    private ErrorHandler errorHandler = new ErrorHandler(); //TODO find a better place for this
-    private Scanner scanner = new Scanner("\\Users\\Tear\\Downloads\\CS361_IDE_Project-master-9-V2\\CS361_IDE_Project-master\\proj9DouglasHanssenMacDonaldZhang\\proj9DouglasHanssenMacDonaldZhang\\A.java", errorHandler);
-    // private Scanner scanner = new Scanner(this.tabPane.)
 
     // All the sub-controller items (found in Controllers package)
     private FileMenuController fileMenuController;
@@ -134,7 +130,7 @@ public class Controller
         fileMenuController = new FileMenuController(this.tabPane, this.primaryStage, this.tabFileMap);
         editMenuController = new EditMenuController(this.tabPane, this.findTextField);
         helpMenuController = new HelpMenuController();
-        toolbarController = new ToolbarController(this.scanButton, this.scanner);
+        toolbarController = new ToolbarController();
 
         this.tabFileMap = fileMenuController.tabFileMap;
         this.setupContextMenuController();
@@ -432,11 +428,13 @@ public class Controller
     }
 
     /**
-     * Handles scanning
+     * Handles scanning - gets the current file and passes
+     * it to handleScanButton()
      */
     @FXML
     private void handleScan() throws IOException {
-        this.toolbarController.handleScanButton();
+        File curFile = this.tabFileMap.get(this.tabPane.getCurTab());
+        this.toolbarController.handleScanButton(curFile);
     }
 
     /**
