@@ -113,7 +113,6 @@ public class Scanner
     }
 
     public Token scan() {
-
         if(tokenDone){ //If there's already a finished token caught on the last round but a previous token had to be handled
             return finishToken();
         }
