@@ -5,6 +5,7 @@ Names:  Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
 Date: 11/14/18
 */
 package proj9DouglasHanssenMacDonaldZhang.Controllers;
+import proj9DouglasHanssenMacDonaldZhang.CodeAreaTabPane;
 import proj9DouglasHanssenMacDonaldZhang.UserErrorDialog;
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
@@ -12,14 +13,17 @@ import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Token;
 import javafx.scene.control.*;
 import java.io.IOException;
 import java.io.File;
+import java.util.ArrayList;
 
 public class ToolbarController {
     private ErrorHandler errorHandler;
+    private CodeAreaTabPane tabPane;
 
     //constructor method
-    public ToolbarController() {
+    public ToolbarController(CodeAreaTabPane tabPane) {
         // initialize error handler to be used for Scanner
         this.errorHandler = new ErrorHandler();
+        this.tabPane = tabPane;
     }
 
     /**
@@ -37,11 +41,12 @@ public class ToolbarController {
             while(scanner.scan().kind != Token.Kind.EOF){
                 scanner.scan();
             }
+            this.tabPane.getCurCodeArea().replaceText(String.join("\n", scanner.getTokens()));
         } else {
             // Display File Not Found error dialog for the user
             UserErrorDialog errorDialog = new UserErrorDialog(UserErrorDialog.ErrorType.FNF_ERROR);
             errorDialog.showAndWait();
         }
-        
+
     }
 }

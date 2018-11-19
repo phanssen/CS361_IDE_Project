@@ -1,8 +1,12 @@
 package proj9DouglasHanssenMacDonaldZhang.bantam.lexer;
 
+import proj7DouglasHanssenMacDonaldZhang.FileMenuController;
+import proj9DouglasHanssenMacDonaldZhang.Controllers.ToolbarController;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Token.Kind;
 
@@ -15,57 +19,70 @@ public class Scanner
     boolean tokenDone;
     Kind type;
     boolean isNotLetters;
-    boolean commentOpen;
+    boolean multilineCommentOpen;
+    boolean singlelineCommentOpen;
     boolean stringOpen;
-    String tokenString;
+    //String tokenString;
+    String lostChar;
+    Token completeToken;
+    List<String> tokenList;
 
     public Scanner(ErrorHandler handler) {
         errorHandler = handler;
         currentChar = ' ';
         sourceFile = null;
-        tokenString = "";
+        //tokenString = "";
         token = "";
         tokenDone = false;
         type = null;
         isNotLetters = true; //Used to help figure out if the token is ints
         stringOpen = false;
-        commentOpen = false;
+        multilineCommentOpen = false;
+        lostChar = null; //Needed solely to avoid losing an char to division
+        tokenList = new ArrayList<>();
     }
 
     public Scanner(String filename, ErrorHandler handler) {
         errorHandler = handler;
         currentChar = ' ';
         sourceFile = new SourceFile(filename);
-        tokenString = "";
+        //tokenString = "";
         token = "";
         tokenDone = false;
         type = null;
         isNotLetters = true; //Used to help figure out if the token is ints
         stringOpen = false;
-        commentOpen = false;
+        multilineCommentOpen = false;
+        lostChar = null; //Needed solely to avoid losing an char to division
+        tokenList = new ArrayList<>();
     }
 
     public Scanner(Reader reader, ErrorHandler handler) {
         errorHandler = handler;
         sourceFile = new SourceFile(reader);
-        tokenString = "";
+        //tokenString = "";
         token = "";
         tokenDone = false;
         type = null;
         isNotLetters = true; //Used to help figure out if the token is ints
         stringOpen = false;
-        commentOpen = false;
+        multilineCommentOpen = false;
+        lostChar = null; //Needed solely to avoid losing an char to division
+        tokenList = new ArrayList<>();
     }
 
 
-    public String getTokenString(){
+    /*public String getTokenString(){
         return tokenString;
-    }
+    }*/
 
     private char getLastTokenChar(){
         return token.charAt(token.length()-1);
     }
 
+    public List<String> getTokens() {
+        return tokenList;
+    }
 
     private Token makeNewToken(){
         //System.out.println("New token " + type + " " + token + " line num: " + sourceFile.getCurrentLineNumber());
@@ -74,9 +91,19 @@ public class Scanner
         isNotLetters = true;
         tokenDone = false;
         //System.out.println(token);
-        token = "";
+        if(lostChar!=null){
+            token = lostChar;
+            lostChar = null;
+        }
+        else {
+            token = "";
+        }
         System.out.println(newToken.toString());
-        tokenString += newToken.toString();
+        //tokenString += newToken.toString();
+//        insertToken(newToken.toString());
+        tokenList.add(newToken.toString());
+
+
         return newToken;
     }
 
@@ -86,36 +113,21 @@ public class Scanner
     }
 
     public Token scan() {
-        if(tokenDone){ //If there's already a finished token caught on the last round
+
+        if(tokenDone){ //If there's already a finished token caught on the last round but a previous token had to be handled
             return finishToken();
         }
         else {
             try {
                 //Reader reader = new BufferedReader(new FileReader("Users\\Tear\\Downloads\\CS361_IDE_Project-master-9-V2\\CS361_IDE_Project-master\\proj9DouglasHanssenMacDonaldZhang\\A.java"));
-                Token completeToken = null;
                 while ((currentChar = sourceFile.getNextChar()) != '\u0000') {
                     //System.out.println(currentChar);
-                    if ((!stringOpen) && (!commentOpen)) {
+                    if ((!stringOpen) && (!multilineCommentOpen) && (!singlelineCommentOpen)) {
                         if (Character.isDigit(currentChar)) {
-                            //Manual check to see if this terminated a +,-, =. ++, -- etc should've already been terminated
-                            //the types should've already been set by the case statements
-                            if (token.length() == 1) {
-                                if ((token.charAt(0) == '+') | (token.charAt(0) == '-') | (token.charAt(0) == '=')) {
-                                    completeToken = makeNewToken();
-                                }
-                            }
-                            token += Character.toString(currentChar);
+                            Token completeToken = handleDigit();
                             if (completeToken != null) return completeToken;
                         } else if (Character.isLetter(currentChar)) {
-                            if (token.length() == 1) {
-                                if ((token.charAt(0) == '+') | (token.charAt(0) == '-') | (token.charAt(0) == '=')) {
-                                    completeToken = makeNewToken();
-                                }
-                            }
-                            token += Character.toString(currentChar);
-                            if (isNotLetters) {
-                                isNotLetters = false;
-                            }
+                            Token completeToken = handleLetter();
                             if (completeToken != null) return completeToken;
                         } else {
                             switch (currentChar) {
@@ -373,14 +385,24 @@ public class Scanner
 
 
                     } else { //This is in a comment or string
-                        token += Character.toString(currentChar);
                         //System.out.println("Current token: " + token);
                         if (stringOpen) {
+                            token += Character.toString(currentChar);
                             handleStringProcessing();
-                        } else if (commentOpen) {
+                        }
+                        else if (multilineCommentOpen) {
+                            token += Character.toString(currentChar);
                             handleCommentProcessing();
                         }
-
+                        else if(singlelineCommentOpen) {
+                            if(currentChar == '\n'){ //Don't add the new line char to a single line comment
+                                singlelineCommentOpen = false;
+                                tokenDone = true;
+                            }
+                            else{
+                                token += Character.toString(currentChar);
+                            }
+                        }
 
                         // make token for string or comment
                         if (tokenDone) {
@@ -395,21 +417,17 @@ public class Scanner
 
                 } //Close while loop
 
-                if (commentOpen) {
+
+
+                if ((multilineCommentOpen) | (singlelineCommentOpen) | (stringOpen)) {
                     notifyErrorHandler(Kind.ERROR);
                     return new Token(Kind.ERROR, token, sourceFile.getCurrentLineNumber());
-                    //make an error token
+                    //make an error token(stringOpen) {
                 }
 
-                if (stringOpen) {
-                    notifyErrorHandler(Kind.ERROR);
-                    return new Token(Kind.ERROR, token, sourceFile.getCurrentLineNumber());
-                    //make an error token
-                }
-
-                type = Kind.EOF; //Once the SourceFile only sends the end of file char, then only this section should be triggered
+                /*type = Kind.EOF; //Once the SourceFile only sends the end of file char, then only this section should be triggered
                 Token eofToken = makeNewToken();
-                return eofToken;
+                return eofToken;*/
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -420,27 +438,55 @@ public class Scanner
         return eofToken;
     }
 
+
+    private Token handleLetter(){
+        Token completeToken = null;
+        if (token.length() == 1) {
+            if ((token.charAt(0) == '+') | (token.charAt(0) == '-') | (token.charAt(0) == '=')) {
+                completeToken = makeNewToken();
+            }
+        }
+        token += Character.toString(currentChar);
+        if (isNotLetters) {
+            isNotLetters = false;
+        }
+        return completeToken;
+    }
+
+    private Token handleDigit(){
+        completeToken = null;
+        //Manual check to see if this terminated a +,-, =. ++, -- etc should've already been terminated
+        //the types should've already been set by the case statements, so they don't have to be set
+        if (token.length() == 1) {
+            if ((token.charAt(0) == '+') | (token.charAt(0) == '-') | (token.charAt(0) == '=')) {
+                completeToken = makeNewToken();
+            }
+        }
+        //The token can't get the current char added to it until the previous one has been processed
+        token += Character.toString(currentChar);
+        return completeToken;
+    }
+
     private void handleForwardSlash(){
-            char nextNextChar = sourceFile.getNextChar();
-            if(nextNextChar == '/'){
-                type = Kind.COMMENT;
-                token += nextNextChar;
-                while(nextNextChar != '\n') { //TODO replace this with a boolean and add to comment handling
-                    nextNextChar = sourceFile.getNextChar();
-                    token += nextNextChar;
-                    tokenDone = true;
-                }
+        char nextNextChar = sourceFile.getNextChar();
+        if(nextNextChar == '/'){
+            type = Kind.COMMENT;
+            token += nextNextChar;
+            singlelineCommentOpen = true;
+        }
+        else if (nextNextChar == '*'){
+            token += "*";
+            type = Kind.COMMENT;
+            multilineCommentOpen = true;
+        }
+        else{ //TODO How do you avoid eating the next char here? Lost char variable?
+            //Tia just added this
+            type = Kind.MULDIV;
+            tokenDone = true;
+            if(!Character.isWhitespace(nextNextChar)){
+                lostChar = Character.toString(nextNextChar);
             }
-            else if (nextNextChar == '*'){
-                token += "*";
-                type = Kind.COMMENT;
-                commentOpen = true;
-            }
-            else{ //How do you avoid eating the next char here? Lost char variable?
-                //Tia just added this
-                type = Kind.MULDIV;
-                tokenDone = true;
-            }
+        }
     }
 
     private void handleStringProcessing(){
@@ -471,7 +517,7 @@ public class Scanner
             char nextNextChar = sourceFile.getNextChar();
             token += nextNextChar;
             if (nextNextChar == '/') {
-                commentOpen = false;
+                multilineCommentOpen = false;
                 tokenDone = true;
             }
         }

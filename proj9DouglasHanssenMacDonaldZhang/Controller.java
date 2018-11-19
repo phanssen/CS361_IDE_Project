@@ -130,7 +130,7 @@ public class Controller
         fileMenuController = new FileMenuController(this.tabPane, this.primaryStage, this.tabFileMap);
         editMenuController = new EditMenuController(this.tabPane, this.findTextField);
         helpMenuController = new HelpMenuController();
-        toolbarController = new ToolbarController();
+        toolbarController = new ToolbarController(this.tabPane);
 
         this.tabFileMap = fileMenuController.tabFileMap;
         this.setupContextMenuController();
@@ -434,6 +434,7 @@ public class Controller
     @FXML
     private void handleScan() throws IOException {
         File curFile = this.tabFileMap.get(this.tabPane.getCurTab());
+        this.fileMenuController.handleNewMenuItemAction();
         this.toolbarController.handleScanButton(curFile);
     }
 
