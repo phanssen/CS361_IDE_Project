@@ -17,12 +17,12 @@ import javafx.scene.control.ButtonType;
  * @author Evan Savillo
  * @see javafx.scene.control.Alert
  */
-class UserErrorDialog extends Alert
+public class UserErrorDialog extends Alert
 { 
     /**
      * enumeration which defines the contents of error alerts of certain types
      */
-    enum ErrorType
+    public enum ErrorType
     {
         SAVING_ERROR("Error",
                 "Saving Error",
@@ -57,7 +57,7 @@ class UserErrorDialog extends Alert
      * @param filename optionally pass the name of the file with which the error
      *                 occurred.
      */
-    UserErrorDialog(ErrorType type, String filename)
+    public UserErrorDialog(ErrorType type, String filename)
     {
         super(AlertType.NONE);
 
@@ -71,7 +71,7 @@ class UserErrorDialog extends Alert
     /**
      * Fallback constructor
      */
-    UserErrorDialog(ErrorType type)
+    public UserErrorDialog(ErrorType type)
     {
         this(type, "in question");
     }

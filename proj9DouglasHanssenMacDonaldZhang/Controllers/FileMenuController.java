@@ -308,9 +308,9 @@ public class FileMenuController
             }
             catch (IOException e)
             {
-                // UserErrorDialog userErrorDialog = new UserErrorDialog(
-                //         UserErrorDialog.ErrorType.SAVING_ERROR, file.getName());
-                // userErrorDialog.showAndWait();
+                UserErrorDialog userErrorDialog = new UserErrorDialog(
+                        UserErrorDialog.ErrorType.SAVING_ERROR, file.getName());
+                userErrorDialog.showAndWait();
                 return false;
             }
         }
@@ -333,9 +333,9 @@ public class FileMenuController
         }
         catch (IOException e)
         {
-            // UserErrorDialog userErrorDialog = new UserErrorDialog(
-            //         UserErrorDialog.ErrorType.READING_ERROR, file.getName());
-            // userErrorDialog.showAndWait();
+            UserErrorDialog userErrorDialog = new UserErrorDialog(
+                    UserErrorDialog.ErrorType.READING_ERROR, file.getName());
+            userErrorDialog.showAndWait();
             content = null;
 
         }

@@ -5,11 +5,13 @@ Names:  Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
 Date: 11/14/18
 */
 package proj9DouglasHanssenMacDonaldZhang.Controllers;
+import proj9DouglasHanssenMacDonaldZhang.UserErrorDialog;
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
+import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Token;
 import javafx.scene.control.*;
-
 import java.io.IOException;
+import java.io.File;
 
 public class ToolbarController {
     private ErrorHandler errorHandler;
