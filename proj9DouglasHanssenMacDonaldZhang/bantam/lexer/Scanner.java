@@ -1,12 +1,10 @@
 package proj9DouglasHanssenMacDonaldZhang.bantam.lexer;
 
-import proj9DouglasHanssenMacDonaldZhang.CodeAreaTabPane;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
 
 import java.io.*;
 
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Token.Kind;
-import java.util.Arrays;
 
 public class Scanner
 {
@@ -14,29 +12,72 @@ public class Scanner
     private ErrorHandler errorHandler;
     private String token;
     char currentChar;
-
+    boolean tokenDone;
+    Kind type;
+    boolean isNotLetters;
+    boolean commentOpen;
+    boolean stringOpen;
+    String tokenString;
 
     public Scanner(ErrorHandler handler) {
         errorHandler = handler;
         currentChar = ' ';
         sourceFile = null;
+        tokenString = "";
+        token = "";
+        tokenDone = false;
+        type = null;
+        isNotLetters = true; //Used to help figure out if the token is ints
+        stringOpen = false;
+        commentOpen = false;
     }
 
     public Scanner(String filename, ErrorHandler handler) {
         errorHandler = handler;
         currentChar = ' ';
         sourceFile = new SourceFile(filename);
+        tokenString = "";
+        token = "";
+        tokenDone = false;
+        type = null;
+        isNotLetters = true; //Used to help figure out if the token is ints
+        stringOpen = false;
+        commentOpen = false;
     }
 
     public Scanner(Reader reader, ErrorHandler handler) {
         errorHandler = handler;
         sourceFile = new SourceFile(reader);
+        tokenString = "";
+        token = "";
+        tokenDone = false;
+        type = null;
+        isNotLetters = true; //Used to help figure out if the token is ints
+        stringOpen = false;
+        commentOpen = false;
     }
 
 
+    public String getTokenString(){
+        return tokenString;
+    }
+
     private char getLastTokenChar(){
-        int tokenLength = token.length();
-        return token.charAt(tokenLength-2);
+        return token.charAt(token.length()-1);
+    }
+
+
+    private Token makeNewToken(){
+        //System.out.println("New token " + type + " " + token + " line num: " + sourceFile.getCurrentLineNumber());
+        Token newToken = new Token(type, token, sourceFile.getCurrentLineNumber());
+        type = null;
+        isNotLetters = true;
+        tokenDone = false;
+        //System.out.println(token);
+        token = "";
+        System.out.println(newToken.toString());
+        tokenString += newToken.toString();
+        return newToken;
     }
 
 
@@ -44,329 +85,432 @@ public class Scanner
         return;
     }
 
-    public void scan() {
-        token = "";
-        boolean tokenDone = false;
-        Kind type = null;
-        boolean isNotLetters = true; //Used to help figure out if the token is ints
-        boolean stringOpen = false;
-        boolean commentOpen = false;
-        String filename;
-        try {
-            Reader reader = new BufferedReader(new FileReader("/Users/paigehanssen/Repos/CS361_IDE_Project/proj9DouglasHanssenMacDonaldZhang/A.java"));
-
-            int count = 1;
-            int c;
-
-            while ((c = reader.read()) != -1) {
-                currentChar = (char) c;
-
-                if (Character.isDigit(currentChar)) {
-                    token += Character.toString(currentChar);
-                } else if (Character.isLetter(c)) {
-                    token += Character.toString(currentChar);
-                    if (isNotLetters) {
-                        isNotLetters = false;
-                    }
-                } else {
+    public Token scan() {
+        if(tokenDone){ //If there's already a finished token caught on the last round
+            return finishToken();
+        }
+        else {
+            try {
+                //Reader reader = new BufferedReader(new FileReader("Users\\Tear\\Downloads\\CS361_IDE_Project-master-9-V2\\CS361_IDE_Project-master\\proj9DouglasHanssenMacDonaldZhang\\A.java"));
+                Token completeToken = null;
+                while ((currentChar = sourceFile.getNextChar()) != '\u0000') {
+                    //System.out.println(currentChar);
                     if ((!stringOpen) && (!commentOpen)) {
-                        switch (currentChar) {
-                            case '{':
-                                token += "{";
-                                type = Kind.LCURLY;
-                                tokenDone = true;
-                                break;
-
-                            case '}':
-                                token += "}";
-                                type = Kind.RCURLY;
-                                tokenDone = true;
-                                break;
-
-                            case '(':
-                                token += "(";
-                                type = Kind.LPAREN;
-                                tokenDone = true;
-                                break;
-
-                            case ')':
-                                token += ")";
-                                type = Kind.RPAREN;
-                                tokenDone = true;
-                                break;
-
-                            case '[':
-                                token += "[";
-                                type = Kind.LBRACKET;
-                                tokenDone = true;
-                                break;
-
-                            case ']':
-                                token += "]";
-                                type = Kind.RBRACKET;
-                                tokenDone = true;
-                                break;
-
-                            case ':':
-                                token += ":";
-                                type = Kind.COLON;
-                                tokenDone = true;
-                                break;
-
-                            case ';':
-                                token += ";";
-                                type = Kind.SEMICOLON;
-                                tokenDone = true;
-                                break;
-
-                            case ',':
-                                token = ",";
-                                type = Kind.COMMA;
-                                tokenDone = true;
-                                break;
-
-                            case '_': //Part of constants identifiers
-                                token += "_";
-                                type = Kind.IDENTIFIER;
-                                break;
-
-                            case '!':
-                                token = "!";
-                                type = Kind.UNARYNOT;
-                                tokenDone = true;
-                                break;
-
-                            case '=':
-                                token += "=";
-                                type = Kind.ASSIGN;
-                                if (getLastTokenChar() == '=') {
-                                    tokenDone = true;
+                        if (Character.isDigit(currentChar)) {
+                            //Manual check to see if this terminated a +,-, =. ++, -- etc should've already been terminated
+                            //the types should've already been set by the case statements
+                            if (token.length() == 1) {
+                                if ((token.charAt(0) == '+') | (token.charAt(0) == '-') | (token.charAt(0) == '=')) {
+                                    completeToken = makeNewToken();
                                 }
-                                break;
-
-                            case '+':
-                                token += "+";
-                                type = Kind.PLUSMINUS;
-                                if (getLastTokenChar() == '+') {
-                                    tokenDone = true;
+                            }
+                            token += Character.toString(currentChar);
+                            if (completeToken != null) return completeToken;
+                        } else if (Character.isLetter(currentChar)) {
+                            if (token.length() == 1) {
+                                if ((token.charAt(0) == '+') | (token.charAt(0) == '-') | (token.charAt(0) == '=')) {
+                                    completeToken = makeNewToken();
                                 }
-                                break;
-
-
-                            case '-':
-                                token = "-";
-                                type = Kind.PLUSMINUS;
-                                if (getLastTokenChar() == '-') {
+                            }
+                            token += Character.toString(currentChar);
+                            if (isNotLetters) {
+                                isNotLetters = false;
+                            }
+                            if (completeToken != null) return completeToken;
+                        } else {
+                            switch (currentChar) {
+                                case '{':
+                                    if (token.length() > 0) {
+                                        completeToken = finishToken();
+                                    }
+                                    token = "{";
+                                    type = Kind.LCURLY;
                                     tokenDone = true;
-                                }
+                                    break;
 
-                                break;
-
-                            case '/':
-                                token += "/"; //Part of a comment
-                                type = Kind.COMMENT;
-                                if (getLastTokenChar() == '/') {
-                                    token += ((BufferedReader) reader).readLine(); // figure out how to read line with reader
+                                case '}':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token = "}";
+                                    type = Kind.RCURLY;
                                     tokenDone = true;
-                                } else if (getLastTokenChar() == '*') {
-                                    commentOpen = false;
+                                    break;
+
+                                case '(':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token = "(";
+                                    type = Kind.LPAREN;
                                     tokenDone = true;
-                                } else {
-                                    type = Kind.ERROR;
-                                    notifyErrorHandler(Kind.ERROR);
-                                }
-                                break;
+                                    break;
 
-                            case '\"':
-                                token += "\"";
-                                stringOpen = true; //Closing open strings is handled elsewhere
-                                type = Kind.STRCONST;
-                                break;
+                                case ')':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token = ")";
+                                    type = Kind.RPAREN;
+                                    tokenDone = true;
+                                    break;
 
-                            case '.':
-                                token = ".";
-                                type = Kind.DOT;
-                                tokenDone = true;
-                                break;
+                                case '[':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token += "[";
+                                    type = Kind.LBRACKET;
+                                    tokenDone = true;
+                                    break;
 
-                            case '*':
-                                if (getLastTokenChar() == '/') {
-                                    token += "*";
-                                    type = Kind.COMMENT;
-                                    commentOpen = true;
-                                } else {
+                                case ']':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token += "]";
+                                    type = Kind.RBRACKET;
+                                    tokenDone = true;
+                                    break;
+
+                                case ':':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token += ":";
+                                    type = Kind.COLON;
+                                    tokenDone = true;
+                                    break;
+
+                                case ';':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token += ";";
+                                    type = Kind.SEMICOLON;
+                                    tokenDone = true;
+                                    break;
+
+                                case ',':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token = ",";
+                                    type = Kind.COMMA;
+                                    tokenDone = true;
+                                    break;
+
+                                case '_': //Part of constants' identifiers
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token += "_";
+                                    type = Kind.IDENTIFIER;
+                                    break;
+
+                                case '!':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token = "!";
+                                    type = Kind.UNARYNOT;
+                                    //If it begins a !=, that's comparison, not unary not, and it won't be done yet
+                                    break;
+
+                                case '=':
+                                    if (token.length() > 0) {
+                                        if ((getLastTokenChar() != '!') && (getLastTokenChar() != '=')) {
+                                            finishToken();
+                                            token = "=";
+                                            type = Kind.ASSIGN;
+                                        } else {
+                                            token += "=";
+                                            type = Kind.COMPARE;
+                                            tokenDone = true;
+                                        }
+                                    } else {
+                                        token += "=";
+                                        type = Kind.ASSIGN;
+                                    }
+                                    break;
+
+                                case '+':
+                                    if (token.length() > 0) {
+                                        if (getLastTokenChar() == '+') {
+                                            type = Kind.UNARYINCR;
+                                            token = "++";
+                                            tokenDone = true;
+                                        } else {
+                                            finishToken();
+                                            token = "+";
+                                            type = Kind.PLUSMINUS;
+                                        }
+                                    } else {
+                                        token += "+";
+                                        type = Kind.PLUSMINUS;
+                                    }
+
+
+                                    break;
+
+
+                                case '-':
+                                    if (token.length() > 0) {
+                                        if (getLastTokenChar() == '-') {
+                                            type = Kind.UNARYDECR;
+                                            token = "--";
+                                            tokenDone = true;
+                                        } else {
+                                            finishToken();
+                                            token = "-";
+                                            type = Kind.PLUSMINUS;
+                                        }
+                                    } else {
+                                        token += "-";
+                                        type = Kind.PLUSMINUS;
+                                    }
+
+                                    break;
+
+                                case '/':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token += "/";
+                                    handleForwardSlash();
+                                    break;
+
+                                case '\"':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token = "\"";
+                                    stringOpen = true; //Closing open strings is handled elsewhere
+                                    type = Kind.STRCONST;
+                                    break;
+
+                                case '.':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token = ".";
+                                    type = Kind.DOT;
+                                    tokenDone = true;
+                                    break;
+
+                                case '*':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
                                     token = "*";
                                     type = Kind.MULDIV;
                                     tokenDone = true;
-                                }
 
-                                break;
 
-                            case '<': //<= is not legal
-                                token = "<";
-                                type = Kind.COMPARE;
-                                tokenDone = true;
-                                break;
+                                    break;
 
-                            case '>':
-                                token = ">";
-                                type = Kind.COMPARE;
-                                tokenDone = true;
-                                break;
-
-                            case '%':
-                                token = "%";
-                                type = Kind.BINARYLOGIC;
-                                tokenDone = true;
-                                break;
-                            case ' ': //Empty space means any current token is over, then we handle crap
-                                tokenDone = true;
-                                break;
-                            case '\n':
-                                token = "\n";
-                                tokenDone = true;
-                                count++;
-                                break;
-
-                            case '$':
-                                token = "$";
-                                type = Kind.IDENTIFIER;
-
-                            default:
-                                type = Kind.ERROR;
-                                notifyErrorHandler(Kind.ERROR);
-                                tokenDone = true;
-                        } //Close switch statement for char
-
-                        if (tokenDone) {
-                            Token newToken = new Token(type, token, count);
-                            System.out.println(token.toString());
-                            if (type == null) { //It terminated by whitespace, also, move this into a function
-                                if (token.equals("true") ^ token.equals("false")) {
-                                    type = Kind.BOOLEAN;
-                                } else {
-                                    if (isNotLetters) { //Kind of bad but this boolean isn't used unless there isn't an alt type
-                                        type = Kind.INTCONST;
+                                case '<': //<= is not legal, so don't need to account for that
+                                    if (token.length() > 0) {
+                                        finishToken();
                                     }
-                                }
-                            }
-    /*
-    else{
-    boolean isKeyword = Arrays.stream(keywords).anyMatch(token::equals);
-    if(!isKeyword):
-    type = "Identifier";
-    }
-    */
-                            else if ((Kind.LPAREN.equals(type) || Kind.LBRACKET.equals(type) || Kind.DOT.equals(type)) && (token.length() > 1)) { //Then the symbol might've ended a previous token
-                                int tokenLength = token.length();
-                                String prevToken;
-                                //If it's one of the two character symbols
-                                if (("==".equals(token.substring(tokenLength - 2, tokenLength))) ||
-                                        ("--".equals(token.substring(tokenLength - 2, tokenLength))) ||
-                                        ("==".equals(token.substring(tokenLength - 2, tokenLength))) ||
-                                        ("!=".equals(token.substring(tokenLength - 2, tokenLength)))) {
-                                    if (tokenLength > 2) {
-//                                        System.out.println(token);
-                                        prevToken = token.substring(0, tokenLength - 2);
-                                        token = token.substring(tokenLength - 2, tokenLength);
-
-                                        //check if it's identifier, integer, string, or boolean by calling a function,
-                                        //which should just be part of the above under the if tokenDone, but moved into a function
-                                        //make prevToken into a token here
-                                    }
-
-
-                                } else {
-                                    //It's a one character punctuation and it's currently lumped with the previous token
-                                    prevToken = token.substring(0, tokenLength - 2);
-                                    //check if it's identifier, integer, string, or boolean by calling a function,
-                                    //which should just be part of the above under the if tokenDone, but moved into a function
-                                    //make prevToken into a token here
-                                    token = prevToken;
-                                }
-
-                                token = token.substring(tokenLength - 2);
-
-
-                            }
-                            //This is not an else if so it catches both identifiers from the if type == null and anything caught with _ or $
-                            if (type == Kind.IDENTIFIER) {
-                                if (!Character.isLetter(token.charAt(0))) { //if the first letter of the identifier isn't a letter
-                                    type = Kind.ERROR;
-                                    //illegal identifier token
-                                }
-                            }
-
-
-                            //make token into a Token here
-                            type = null;
-                            boolean isAllInts = true;
-                            tokenDone = false;
-                            token = "";
-
-
-                        } else { //This is in a comment or string, who cares about it
-                            token += Character.toString(currentChar);
-                            if (stringOpen) {
-                                if (currentChar == '\\') { //get the next char and check for illegal special chars
-                                    char nextNextChar = (char) reader.read();
-
-
-                                } else if (currentChar == '\"') {
-                                    stringOpen = false;
+                                    token = "<";
+                                    type = Kind.COMPARE;
                                     tokenDone = true;
-                                    if (token.length() > 5000) {
-                                        type = Kind.ERROR; //illegal String token
-                                        notifyErrorHandler(Kind.ERROR);
-                                    }
-                                } else if (currentChar == '\n') {
-                                    type = Kind.ERROR;
-                                    notifyErrorHandler(Kind.ERROR);
-                                }
-                            } else if (commentOpen) {
-                                if (currentChar == '*') {
-                                    char nextNextChar = (char) reader.read();
-                                    if (nextNextChar == '/') {
-                                        commentOpen = false;
-                                    } else {
-                                        token += nextNextChar;
-                                    }
-                                }
-                            }
+                                    break;
 
+                                case '>':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token = ">";
+                                    type = Kind.COMPARE;
+                                    tokenDone = true;
+                                    break;
+
+                                case '%':
+                                    if (token.length() > 0) {
+                                        finishToken();
+                                    }
+                                    token = "%";
+                                    type = Kind.BINARYLOGIC;
+                                    tokenDone = true;
+                                    break;
+                                case ' ': //Empty space means any current token is over, then we handle crap
+                                    if (token.length() > 0) {
+                                        tokenDone = true;
+                                    }
+                                    break;
+                                case '\n':
+                                    if (token.length() > 0) {
+                                        tokenDone = true;
+                                    }
+                                    //count++;
+                                    break;
+                                case '\t':
+                                    if (token.length() > 0) {
+                                        tokenDone = true;
+                                    }
+                                    //count++;
+                                    break;
+                                case '$': //Only can be used inside identifiers
+                                    token = "$";
+                                    type = Kind.IDENTIFIER;
+
+                                default:
+                                    type = Kind.ERROR;
+                                    token += Character.toString(currentChar);
+                                    notifyErrorHandler(Kind.ERROR);
+                                    tokenDone = true;
+                            } //Close switch statement for char
 
                             if (tokenDone) {
-                                // make token for string or comment
-                                Token newToken = new Token(type, token, count);
-                                System.out.println(newToken.toString());
-//                                return newToken;
+                                return finishToken();
+
                             }
 
 
                         }
 
+
+                    } else { //This is in a comment or string
+                        token += Character.toString(currentChar);
+                        //System.out.println("Current token: " + token);
+                        if (stringOpen) {
+                            handleStringProcessing();
+                        } else if (commentOpen) {
+                            handleCommentProcessing();
+                        }
+
+
+                        // make token for string or comment
+                        if (tokenDone) {
+                            Token newToken = makeNewToken();
+                            return newToken;
+                            //System.out.println(newToken.toString());
+//                          return newToken;
+                        }
+
+
                     }
 
-
                 } //Close while loop
-            }
-            if (commentOpen) {
-                notifyErrorHandler(Kind.ERROR);
-                //make an error token
-            }
 
-            if (stringOpen) {
-                notifyErrorHandler(Kind.ERROR);
-                //make an error token
+                if (commentOpen) {
+                    notifyErrorHandler(Kind.ERROR);
+                    return new Token(Kind.ERROR, token, sourceFile.getCurrentLineNumber());
+                    //make an error token
+                }
+
+                if (stringOpen) {
+                    notifyErrorHandler(Kind.ERROR);
+                    return new Token(Kind.ERROR, token, sourceFile.getCurrentLineNumber());
+                    //make an error token
+                }
+
+                type = Kind.EOF; //Once the SourceFile only sends the end of file char, then only this section should be triggered
+                Token eofToken = makeNewToken();
+                return eofToken;
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-
-            //    return newToken;
-            //        return newToken;
         }
-        catch(IOException e){
-            e.printStackTrace();
+        type = Kind.EOF; //Once the SourceFile only sends the end of file char, then only this section should be triggered
+        Token eofToken = makeNewToken();
+        return eofToken;
+    }
+
+    private void handleForwardSlash(){
+            char nextNextChar = sourceFile.getNextChar();
+            if(nextNextChar == '/'){
+                type = Kind.COMMENT;
+                token += nextNextChar;
+                while(nextNextChar != '\n') { //TODO replace this with a boolean and add to comment handling
+                    nextNextChar = sourceFile.getNextChar();
+                    token += nextNextChar;
+                    tokenDone = true;
+                }
+            }
+            else if (nextNextChar == '*'){
+                token += "*";
+                type = Kind.COMMENT;
+                commentOpen = true;
+            }
+            else{ //How do you avoid eating the next char here? Lost char variable?
+                //Tia just added this
+                type = Kind.MULDIV;
+                tokenDone = true;
+            }
+    }
+
+    private void handleStringProcessing(){
+        if (currentChar == '\\') { //get the next char and check for illegal special chars
+            char nextNextChar = sourceFile.getNextChar();
+            token += nextNextChar;
+            //if not \n (newline), \t (tab), \" (double quote), \\ (backslash), and \f
+            if( (nextNextChar != 't') && (nextNextChar!= 'n') && (nextNextChar != '\\') &&
+                    (nextNextChar !='\"') && (nextNextChar != 'f')){
+                type = Kind.ERROR;
+            }
+
+        } else if (currentChar == '\"') {
+            stringOpen = false;
+            tokenDone = true;
+            if (token.length() > 5000) {
+                type = Kind.ERROR; //illegal String token
+                notifyErrorHandler(Kind.ERROR);
+            }
+        } else if (currentChar == '\n') {
+            type = Kind.ERROR;
+            notifyErrorHandler(Kind.ERROR);
         }
+    }
+
+    private void handleCommentProcessing(){
+        if (currentChar == '*') {
+            char nextNextChar = sourceFile.getNextChar();
+            token += nextNextChar;
+            if (nextNextChar == '/') {
+                commentOpen = false;
+                tokenDone = true;
+            }
+        }
+    }
+
+    /*private Token handlePrevToken(){ //I think this just duplicates finishToken
+            if (isNotLetters) { //Kind of bad but this boolean isn't used unless there isn't an alt type
+                type = Kind.INTCONST;
+            }
+            else{  //Tia just added this
+                type = Kind.IDENTIFIER;
+            }
+            return makeNewToken();
+
+    }*/
+
+    private Token finishToken(){
+        if (type == null) { //It terminated by whitespace, also, move this into a function
+            if (isNotLetters) { //Kind of bad but this boolean isn't used unless there isn't an alt type
+                type = Kind.INTCONST;
+            }
+            else{  //Tia just added this
+                type = Kind.IDENTIFIER;
+            }
+        }
+        //This is not an else if so it catches both identifiers from the if type == null and anything caught with _ or $
+        if (type == Kind.IDENTIFIER) {
+            if (!Character.isLetter(token.charAt(0))) { //if the first letter of the identifier isn't a letter
+                type = Kind.ERROR;
+                //illegal identifier token
+            }
+        }
+
+
+        //make token into a Token here
+        Token newToken = makeNewToken();
+        return newToken;
+        //System.out.println(newToken.toString());
+
     }
 
 }
