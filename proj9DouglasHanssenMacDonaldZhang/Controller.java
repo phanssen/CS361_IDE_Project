@@ -130,7 +130,7 @@ public class Controller
         fileMenuController = new FileMenuController(this.tabPane, this.primaryStage, this.tabFileMap);
         editMenuController = new EditMenuController(this.tabPane, this.findTextField);
         helpMenuController = new HelpMenuController();
-        toolbarController = new ToolbarController(this.tabPane);
+        toolbarController = new ToolbarController(this.tabPane, this.consoleTextArea);
 
         this.tabFileMap = fileMenuController.tabFileMap;
         this.setupContextMenuController();
@@ -434,8 +434,15 @@ public class Controller
     @FXML
     private void handleScan() throws IOException {
         File curFile = this.tabFileMap.get(this.tabPane.getCurTab());
-        this.fileMenuController.handleNewMenuItemAction();
-        this.toolbarController.handleScanButton(curFile);
+        // check that current file is not null, in the event that a new, unsaved file is the curTab
+        if(curFile != null) {
+            this.fileMenuController.handleNewMenuItemAction();
+            this.toolbarController.handleScanButton(curFile.getPath());
+        } else {
+            // Display File Not Found error dialog for the user
+            UserErrorDialog errorDialog = new UserErrorDialog(UserErrorDialog.ErrorType.FNF_ERROR);
+            errorDialog.showAndWait();
+        }
     }
 
     /**

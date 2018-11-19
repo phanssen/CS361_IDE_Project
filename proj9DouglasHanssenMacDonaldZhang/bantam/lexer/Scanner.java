@@ -3,17 +3,23 @@ package proj9DouglasHanssenMacDonaldZhang.bantam.lexer;
 import proj9DouglasHanssenMacDonaldZhang.Controllers.FileMenuController;
 import proj9DouglasHanssenMacDonaldZhang.Controllers.ToolbarController;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
+import proj9DouglasHanssenMacDonaldZhang.CodeAreaTabPane;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Token.Kind;
+import proj9DouglasHanssenMacDonaldZhang.bantam.util.*;
+import proj9DouglasHanssenMacDonaldZhang.bantam.util.Error;
+
+import java.util.Arrays;
 
 public class Scanner
 {
     private SourceFile sourceFile;
     private ErrorHandler errorHandler;
+    private Error error;
     private String token;
     char currentChar;
     boolean tokenDone;
@@ -107,9 +113,8 @@ public class Scanner
         return newToken;
     }
 
-
-    private void notifyErrorHandler(Kind kind){
-        return;
+    private void notifyErrorHandler(Error error) {
+        this.errorHandler.register(error.getKind(), error.getFilename(), error.getLineNum(), error.getMessage());
     }
 
     public Token scan() {
@@ -314,7 +319,7 @@ public class Scanner
                                         finishToken();
                                     }
                                     token = "*";
-                                    type = Kind.MULDIV;
+                                    type = Token.Kind.MULDIV;
                                     tokenDone = true;
 
 
@@ -370,7 +375,8 @@ public class Scanner
                                 default:
                                     type = Kind.ERROR;
                                     token += Character.toString(currentChar);
-                                    notifyErrorHandler(Kind.ERROR);
+                                    this.error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Illegal character(s)");
+                                    this.notifyErrorHandler(this.error);
                                     tokenDone = true;
                             } //Close switch statement for char
 
@@ -416,12 +422,10 @@ public class Scanner
 
                 } //Close while loop
 
-
-
                 if ((multilineCommentOpen) | (singlelineCommentOpen) | (stringOpen)) {
-                    notifyErrorHandler(Kind.ERROR);
+                    this.error = new Error(Error.Kind.PARSE_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Found end of file before program was properly closed.");
+                    this.notifyErrorHandler(this.error);
                     return new Token(Kind.ERROR, token, sourceFile.getCurrentLineNumber());
-                    //make an error token(stringOpen) {
                 }
 
                 /*type = Kind.EOF; //Once the SourceFile only sends the end of file char, then only this section should be triggered
@@ -496,19 +500,23 @@ public class Scanner
             if( (nextNextChar != 't') && (nextNextChar!= 'n') && (nextNextChar != '\\') &&
                     (nextNextChar !='\"') && (nextNextChar != 'f')){
                 type = Kind.ERROR;
+                this.error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Illegal character(s)");
+                this.notifyErrorHandler(this.error);
             }
-
         } else if (currentChar == '\"') {
             stringOpen = false;
             tokenDone = true;
             if (token.length() > 5000) {
-                type = Kind.ERROR; //illegal String token
-                notifyErrorHandler(Kind.ERROR);
+                // string exceeds 5000 characters
+                type = Kind.ERROR;
+                this.error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "String exceeds 5000 characters");
+                this.notifyErrorHandler(this.error);
             }
         } else if (currentChar == '\n') {
+            // string goes into two lines
             type = Kind.ERROR;
-            notifyErrorHandler(Kind.ERROR);
-        }
+            this.error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "String not properly closed");
+            this.notifyErrorHandler(this.error);        }
     }
 
     private void handleCommentProcessing(){
@@ -546,6 +554,8 @@ public class Scanner
         if (type == Kind.IDENTIFIER) {
             if (!Character.isLetter(token.charAt(0))) { //if the first letter of the identifier isn't a letter
                 type = Kind.ERROR;
+                this.error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Not a legal identifier.");
+                this.notifyErrorHandler(this.error);
                 //illegal identifier token
             }
         }
