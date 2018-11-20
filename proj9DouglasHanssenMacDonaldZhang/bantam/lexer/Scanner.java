@@ -24,6 +24,7 @@ public class Scanner
     private String lostChar;
     //private Error error;
     //Token completeToken;
+    int lineNum;
 
     public Scanner(ErrorHandler handler) {
         errorHandler = handler;
@@ -37,6 +38,7 @@ public class Scanner
         stringOpen = false;
         multilineCommentOpen = false;
         lostChar = null; //Needed solely to avoid losing an char to division
+
     }
 
     public Scanner(String filename, ErrorHandler handler) {
@@ -78,10 +80,11 @@ public class Scanner
 
     private Token makeNewToken(){
         //System.out.println("New token " + type + " " + token + " line num: " + sourceFile.getCurrentLineNumber());
-        Token newToken = new Token(type, token, sourceFile.getCurrentLineNumber());
+        Token newToken = new Token(type, token, lineNum);
         type = null;
         isNotLetters = true;
         tokenDone = false;
+        //linNnum can't be reset because it's a primitive, but resetting for it would only be a safety precaution anyways
         //System.out.println(token);
         if(lostChar!=null){
             token = lostChar;
@@ -106,8 +109,7 @@ public class Scanner
         }
         else {
             try {
-                boolean whitespaceToken = false; //TODO GET RID OF THIS DEBUG VARIABLE
-                //Reader reader = new BufferedReader(new FileReader("Users\\Tear\\Downloads\\CS361_IDE_Project-master-9-V2\\CS361_IDE_Project-master\\proj9DouglasHanssenMacDonaldZhang\\A.java"));
+                 //Reader reader = new BufferedReader(new FileReader("Users\\Tear\\Downloads\\CS361_IDE_Project-master-9-V2\\CS361_IDE_Project-master\\proj9DouglasHanssenMacDonaldZhang\\A.java"));
 
                 while ((currentChar = sourceFile.getNextChar()) != '\u0000') {
                     //System.out.println(currentChar);
@@ -123,105 +125,126 @@ public class Scanner
                             switch (currentChar) {
                                 case '{':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token = "{";
                                     type = Kind.LCURLY;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '}':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token = "}";
                                     type = Kind.RCURLY;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '(':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken  = finishToken();
                                     }
                                     token = "(";
                                     type = Kind.LPAREN;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
 
                                 case ')':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token = ")";
                                     type = Kind.RPAREN;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '[':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token += "[";
                                     type = Kind.LBRACKET;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
 
                                 case ']':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token += "]";
                                     type = Kind.RBRACKET;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
 
                                 case ':':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token += ":";
                                     type = Kind.COLON;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
 
                                 case ';':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token += ";";
                                     type = Kind.SEMICOLON;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
 
                                 case ',':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token = ",";
                                     type = Kind.COMMA;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '_': //Part of constants' identifiers
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token += "_";
                                     type = Kind.IDENTIFIER;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '!':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token = "!";
@@ -233,6 +256,7 @@ public class Scanner
                                 case '=':
                                     if (token.length() > 0) {
                                         if ((getLastTokenChar() != '!') && (getLastTokenChar() != '=')) {
+                                            lineNum = sourceFile.getCurrentLineNumber();
                                             completeToken = finishToken();
                                             token = "=";
                                             type = Kind.ASSIGN;
@@ -240,6 +264,7 @@ public class Scanner
                                             token += "=";
                                             type = Kind.COMPARE;
                                             tokenDone = true;
+                                            lineNum = sourceFile.getCurrentLineNumber();
                                         }
                                     } else {
                                         token += "=";
@@ -253,8 +278,10 @@ public class Scanner
                                         if (getLastTokenChar() == '+') {
                                             type = Kind.UNARYINCR;
                                             token = "++";
+                                            lineNum = sourceFile.getCurrentLineNumber();
                                             tokenDone = true;
                                         } else {
+                                            lineNum = sourceFile.getCurrentLineNumber();
                                             completeToken = finishToken();
                                             token = "+";
                                             type = Kind.PLUSMINUS;
@@ -274,8 +301,10 @@ public class Scanner
                                         if (getLastTokenChar() == '-') {
                                             type = Kind.UNARYDECR;
                                             token = "--";
+                                            lineNum = sourceFile.getCurrentLineNumber();
                                             tokenDone = true;
                                         } else {
+                                            lineNum = sourceFile.getCurrentLineNumber();
                                             completeToken = finishToken();
                                             token = "-";
                                             type = Kind.PLUSMINUS;
@@ -299,6 +328,7 @@ public class Scanner
 
                                 case '\"':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token = "\"";
@@ -309,73 +339,84 @@ public class Scanner
 
                                 case '.':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token = ".";
                                     type = Kind.DOT;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '*':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token = "*";
                                     type = Kind.MULDIV;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
 
                                     break;
 
                                 case '<': //<= is not legal, so don't need to account for that
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token = "<";
                                     type = Kind.COMPARE;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '>':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token = ">";
                                     type = Kind.COMPARE;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
+                                    if(completeToken!= null) return completeToken;
                                     break;
 
                                 case '%':
                                     if (token.length() > 0) {
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         completeToken = finishToken();
                                     }
                                     token = "%";
                                     type = Kind.BINARYLOGIC;
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                                     if(completeToken!= null) return completeToken;
                                     break;
                                 case ' ': //Empty space means any current token is over, then we handle crap
                                     if (token.length() > 0) {
                                         System.out.println("Done, space, token = " + token);
                                         tokenDone = true;
-                                        whitespaceToken = true;
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                     }
                                     break;
                                 case '\n':
                                     if (token.length() > 0) {
-                                        System.out.println("Done, newline, token = " + token);
+                                        System.out.println("Done, newline, token = " + token + lineNum);
                                         tokenDone = true;
-                                        whitespaceToken = true;
+                                        lineNum = sourceFile.getCurrentLineNumber()-1;
                                     }
                                     //count++;
                                     break;
                                 case '\t':
                                     if (token.length() > 0) {
                                         System.out.println("Done, tab, token = " + token);
+                                        lineNum = sourceFile.getCurrentLineNumber();
                                         tokenDone = true;
-                                        whitespaceToken = true;
                                     }
                                     //count++;
                                     break;
@@ -389,13 +430,10 @@ public class Scanner
                                     Error error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Illegal character(s)");
                                     this.notifyErrorHandler(error);
                                     tokenDone = true;
+                                    lineNum = sourceFile.getCurrentLineNumber();
                             } //Close switch statement for char
 
                             if (tokenDone) {
-                                if(whitespaceToken){
-                                    whitespaceToken = false;
-                                    //System.out.println(finishToken().toString());
-                                }
                                 return finishToken();
 
                             }
@@ -417,6 +455,7 @@ public class Scanner
                         else if(singlelineCommentOpen) {
                             if(currentChar == '\n'){ //Don't add the new line char to a single line comment
                                 singlelineCommentOpen = false;
+                                lineNum = sourceFile.getCurrentLineNumber()-1;
                                 tokenDone = true;
                             }
                             else{
@@ -464,7 +503,8 @@ public class Scanner
     private Token handleLetter(){
         Token completeToken = null;
         if (token.length() == 1) {
-            if ((token.charAt(0) == '+') | (token.charAt(0) == '-') | (token.charAt(0) == '=')) {
+            if ((token.charAt(0) == '+') | (token.charAt(0) == '-') | (token.charAt(0) == '=') | (token.charAt(0) == '!')) {
+                lineNum = sourceFile.getCurrentLineNumber();
                 completeToken = makeNewToken();
             }
         }
@@ -480,8 +520,10 @@ public class Scanner
         //Manual check to see if this terminated a +,-, =. ++, -- etc should've already been terminated
         //the types should've already been set by the case statements, so they don't have to be set
         if (token.length() == 1) {
-            if ((token.charAt(0) == '+') | (token.charAt(0) == '-') | (token.charAt(0) == '=')) {
+            if ((token.charAt(0) == '+') | (token.charAt(0) == '-') | (token.charAt(0) == '=') ) {
+                lineNum = sourceFile.getCurrentLineNumber();
                 completeToken = makeNewToken();
+
             }
         }
         //The token can't get the current char added to it until the previous one has been processed
@@ -501,7 +543,7 @@ public class Scanner
                 type = Kind.COMMENT;
                 multilineCommentOpen = true;
             }
-            else{ //TODO How do you avoid eating the next char here? Lost char variable?
+            else{
                 //Tia just added this
                 type = Kind.MULDIV;
                 tokenDone = true;
@@ -526,6 +568,7 @@ public class Scanner
         } else if (currentChar == '\"') {
             stringOpen = false;
             tokenDone = true;
+            lineNum = sourceFile.getCurrentLineNumber();
             if (token.length() > 5000) {
                 type = Kind.ERROR;
                 Error error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "String exceeds 5000 characters");
@@ -545,25 +588,22 @@ public class Scanner
             if (nextNextChar == '/') {
                 multilineCommentOpen = false;
                 tokenDone = true;
+                lineNum = sourceFile.getCurrentLineNumber();
             }
         }
     }
-
-    /*private Token handlePrevToken(){ //I think this just duplicates finishToken
-            if (isNotLetters) { //Kind of bad but this boolean isn't used unless there isn't an alt type
-                type = Kind.INTCONST;
-            }
-            else{  //Tia just added this
-                type = Kind.IDENTIFIER;
-            }
-            return makeNewToken();
-
-    }*/
 
     private Token finishToken(){
         if (type == null) { //It terminated by whitespace, also, move this into a function
             if (isNotLetters) { //Kind of bad but this boolean isn't used unless there isn't an alt type
                 type = Kind.INTCONST;
+                int num = Integer.parseInt(token);
+                int intRoof = (int) Math.pow(2, 32);
+                if( (0 > num) | (num> intRoof) ){
+                    type = Kind.ERROR;
+                    Error error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Integer is too large.");
+                    this.notifyErrorHandler(error);
+                }
             }
             else{  //Tia just added this
                 type = Kind.IDENTIFIER;
