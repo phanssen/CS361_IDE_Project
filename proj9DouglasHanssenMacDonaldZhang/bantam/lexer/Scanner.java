@@ -514,14 +514,14 @@ public class Scanner
                 }
                 // End while loop
 
-                if ((multilineCommentOpen) || (singlelineCommentOpen) || (stringOpen)) {
+                if ((multilineCommentOpen) || (stringOpen)) {
                     Error error = new Error(Error.Kind.PARSE_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Found end of file before program was properly closed.");
                     this.notifyErrorHandler(error);
                     type = Kind.ERROR; //Once the SourceFile only sends the end of file char, then only this section should be triggered
+                    lineNum = sourceFile.getCurrentLineNumber();
                     Token errToken = makeNewToken();
                     stringOpen = false;
                     multilineCommentOpen = false;
-                    singlelineCommentOpen = false;
                     return errToken;
                 }
 
@@ -530,12 +530,13 @@ public class Scanner
             }
         }
         type = Kind.EOF; //Once the SourceFile only sends the end of file char, then only this section should be triggered
+        lineNum = sourceFile.getCurrentLineNumber();
         Token eofToken = makeNewToken();
         return eofToken;
     }
 
     /**
-     * 
+     * Handler for when Letter is found.
      * @return
      */
     private Token handleLetter(){
