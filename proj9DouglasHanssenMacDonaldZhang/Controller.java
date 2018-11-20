@@ -28,8 +28,6 @@ import javafx.stage.FileChooser;
 
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.StyleClassedTextArea;
-import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
-import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
 
 /**
  * Controller is the main controller for the application.

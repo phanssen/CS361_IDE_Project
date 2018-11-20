@@ -9,16 +9,12 @@
 package proj9DouglasHanssenMacDonaldZhang.Controllers;
 import proj9DouglasHanssenMacDonaldZhang.*;
 
-import javafx.beans.binding.BooleanBinding;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.input.MouseButton;
 import javafx.scene.Node;
 import javafx.scene.control.SeparatorMenuItem;
-import org.fxmisc.richtext.StyleClassedTextArea;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.SimpleListProperty;
 import org.fxmisc.richtext.CodeArea;
 
 /**
