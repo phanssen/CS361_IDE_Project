@@ -6,8 +6,8 @@ Date: 11/14/18
 */
 package proj9DouglasHanssenMacDonaldZhang.Controllers;
 import proj9DouglasHanssenMacDonaldZhang.CodeAreaTabPane;
-import proj9DouglasHanssenMacDonaldZhang.UserErrorDialog;
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
+import proj9DouglasHanssenMacDonaldZhang.bantam.util.CompilationException;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Token;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.Error;
@@ -38,20 +38,29 @@ public class ToolbarController {
      * @param filename is the name of the current file open
      * @throws IOException
      */
-    public void handleScanButton(String filename) throws IOException {
-        String tokenString = "";
-        // create scanner and scan file
-        Scanner scanner = new Scanner(filename, this.errorHandler);
-        while(scanner.scan().kind != Token.Kind.EOF){
-            tokenString += scanner.scan().toString();
-        }
-        if(this.errorHandler.errorsFound()) {
-            List<Error> errorList = this.errorHandler.getErrorList();
-            for(Error error : errorList) {
-                this.console.appendText(error.toString() + "\n");
-            }
-            this.console.appendText("Errors found: " + errorList.size() + "\n");
-        }
-        this.tabPane.getCurCodeArea().replaceText(String.join("\n", scanner.getTokens()));
+    public void handleScanButton(String filename)  {
+       try {
+           String tokenString = "";
+           // create scanner and scan file
+           Token token;
+           Scanner scanner = new Scanner(filename, this.errorHandler);
+           while ( ( token= scanner.scan()).kind != Token.Kind.EOF) {
+               tokenString += token.toString() + "\n";
+           }
+           //System.out.println(tokenString);
+           if (this.errorHandler.errorsFound()) {
+               List<Error> errorList = this.errorHandler.getErrorList();
+               for (Error error : errorList) {
+                   this.console.appendText(error.toString() + "\n");
+               }
+               this.console.appendText("Errors found: " + errorList.size() + "\n");
+               errorHandler.clear();
+           }
+           this.tabPane.getCurCodeArea().replaceText(tokenString);
+       }
+       catch(CompilationException e){
+           System.out.println("Compilation Exception");
+       }
     }
+
 }
