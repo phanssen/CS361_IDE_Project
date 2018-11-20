@@ -431,7 +431,7 @@ public class Controller
 
     /**
      * Handles scanning - gets the current file and passes
-     * it to handleScanButton()
+     * the file path to handleScanButton()
      */
     @FXML
     private void handleScan() throws IOException {
