@@ -11,9 +11,7 @@ import org.fxmisc.richtext.CodeArea;
 import javafx.scene.control.*;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TabPane;
-import java.io.IOException;
 
 /**
  * A class that holds a static method to access the active code area.

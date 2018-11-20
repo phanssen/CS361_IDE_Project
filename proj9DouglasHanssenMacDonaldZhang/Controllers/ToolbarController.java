@@ -6,13 +6,8 @@ Date: 11/20/2018
 */
 package proj9DouglasHanssenMacDonaldZhang.Controllers;
 import proj9DouglasHanssenMacDonaldZhang.*;
-import proj9DouglasHanssenMacDonaldZhang.CodeAreaTabPane;
-import proj9DouglasHanssenMacDonaldZhang.UserErrorDialog;
-import proj9DouglasHanssenMacDonaldZhang.UserErrorDialog.ErrorType;
-import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
-import proj9DouglasHanssenMacDonaldZhang.bantam.util.CompilationException;
-import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
-import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Token;
+import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.*;
+import proj9DouglasHanssenMacDonaldZhang.bantam.util.*;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.Error;
 import javafx.scene.control.*;
 import java.io.IOException;
@@ -143,7 +138,7 @@ public class ToolbarController {
            this.printConsoleErrors();
        }
        catch(CompilationException e){
-           UserErrorDialog userErrorDialog = new UserErrorDialog(ErrorType.FNF_ERROR, filename);
+           UserErrorDialog userErrorDialog = new UserErrorDialog(UserErrorDialog.ErrorType.FNF_ERROR, filename);
            userErrorDialog.showAndWait();
        }
     }

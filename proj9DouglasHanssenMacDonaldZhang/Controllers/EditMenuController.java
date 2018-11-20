@@ -9,12 +9,9 @@ package proj9DouglasHanssenMacDonaldZhang.Controllers;
 import proj9DouglasHanssenMacDonaldZhang.*;
 
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
 import org.fxmisc.richtext.CodeArea;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.ArrayList;
 
 /**
  * This class handles the Edit menu, as a helper to the main Controller.
