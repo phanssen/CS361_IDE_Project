@@ -41,7 +41,6 @@ Date: 10/27/18
                     <KeyCodeCombination alt="UP" code="S" control="UP" meta="DOWN" shift="DOWN" shortcut="UP"/>
                 </accelerator>
             </MenuItem>
-            <MenuItem fx:id="findMenuItem" onAction="#handleFind" text="Find" accelerator="Shortcut+F" />
             <SeparatorMenuItem />
             <MenuItem fx:id="exitMenuItem" onAction="#handleExitMenuItemAction" text="Exit">
                 <accelerator>
@@ -63,6 +62,7 @@ Date: 10/27/18
             <MenuItem fx:id="entabTextMenuItem" onAction="#handleEntab" text="Entab" accelerator="Shortcut+}T" />
             <MenuItem fx:id="detabTextMenuItem" onAction="#handleDetab" text="Detab" accelerator="Shortcut+{T"/>
             <MenuItem fx:id="checkWellFormedMenuItem" onAction="#handleCheckWellFormedAction" text="Check Well-Formed Groupings" accelerator="Shortcut+Shift+(" />
+            <MenuItem fx:id="findMenuItem" onAction="#handleFind" text="Find" accelerator="Shortcut+F" />
         </Menu>
         <Menu fx:id="prefMenu" mnemonicParsing="false" text="Preferences">
             <MenuItem fx:id="normalModeMenuItem" mnemonicParsing="false" onAction="#handleNormalMode"

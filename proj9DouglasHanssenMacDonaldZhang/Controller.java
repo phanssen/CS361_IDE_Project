@@ -130,9 +130,9 @@ public class Controller
 
         // Initialize all controllers
         fileMenuController = new FileMenuController(this.tabPane, this.primaryStage, this.tabFileMap);
-        editMenuController = new EditMenuController(this.tabPane, this.findTextField);
+        editMenuController = new EditMenuController(this.tabPane);
         helpMenuController = new HelpMenuController();
-        toolbarController = new ToolbarController(this.tabPane, this.consoleTextArea);
+        toolbarController = new ToolbarController(this.tabPane, this.consoleTextArea, this.findTextField);
 
         this.tabFileMap = fileMenuController.tabFileMap;
         this.setupContextMenuController();
@@ -426,7 +426,7 @@ public class Controller
      */
     @FXML
     private void handleFind() {
-        editMenuController.handleFind();
+        this.toolbarController.handleFind();
     }
 
     /**
