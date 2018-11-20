@@ -6,6 +6,7 @@ Date: 11/14/18
 */
 package proj9DouglasHanssenMacDonaldZhang.Controllers;
 import proj9DouglasHanssenMacDonaldZhang.CodeAreaTabPane;
+import proj9DouglasHanssenMacDonaldZhang.UserErrorDialog;
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.CompilationException;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
@@ -62,5 +63,4 @@ public class ToolbarController {
            System.out.println("Compilation Exception");
        }
     }
-
 }

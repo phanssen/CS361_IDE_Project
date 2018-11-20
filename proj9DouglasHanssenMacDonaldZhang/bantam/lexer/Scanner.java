@@ -1,6 +1,9 @@
 package proj9DouglasHanssenMacDonaldZhang.bantam.lexer;
 
+import proj9DouglasHanssenMacDonaldZhang.Controllers.FileMenuController;
+import proj9DouglasHanssenMacDonaldZhang.Controllers.ToolbarController;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
+import proj9DouglasHanssenMacDonaldZhang.CodeAreaTabPane;
 
 import java.io.*;
 
@@ -12,6 +15,7 @@ public class Scanner
 {
     private SourceFile sourceFile;
     private ErrorHandler errorHandler;
+    private Error error;
     private String token;
     private char currentChar;
     private boolean tokenDone;
@@ -477,18 +481,17 @@ public class Scanner
 
                 } //Close while loop
 
-
-
-                if ((multilineCommentOpen) | (singlelineCommentOpen) | (stringOpen)) {
-                    Error error = new Error(Error.Kind.LEX_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Found end of file before program was properly closed.");
-                    this.notifyErrorHandler(error);
-                    return new Token(Kind.ERROR, token, sourceFile.getCurrentLineNumber());
-                    //make an error token(stringOpen) {
+                if ((multilineCommentOpen) || (singlelineCommentOpen) || (stringOpen)) {
+                    this.error = new Error(Error.Kind.PARSE_ERROR, sourceFile.getFilename(), sourceFile.getCurrentLineNumber(), "Found end of file before program was properly closed.");
+                    this.notifyErrorHandler(this.error);
+                    type = Kind.ERROR; //Once the SourceFile only sends the end of file char, then only this section should be triggered
+                    Token errToken = makeNewToken();
+//                    Token errToken = new Token(Kind.ERROR, token, sourceFile.getCurrentLineNumber());
+                    stringOpen = false;
+                    multilineCommentOpen = false;
+                    singlelineCommentOpen = false;
+                    return errToken;
                 }
-
-                /*type = Kind.EOF; //Once the SourceFile only sends the end of file char, then only this section should be triggered
-                Token eofToken = makeNewToken();
-                return eofToken;*/
 
             } catch (Exception e) {
                 e.printStackTrace();
