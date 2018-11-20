@@ -6,10 +6,14 @@ import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
 import proj9DouglasHanssenMacDonaldZhang.CodeAreaTabPane;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Token.Kind;
+import proj9DouglasHanssenMacDonaldZhang.bantam.util.*;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.Error;
 
+import java.util.Arrays;
 
 public class Scanner
 {

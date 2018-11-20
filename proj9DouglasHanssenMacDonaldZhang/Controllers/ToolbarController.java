@@ -48,6 +48,9 @@ public class ToolbarController {
            while ( ( token= scanner.scan()).kind != Token.Kind.EOF) {
                tokenString += token.toString() + "\n";
            }
+           if(token.kind == Token.Kind.EOF) {
+               tokenString += token.toString();
+           }
            //System.out.println(tokenString);
            if (this.errorHandler.errorsFound()) {
                List<Error> errorList = this.errorHandler.getErrorList();
