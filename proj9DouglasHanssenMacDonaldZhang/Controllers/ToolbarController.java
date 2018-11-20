@@ -6,6 +6,8 @@ Date: 11/20/2018
 */
 package proj9DouglasHanssenMacDonaldZhang.Controllers;
 import proj9DouglasHanssenMacDonaldZhang.CodeAreaTabPane;
+import proj9DouglasHanssenMacDonaldZhang.UserErrorDialog;
+import proj9DouglasHanssenMacDonaldZhang.UserErrorDialog.ErrorType;
 import proj9DouglasHanssenMacDonaldZhang.bantam.lexer.Scanner;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.CompilationException;
 import proj9DouglasHanssenMacDonaldZhang.bantam.util.ErrorHandler;
@@ -66,7 +68,8 @@ public class ToolbarController {
            this.printConsoleErrors();
        }
        catch(CompilationException e){
-           System.out.println("Compilation Exception");
+           UserErrorDialog userErrorDialog = new UserErrorDialog(ErrorType.FNF_ERROR, filename);
+           userErrorDialog.showAndWait();
        }
     }
 
