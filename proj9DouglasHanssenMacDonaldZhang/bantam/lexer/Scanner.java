@@ -692,4 +692,34 @@ public class Scanner
         Token newToken = makeNewToken();
         return newToken;
     }
+
+    public static void main(String[] args) {
+        if(args.length > 0) {
+            for(int i = 0; i < args.length; i++) {
+                System.out.println("Printing tokens for file :" + args[i]);
+                String tokenString = "";
+                String message = "";
+                ErrorHandler errorHandler = new ErrorHandler();
+                Scanner scanner = new Scanner(args[i], errorHandler);
+                Token token;
+                while ( ( token= scanner.scan()).kind != Token.Kind.EOF) {
+                    tokenString += token.toString() + "\n";
+                }
+                if(token.kind == Token.Kind.EOF) {
+                    tokenString += token.toString() + "\n";
+                }
+                if(errorHandler.errorsFound()) {
+                    message = "There are " + errorHandler.getErrorList().size() + " errors.\n";
+                }
+                else {
+                    message = "Scanning successful.\n";
+                }
+                System.out.println(tokenString);
+                System.out.println(message);
+            }
+        }
+
+
+
+    }
 }
