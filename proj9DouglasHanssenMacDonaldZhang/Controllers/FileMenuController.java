@@ -1,8 +1,8 @@
 /*
 File: FileMenuController.java
-CS361 Project 6
-Names: Kyle Douglas, Paige Hanssen, Wyett MacDonald, and Tia Zhang
-Date: 10/27/18
+CS361 Project 9
+Names: Liwei Jiang, Chris Marcello, Tracy Quan, Wyett MacDonald, Paige Hanssen, Tia Zhang, Kyle Douglas
+Date: 11/20/2018
 */
 
 package proj9DouglasHanssenMacDonaldZhang.Controllers;

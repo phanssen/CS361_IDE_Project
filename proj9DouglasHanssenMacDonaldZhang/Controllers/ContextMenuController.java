@@ -1,8 +1,8 @@
 /*
  * File: ContextMenuController.java
- * F18 CS361 Project 6
- * Names: Liwei Jiang, Chris Marcello, Tracy Quan
- * Date: 10/23/2018
+ * F18 CS361 Project 9
+ * Names: Liwei Jiang, Chris Marcello, Tracy Quan, Wyett MacDonald, Paige Hanssen, Tia Zhang, Kyle Douglas
+ * Date: 11/20/2018
  * This file contains the ContextMenuController class, handling context menu related actions.
  */
 
