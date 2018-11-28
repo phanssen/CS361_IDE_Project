@@ -9,7 +9,7 @@
  * EMPTY indicates a rule with an empty right hand side.
  * All other terminal symbols that are in all caps correspond to keywords.
  */
-package bantam.parser;
+package proj10DouglasHanssenMacDonaldZhang.bantam.parser;
 
 import static bantam.lexer.Token.Kind.*;
 
@@ -299,7 +299,6 @@ public class Parser
     /*
 	 * <Type> ::= <Identifier> <Brackets>
      * <Brackets> ::= EMPTY | [ ]
-     */
      */
 	private String parseType() { }
 

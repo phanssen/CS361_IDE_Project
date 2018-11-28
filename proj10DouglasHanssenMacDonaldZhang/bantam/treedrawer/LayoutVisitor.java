@@ -16,7 +16,7 @@
  * --changed all the visit methods to work with the Visitor class
  */
 
-package bantam.treedrawer;
+package proj10DouglasHanssenMacDonaldZhang.bantam.treedrawer;
 
 import proj10DouglasHanssenMacDonaldZhang.bantam.ast.*;
 import proj10DouglasHanssenMacDonaldZhang.bantam.visitor.Visitor;
