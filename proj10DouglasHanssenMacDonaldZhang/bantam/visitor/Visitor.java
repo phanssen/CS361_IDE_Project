@@ -24,7 +24,7 @@
    PARTICULAR PURPOSE. 
 */
 
-package bantam.visitor;
+package proj10DouglasHanssenMacDonaldZhang.bantam.visitor;
 
 import proj10DouglasHanssenMacDonaldZhang.bantam.ast.*;
 

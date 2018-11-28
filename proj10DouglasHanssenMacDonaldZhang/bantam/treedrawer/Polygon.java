@@ -12,7 +12,7 @@
  * of the authors.
  */
 
-package bantam.treedrawer;
+package proj10DouglasHanssenMacDonaldZhang.bantam.treedrawer;
 
 class Polygon
 {
