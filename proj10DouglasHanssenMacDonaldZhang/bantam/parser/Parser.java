@@ -886,14 +886,9 @@ public class Parser
         Drawer drawer = new Drawer();
 
         for(int i = 0; i < args.length; i++) { //0 is the file name Parser
-<<<<<<< fbfc9b227aefd43398f9223140ec7d7885fdbf17
-            parser.parse(args[i]);
-            System.out.println("Filename " + args[i] + "\n" + errorHandler.getErrorList());
-=======
             Program program = parser.parse(args[i]);
             drawer.draw(args[i], program);
             System.out.println("Filename: " + args[i] + "\nFile size: " + errorHandler.getErrorList().size());
->>>>>>> Add in tree drawing to be able to see the parsed file
             errorHandler.clear();
         }
     }
