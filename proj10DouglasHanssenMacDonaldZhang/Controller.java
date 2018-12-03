@@ -446,7 +446,9 @@ public class Controller
     @FXML
     private void handleScanParse() throws IOException {
         if(this.promptSave()) {
-            // this.toolbarController.handleScanButton(filename);
+            File curFile = this.tabFileMap.get(this.tabPane.getCurTab());
+            this.fileMenuController.handleNewMenuItemAction();
+            this.toolbarController.handleScanParse(curFile.getPath());
         }
     }
 
