@@ -178,32 +178,91 @@ public class Parser
     /*
      * <WhileStmt> ::= WHILE ( <Expression> ) <Stmt>
      */
-    private Stmt parseWhile() { return null;}
+    private Stmt parseWhile() {
+        int position = currentToken.position;
 
+        Expr expr = null;
+        Stmt stmt = null;
+        if( currentToken.kind != WHILE){
+            String message = "Error in While";
+            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        }
+        if((currentToken = scanner.scan()).equals("(")) {
+            expr = parseExpression();
+            if ((currentToken = scanner.scan()).equals(")")) {
+                String message = "Error in While";
+                notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+            }
+            stmt = parseStatement();
+        }
+        return new WhileStmt(position, expr, stmt);
+
+    }
 
     /*
      * <ReturnStmt> ::= RETURN <Expression> ; | RETURN ;
      */
-    private Stmt parseReturn() { return null;}
+    private Stmt parseReturn() {
+        int position = currentToken.position;
 
+        if( currentToken.kind != RETURN) {
+            String message = "Error in return";
+            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        }
+        this.currentToken = scanner.scan();
+        Expr expr = parseExpression();
+        return new ReturnStmt(position, expr);
+
+    }
 
     /*
      * BreakStmt> ::= BREAK ;
      */
-    private Stmt parseBreak() {return null; }
+    private Stmt parseBreak() {
+        int position = currentToken.position;
 
+        if( currentToken.kind != BREAK) {
+            String message = "Error in break";
+            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        }
+//        this.currentToken = scanner.scan();
+        return new BreakStmt(position);
+    }
 
     /*
      * <ExpressionStmt> ::= <Expression> ;
      */
-    private ExprStmt parseExpressionStmt() {return null; }
+    private ExprStmt parseExpressionStmt() {
+        int position = currentToken.position;
+
+        this.currentToken = scanner.scan();
+        Expr expr = parseExpression();
+        return new ExprStmt(position, expr);
+    }
 
 
     /*
      * <DeclStmt> ::= VAR <Identifier> = <Expression> ;
      * every local variable must be initialized
      */
-    private Stmt parseDeclStmt() { return null;}
+    private Stmt parseDeclStmt() {
+        int position = currentToken.position;
+
+        if( currentToken.kind != VAR){
+            String message = "Error in DeclStmt";
+            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        }
+        String name = parseIdentifier();
+        if(!(currentToken = scanner.scan()).equals("=")) {
+            String message = "Error in DeclStmt";
+            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        }
+        parseOperator();
+        currentToken = scanner.scan();
+        Expr expr = parseExpression();
+        return new DeclStmt(position, name, expr);
+
+    }
 
 
     /*
@@ -212,20 +271,95 @@ public class Parser
      * <Terminate> ::= EMPTY | <Expression>
      * <Increment> ::= EMPTY | <Expression>
      */
-    private Stmt parseFor() {return null; }
+    private Stmt parseFor() {
+        int position = currentToken.position;
+        Expr predExpr = null;
+        Expr initExpr = null;
+        Expr updateExpr = null;
+
+        if( currentToken.kind != FOR){
+            String message = "Error in parseFor";
+            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        }
+        currentToken = scanner.scan();
+        if (currentToken.spelling.equals("(")) {
+            currentToken = scanner.scan();
+            while ((currentToken.getSpelling() != ")")) {
+                if((currentToken.getSpelling() != ";") & (predExpr == null)){
+                    initExpr = parseExpression();
+                }
+                else{
+                    if (predExpr == null) {
+                        predExpr = parseExpression();
+                    } else {
+                        updateExpr = parseExpression();
+                    }
+                }
+                currentToken = scanner.scan();
+            }
+        }
+
+        Stmt stmt = parseStatement();
+        return new ForStmt(position, initExpr, predExpr, updateExpr, stmt);
+
+    }
 
 
     /*
      * <BlockStmt> ::= { <Body> }
      * <Body> ::= EMPTY | <Stmt> <Body>
      */
-    private Stmt parseBlock() { return null;}
+    private Stmt parseBlock() {
+        int position = currentToken.position;
+
+        if (this.currentToken.spelling.equals("{")) {
+            if (currentToken.kind == null) {
+                return null;
+            }
+            currentToken = scanner.scan();
+            while ((this.currentToken.getSpelling() != "}")){
+                Stmt stmt = parseStatement();
+            }
+        }
+
+        StmtList list = new StmtList(position);
+        return new BlockStmt(position, list);
+
+    }
 
 
     /*
      * <IfStmt> ::= IF ( <Expr> ) <Stmt> | IF ( <Expr> ) <Stmt> ELSE <Stmt>
      */
-    private Stmt parseIf() { return null;}
+    private Stmt parseIf() {
+        int position = currentToken.position;
+
+        Stmt elseStmt = null;
+        Expr predExpr = null;
+        Stmt thenStmt = null;
+
+        if( currentToken.kind != IF){
+            String message = "Error in parseIf";
+            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        }
+        currentToken = scanner.scan();
+        if (currentToken.spelling.equals("(")) {
+            currentToken = scanner.scan();
+            while (!(currentToken.spelling.equals(")"))) {
+                predExpr = parseExpression();
+            }
+        }
+        thenStmt = parseStatement();
+        currentToken = scanner.scan();
+        if (currentToken.kind == ELSE) {
+            currentToken = scanner.scan();
+            elseStmt = parseStatement();
+        }
+
+        return new IfStmt(position, predExpr, thenStmt, elseStmt);
+
+    }
+
 
 
     //-----------------------------------------
@@ -310,14 +444,14 @@ public class Parser
      * <RelationalExpr> ::=<AddExpr> | <AddExpr> <ComparisonOp> <AddExpr>
      * <ComparisonOp> ::=  < | > | <= | >= | INSTANCEOF
      */
-    private Expr parseRelationalExpr() {
-        int position = currentToken.position;
+	private Expr parseRelationalExpr() {
+	    int position = currentToken.position;
 
-        Expr left = parseAddExpr();
-        String op = parseOperator();
-        if(currentToken.kind == Token.Kind.COMPARE) {
-            this.currentToken = scanner.scan();
-            parseOperator();
+	    Expr left = parseAddExpr();
+//	    String op = parseOperator();
+	    if((currentToken = scanner.scan()).kind == Token.Kind.COMPARE) {
+//	        this.currentToken = scanner.scan();
+	        parseOperator();
             Expr right = parseAddExpr();
             left = new BinaryCompEqExpr(position, left, right);
         }
@@ -344,7 +478,8 @@ public class Parser
             left = new BinaryArithMinusExpr(position, left, right);
         }
         else {
-            // return error
+            String message = "Did not find correct operator";
+            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         }
 
         return left;
@@ -400,9 +535,19 @@ public class Parser
     private Expr parseNew() {
         int position = currentToken.position;
 
-        String id = parseIdentifier();
-        if ((currentToken = scanner.scan()).equals("[")) {
-            parseExpression();
+	    String id = parseIdentifier();
+	    if ((currentToken = scanner.scan()).equals("[")) {
+	        parseExpression();
+	        if (!(currentToken = scanner.scan()).equals("]")) {
+                String message = "No closing bracket";
+                notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+            }
+        }
+        if ((currentToken = scanner.scan()).equals("(")) {
+            if (!(currentToken = scanner.scan()).equals(")")) {
+                String message = "No closing parentheses";
+                notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+            }
         }
         Expr newExpr = new NewExpr(position, id);
         return newExpr;
@@ -429,7 +574,7 @@ public class Parser
      */
     private Expr parseUnaryPrefix() {
         int position = currentToken.position;
-        String spelling = currentToken.getSpelling(); 
+        String spelling = currentToken.getSpelling();
 
         // I'm confused here - UnaryExpr (and similar) classes
         // need to get passed an expr, but what is this expr??
@@ -675,7 +820,7 @@ public class Parser
 
 
     /*
-     * <Type> ::= <Identifier> <Brackets>
+	 * <Type> ::= <Identifier> <Brackets>
      * <Brackets> ::= EMPTY | [ ]
      */
     //*/ //Tia commented out cause it's an error
@@ -738,11 +883,12 @@ public class Parser
         ErrorHandler errorHandler = new ErrorHandler();
         Parser parser = new Parser(errorHandler);
 
-        for(int i = 1; i < args.length; i++) { //0 is the file name Parser
+        for(int i = 0; i < args.length; i++) { //0 is the file name Parser
             parser.parse(args[i]);
-            System.out.println("Filename" + args[i] + errorHandler.getErrorList());
+            System.out.println("Filename " + args[i] + "\n" + errorHandler.getErrorList());
             errorHandler.clear();
         }
     }
 
 }
+
