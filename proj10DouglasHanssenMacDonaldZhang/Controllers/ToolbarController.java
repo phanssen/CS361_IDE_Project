@@ -6,9 +6,12 @@ Date: 11/20/2018
 */
 package proj10DouglasHanssenMacDonaldZhang.Controllers;
 import proj10DouglasHanssenMacDonaldZhang.*;
+import proj10DouglasHanssenMacDonaldZhang.bantam.ast.*;
 import proj10DouglasHanssenMacDonaldZhang.bantam.lexer.*;
+import proj10DouglasHanssenMacDonaldZhang.bantam.parser.*;
 import proj10DouglasHanssenMacDonaldZhang.bantam.util.*;
 import proj10DouglasHanssenMacDonaldZhang.bantam.util.Error;
+import proj10DouglasHanssenMacDonaldZhang.bantam.treedrawer.*;
 import javafx.scene.control.*;
 import java.io.IOException;
 import java.io.File;
@@ -146,8 +149,13 @@ public class ToolbarController {
     /**
      * Handle Scan and Parse button
      */
-    private void handleScanParse() {
-        System.out.println("Handle scanning and parsing");
+    public void handleScanParse(String filename) {        
+        Parser parser = new Parser(this.errorHandler);
+
+        Program program = parser.parse(filename);
+
+        Drawer drawer = new Drawer();
+        drawer.draw(filename, program);
     }
 
     /**

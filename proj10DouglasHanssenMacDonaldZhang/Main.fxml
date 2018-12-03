@@ -79,7 +79,7 @@ Date: 10/27/18
     <ToolBar prefHeight="40.0" prefWidth="200.0">
         <items>
             <Button fx:id="scanButton" text="Scan" onAction="#handleScan"/>
-            <Button fx:id="scanParseButton" text="Scan and Parse"/>
+            <Button fx:id="scanParseButton" text="Scan and Parse" onAction="#handleScanParse"/>
             <TextField fx:id="findTextField" visible="false"></TextField>
         </items>
     </ToolBar>
