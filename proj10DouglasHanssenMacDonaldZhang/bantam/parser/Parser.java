@@ -77,7 +77,32 @@ public class Parser
      * <Field> ::= <Type> <Identifier> <InitialValue> ;
      * <InitialValue> ::= EMPTY | = <Expression>
      */
-     private Member parseMember() { return null;}
+     private Member parseMember() {
+         int position = currentToken.position;
+
+         String type = parseType();
+         String id = parseIdentifier();
+         if((currentToken = scanner.scan()).equals("(")) {
+             FormalList params = parseParameters();
+             StmtList stmnt = new StmtList(position);
+             Method method = new Method(position, type, id, params, stmnt);
+             return method;
+
+         }
+         else {
+             currentToken = scanner.scan();
+             String initValue = parseIdentifier();
+             Expr expr;
+             if((currentToken = scanner.scan()).equals("=")) {
+                 expr = parseExpression();
+             }
+             else {
+                 expr = null;
+             }
+             Field field = new Field(position, type, id, expr);
+             return field;
+         }
+     }
 
 
     //-----------------------------------
@@ -169,7 +194,7 @@ public class Parser
     /*
 	 * <IfStmt> ::= IF ( <Expr> ) <Stmt> | IF ( <Expr> ) <Stmt> ELSE <Stmt>
      */
-	private Stmt parseIf() {return null; }
+	private Stmt parseIf() { return null;}
 
 
     //-----------------------------------------
@@ -180,7 +205,18 @@ public class Parser
 	 * <Expression> ::= <LogicalOrExpr> <OptionalAssignment>
      * <OptionalAssignment> ::= EMPTY | = <Expression>
      */
-	private Expr parseExpression() { return null;}
+	private Expr parseExpression() {
+	    int position = currentToken.position;
+
+	    Expr left = parseOrExpr();
+	    if((this.currentToken = scanner.scan()).equals("=")) {
+	        parseOperator();
+	        Expr right = parseExpression();
+	        left = new BinaryLogicOrExpr(position, left, right);
+        }
+
+	    return left;
+	}
 
 
     /*
@@ -205,7 +241,18 @@ public class Parser
 	 * <LogicalAND> ::= <ComparisonExpr> <LogicalANDRest>
      * <LogicalANDRest> ::= EMPTY |  && <ComparisonExpr> <LogicalANDRest>
      */
-	private Expr parseAndExpr() {return null; }
+	private Expr parseAndExpr() {
+	    int position = currentToken.position;
+
+	    Expr left = parseRelationalExpr();
+	    while (this.currentToken.spelling.equals("&&")) {
+	        this.currentToken = scanner.scan();
+	        Expr right = parseRelationalExpr();
+	        left = new BinaryLogicAndExpr(position, left, right);
+        }
+
+	    return left;
+	}
 
 
     /*
@@ -213,21 +260,64 @@ public class Parser
      *                     <RelationalExpr>
      * <equalOrNotEqual> ::=  == | !=
      */
-	private Expr parseEqualityExpr() {return null; }
+	private Expr parseEqualityExpr() {
+	    int position = currentToken.position;
+
+	    Expr left = parseRelationalExpr();
+	    while (this.currentToken.spelling.equals("==") || this.currentToken.spelling.equals("!=")) {
+            this.currentToken = scanner.scan();
+            parseOperator();
+            Expr right = parseRelationalExpr();
+            left = new BinaryCompEqExpr(position, left, right);
+        }
+
+	    return left;
+	}
 
 
     /*
 	 * <RelationalExpr> ::=<AddExpr> | <AddExpr> <ComparisonOp> <AddExpr>
      * <ComparisonOp> ::=  < | > | <= | >= | INSTANCEOF
      */
-	private Expr parseRelationalExpr() {return null; }
+	private Expr parseRelationalExpr() {
+	    int position = currentToken.position;
+
+	    Expr left = parseAddExpr();
+	    String op = parseOperator();
+	    if(currentToken.kind == Token.Kind.COMPARE) {
+	        this.currentToken = scanner.scan();
+	        parseOperator();
+            Expr right = parseAddExpr();
+            left = new BinaryCompEqExpr(position, left, right);
+        }
+
+	    return left;
+	}
 
 
     /*
 	 * <AddExpr>::＝ <MultExpr> <MoreMultExpr>
      * <MoreMultExpr> ::= EMPTY | + <MultExpr> <MoreMultExpr> | - <MultExpr> <MoreMultExpr>
      */
-	private Expr parseAddExpr() { return null;}
+	private Expr parseAddExpr() {
+	    int position = currentToken.position;
+
+	    Expr left = parseMultExpr();
+
+	    if((this.currentToken = scanner.scan()).equals("+")) {
+	        Expr right = parseMultExpr();
+	        left = new BinaryArithPlusExpr(position, left, right);
+        }
+        else if((this.currentToken = scanner.scan()).equals("-")) {
+            Expr right = parseMultExpr();
+            left = new BinaryArithMinusExpr(position, left, right);
+        }
+        else {
+            // return error
+        }
+
+	    return left;
+    }
 
 
     /*
@@ -237,18 +327,61 @@ public class Parser
      *               % <NewCastOrUnary> <MoreNCU> |
      *               EMPTY
      */
-	private Expr parseMultExpr() {return null; }
+	private Expr parseMultExpr() {
+        int position = currentToken.position;
+
+        Expr left = parseNewCastOrUnary();
+        if((this.currentToken = scanner.scan()).equals("*")) {
+            Expr right = parseNewCastOrUnary();
+            left = new BinaryArithPlusExpr(position, left, right);
+        }
+        else if((this.currentToken = scanner.scan()).equals("/")) {
+            Expr right = parseNewCastOrUnary();
+            left = new BinaryArithMinusExpr(position, left, right);
+        }
+        else if((this.currentToken = scanner.scan()).equals("%")) {
+            Expr right = parseNewCastOrUnary();
+            left = new BinaryArithMinusExpr(position, left, right);
+        }
+        else {
+            // return error
+        }
+        return left;
+    }
 
     /*
 	 * <NewCastOrUnary> ::= < NewExpression> | <CastExpression> | <UnaryPrefix>
      */
-	private Expr parseNewCastOrUnary() {return null; }
+	private Expr parseNewCastOrUnary() {
+	    Expr expr;
+
+	    if(currentToken.kind == Token.Kind.NEW) {
+	        expr = parseNew();
+        }
+        else if(currentToken.kind == Token.Kind.CAST) {
+            expr = parseCast();
+        }
+        else {
+            expr = parseUnaryPrefix();
+        }
+
+        return expr;
+    }
 
 
     /*
 	 * <NewExpression> ::= NEW <Identifier> ( ) | NEW <Identifier> [ <Expression> ]
      */
-	private Expr parseNew() {return null; }
+	private Expr parseNew() {
+	    int position = currentToken.position;
+
+	    String id = parseIdentifier();
+	    if ((currentToken = scanner.scan()).equals("[")) {
+	        parseExpression();
+        }
+        Expr newExpr = new NewExpr(position, id);
+	    return newExpr;
+	}
 
 
     /*
@@ -317,15 +450,15 @@ public class Parser
      */
     private Expr parseVarOrDispatchExpr(){
         //First identifier will be "super" or "this" or neither
-        // if neither, there is no prefix to the expression 
+        // if neither, there is no prefix to the expression
         if( (currentToken.spelling.equals("super")) || (currentToken.spelling.equals("this"))){
             return parseVarExprWithPrefix();
         }
-        else{ //If not "super" or "this", then the prefix is empty, either an empty DispatchExprPrefix or empty VarExprPrefix. 
+        else{ //If not "super" or "this", then the prefix is empty, either an empty DispatchExprPrefix or empty VarExprPrefix.
             return parseVarOrDispatchExprNoPrefix();
         }
     }
-    
+
     private Expr parseVarExprWithPrefix() {
         String refVarName = currentToken.spelling;
         if ((scanner.scan()).kind != Token.Kind.DOT) { //"super" and "this" should both be followed by a dot
@@ -357,7 +490,7 @@ public class Parser
         }
 
     }
-    
+
     private Expr parseVarOrDispatchExprNoPrefix(){
         String varName = parseIdentifier();
         Expr arrayIdx = parseVarSuffix(); //I don't know what to do with this, I think it's an array index
@@ -381,7 +514,7 @@ public class Parser
     * <VarExprSuffix> ::= [ <Expr> ] | EMPTY
     */
     private Expr parseVarSuffix(){
-        //Move onto the suffix, which is either empty or has an expression in brackets. 
+        //Move onto the suffix, which is either empty or has an expression in brackets.
         //I think [Expr] represents indexing into an array
         //If next token is not [, since it's been stored in currentToken, it shouldn't be lost
         if((currentToken = scanner.scan()).spelling.equals("[")){
@@ -395,7 +528,7 @@ public class Parser
     }
 
 
-    
+
 
     /*
     * Handles the case that it is a dispatch expression by handling its args
@@ -489,19 +622,14 @@ public class Parser
 	    return currentToken.getSpelling();
 	}
 
-
     private ConstStringExpr parseStringConst() {
         int position = currentToken.position;
         return new ConstStringExpr(position, currentToken.getSpelling());
 	}
 
-
     private ConstIntExpr parseIntConst() { return null;}
 
-
     private ConstBooleanExpr parseBoolean() { return null;}
-
-
 
     /**
      * Call the register method in ErrorHandler to store the found error
@@ -520,7 +648,7 @@ public class Parser
         for(int i = 1; i < args.length; i++){ //0 is the file name Parser
             parser.parse(args[i]);
             System.out.println("Filename" + args[i] + errorHandler.getErrorList());
-            errorHandler.clear(); 
+            errorHandler.clear();
         }
     }
 
