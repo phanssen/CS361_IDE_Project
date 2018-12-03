@@ -441,6 +441,16 @@ public class Controller
     }
 
     /**
+     * Handles scanning and parsing
+     */
+    @FXML
+    private void handleScanParse() throws IOException {
+        if(this.promptSave()) {
+            // this.toolbarController.handleScanButton(filename);
+        }
+    }
+
+    /**
      * Reads in the application's main stage.
      * For use in Filechooser dialogs
      */

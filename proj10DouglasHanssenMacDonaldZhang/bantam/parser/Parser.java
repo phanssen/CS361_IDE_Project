@@ -43,7 +43,12 @@ public class Parser
      */
     public Program parse(String filename) {
         this.filename = filename;
-        return null;
+        errorHandler = new ErrorHandler();
+        scanner = new Scanner(filename, errorHandler);
+        currentToken = scanner.scan();
+        Program program = this.parseProgram();
+
+        return program;
     }
 
 
@@ -68,7 +73,20 @@ public class Parser
      * <ExtendsClause> ::= EXTENDS <Identifier> | EMPTY
      * <MemberList> ::= EMPTY | <Member> <MemberList>
      */
-    private Class_ parseClass() { return null;}
+    private Class_ parseClass() {
+        int position = currentToken.position;
+        String spelling = currentToken.getSpelling();
+        MemberList memberList = new MemberList(position);
+
+        Expr left = parseIdentifier();
+        while (currentToken.kind != EOF) {
+        // while (/* there are still members */) {          ASK DALE
+            Member member = parseMember();
+            memberList.addElement(member);
+        }
+        
+        return new Class_(position, spelling, spelling, spelling, memberList);
+    }
 
 
     /* Fields and Methods
@@ -353,19 +371,13 @@ public class Parser
 	 * <NewCastOrUnary> ::= < NewExpression> | <CastExpression> | <UnaryPrefix>
      */
 	private Expr parseNewCastOrUnary() {
-	    Expr expr;
-
-	    if(currentToken.kind == Token.Kind.NEW) {
-	        expr = parseNew();
+        if(currentToken.kind == Token.Kind.NEW) {
+	        return parseNew();
+        } else if(currentToken.kind == Token.Kind.CAST) {
+            return parseCast();
+        } else {
+            return parseUnaryPrefix();
         }
-        else if(currentToken.kind == Token.Kind.CAST) {
-            expr = parseCast();
-        }
-        else {
-            expr = parseUnaryPrefix();
-        }
-
-        return expr;
     }
 
 
@@ -387,21 +399,65 @@ public class Parser
     /*
 	 * <CastExpression> ::= CAST ( <Type> , <Expression> )
      */
-	private Expr parseCast() { return null;}
+	private Expr parseCast() {
+        int position = currentToken.position;
+        String type = parseIdentifier();
+        Expr expr = parseExpression();
+        Expr castExpr = new CastExpr(position, type, expr);
+
+        return castExpr;
+    }
 
 
     /*
 	 * <UnaryPrefix> ::= <PrefixOp> <UnaryPrefix> | <UnaryPostfix>
      * <PrefixOp> ::= - | ! | ++ | --
      */
-	private Expr parseUnaryPrefix() { return null;}
+	private Expr parseUnaryPrefix() {
+        int position = currentToken.position;
+        String spelling = currentToken.getSpelling();
+
+        // I'm confused here - UnaryExpr (and similar) classes
+        // need to get passed an expr, but what is this expr??
+        // Just a normal Expr, as it is below?
+        Expr operatorExpr = new Expr(position);
+
+        // additionally, do I need to make a call to parseUnaryPrefix()
+        // after (or instead of) creating a new object and returning that
+        // object?
+        if(spelling == "-") {
+            return new UnaryNegExpr(position, operatorExpr);;
+        } else if(spelling == "!") {
+            return new UnaryNotExpr(position, operatorExpr);
+        } else if(spelling == "++") {
+            return new UnaryIncrExpr(position, operatorExpr, false);
+        } else if(spelling == "--") {
+            return new UnaryDecrExpr(position, operatorExpr, false);
+        } else {
+            return parseUnaryPostfix();
+        }
+    }
 
 
     /*
 	 * <UnaryPostfix> ::= <Primary> <PostfixOp>
      * <PostfixOp> ::= ++ | -- | EMPTY
      */
-	private Expr parseUnaryPostfix() { return null;}
+	private Expr parseUnaryPostfix() {
+        int position = currentToken.position;
+        Expr primaryExpr = parsePrimary();
+
+        this.currentToken = scanner.scan();
+
+        if(this.currentToken.getSpelling() == "++") {
+            return new UnaryIncrExpr(position, primaryExpr, true);
+        } else if(this.currentToken.getSpelling == "--"){
+            return new UnaryDecrExpr(position, primaryExpr, true);
+        } else {
+            // register error? Or can we assume it fulfills the
+            // "EMPTY" part in the grammar?
+        }
+    }
 
 
     /*
@@ -435,13 +491,11 @@ public class Parser
         else if(currentToken.kind == Token.Kind.IDENTIFIER){
             return parseVarOrDispatchExpr();
         }
-
         else{
             return null;
         }
 
     }
-
 
     /*
      * <VarExpr> ::= <VarExprPrefix> <Identifier> <VarExprSuffix>
@@ -627,9 +681,20 @@ public class Parser
         return new ConstStringExpr(position, currentToken.getSpelling());
 	}
 
-    private ConstIntExpr parseIntConst() { return null;}
+    private ConstIntExpr parseIntConst() {
+        int position = currentToken.position;
+        String spelling = currentToken.getSpelling();
 
-    private ConstBooleanExpr parseBoolean() { return null;}
+        return new ConstIntExpr(position, spelling);
+    }
+
+
+    private ConstBooleanExpr parseBoolean() {
+        int position = currentToken.position;
+        String spelling = currentToken.getSpelling();
+
+        return new ConstBooleanExpr(position, spelling);
+    }
 
     /**
      * Call the register method in ErrorHandler to store the found error
@@ -641,11 +706,11 @@ public class Parser
         throw new CompilationException("There was an error while parsing");
     }
 
-
-    public static void main(String args[]){
+    public static void main(String args[]) {
         ErrorHandler errorHandler = new ErrorHandler();
         Parser parser = new Parser(errorHandler);
-        for(int i = 1; i < args.length; i++){ //0 is the file name Parser
+
+        for(int i = 1; i < args.length; i++) { //0 is the file name Parser
             parser.parse(args[i]);
             System.out.println("Filename" + args[i] + errorHandler.getErrorList());
             errorHandler.clear();

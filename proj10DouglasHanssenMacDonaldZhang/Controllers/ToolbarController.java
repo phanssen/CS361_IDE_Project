@@ -144,6 +144,13 @@ public class ToolbarController {
     }
 
     /**
+     * Handle Scan and Parse button
+     */
+    private void handleScanParse() {
+        System.out.println("Handle scanning and parsing");
+    }
+
+    /**
      * Print ErrorHandler errors to the console
      */
     private void printConsoleErrors() {

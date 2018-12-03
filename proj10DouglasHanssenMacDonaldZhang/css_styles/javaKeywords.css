@@ -50,7 +50,7 @@ Date: 10/27/18
     -fx-background-color: white;
 }
 
-#scanButton {
+#scanButton,#scanParseButton {
     -fx-font: 13 arial;
     -fx-base: paleTurquoise;
     -fx-background-radius: 100;
