@@ -52,7 +52,7 @@ public class Parser
     }
 
 
-    /* 
+    /*
      * <Program> ::= <Class> | <Class> <Program>
      */
     private Program parseProgram() {
@@ -69,7 +69,7 @@ public class Parser
 
 
     /*
-	 * <Class> ::= CLASS <Identifier> <ExtendsClause> { <MemberList> }
+     * <Class> ::= CLASS <Identifier> <ExtendsClause> { <MemberList> }
      * <ExtendsClause> ::= EXTENDS <Identifier> | EMPTY
      * <MemberList> ::= EMPTY | <Member> <MemberList>
      */
@@ -80,11 +80,11 @@ public class Parser
 
         Expr left = parseIdentifier();
         while (currentToken.kind != EOF) {
-        // while (/* there are still members */) {          ASK DALE
+            // while (/* there are still members */) {          ASK DALE
             Member member = parseMember();
             memberList.addElement(member);
         }
-        
+
         return new Class_(position, spelling, spelling, spelling, memberList);
     }
 
@@ -95,32 +95,32 @@ public class Parser
      * <Field> ::= <Type> <Identifier> <InitialValue> ;
      * <InitialValue> ::= EMPTY | = <Expression>
      */
-     private Member parseMember() {
-         int position = currentToken.position;
+    private Member parseMember() {
+        int position = currentToken.position;
 
-         String type = parseType();
-         String id = parseIdentifier();
-         if((currentToken = scanner.scan()).equals("(")) {
-             FormalList params = parseParameters();
-             StmtList stmnt = new StmtList(position);
-             Method method = new Method(position, type, id, params, stmnt);
-             return method;
+        String type = parseType();
+        String id = parseIdentifier();
+        if((currentToken = scanner.scan()).equals("(")) {
+            FormalList params = parseParameters();
+            StmtList stmnt = new StmtList(position);
+            Method method = new Method(position, type, id, params, stmnt);
+            return method;
 
-         }
-         else {
-             currentToken = scanner.scan();
-             String initValue = parseIdentifier();
-             Expr expr;
-             if((currentToken = scanner.scan()).equals("=")) {
-                 expr = parseExpression();
-             }
-             else {
-                 expr = null;
-             }
-             Field field = new Field(position, type, id, expr);
-             return field;
-         }
-     }
+        }
+        else {
+            currentToken = scanner.scan();
+            String initValue = parseIdentifier();
+            Expr expr;
+            if((currentToken = scanner.scan()).equals("=")) {
+                expr = parseExpression();
+            }
+            else {
+                expr = null;
+            }
+            Field field = new Field(position, type, id, expr);
+            return field;
+        }
+    }
 
 
     //-----------------------------------
@@ -129,36 +129,36 @@ public class Parser
      *  <Stmt> ::= <WhileStmt> | <ReturnStmt> | <BreakStmt> | <DeclStmt>
      *              | <ExpressionStmt> | <ForStmt> | <BlockStmt> | <IfStmt>
      */
-     private Stmt parseStatement() {
-            Stmt stmt;
+    private Stmt parseStatement() {
+        Stmt stmt;
 
-            switch (currentToken.kind) {
-                case IF:
-                    stmt = parseIf();
-                    break;
-                case LCURLY:
-                    stmt = parseBlock();
-                    break;
-                case VAR:
-                    stmt = parseDeclStmt();
-                    break;
-                case RETURN:
-                    stmt = parseReturn();
-                    break;
-                case FOR:
-                    stmt = parseFor();
-                    break;
-                case WHILE:
-                    stmt = parseWhile();
-                    break;
-                case BREAK:
-                    stmt = parseBreak();
-                    break;
-                default:
-                    stmt = parseExpressionStmt();
-            }
+        switch (currentToken.kind) {
+            case IF:
+                stmt = parseIf();
+                break;
+            case LCURLY:
+                stmt = parseBlock();
+                break;
+            case VAR:
+                stmt = parseDeclStmt();
+                break;
+            case RETURN:
+                stmt = parseReturn();
+                break;
+            case FOR:
+                stmt = parseFor();
+                break;
+            case WHILE:
+                stmt = parseWhile();
+                break;
+            case BREAK:
+                stmt = parseBreak();
+                break;
+            default:
+                stmt = parseExpressionStmt();
+        }
 
-            return stmt;
+        return stmt;
     }
 
 
@@ -171,48 +171,48 @@ public class Parser
     /*
      * <ReturnStmt> ::= RETURN <Expression> ; | RETURN ;
      */
-	private Stmt parseReturn() { return null;}
+    private Stmt parseReturn() { return null;}
 
 
     /*
-	 * BreakStmt> ::= BREAK ;
+     * BreakStmt> ::= BREAK ;
      */
-	private Stmt parseBreak() {return null; }
+    private Stmt parseBreak() {return null; }
 
 
     /*
-	 * <ExpressionStmt> ::= <Expression> ;
+     * <ExpressionStmt> ::= <Expression> ;
      */
-	private ExprStmt parseExpressionStmt() {return null; }
+    private ExprStmt parseExpressionStmt() {return null; }
 
 
     /*
-	 * <DeclStmt> ::= VAR <Identifier> = <Expression> ;
+     * <DeclStmt> ::= VAR <Identifier> = <Expression> ;
      * every local variable must be initialized
      */
-	private Stmt parseDeclStmt() { return null;}
+    private Stmt parseDeclStmt() { return null;}
 
 
     /*
-	 * <ForStmt> ::= FOR ( <Start> ; <Terminate> ; <Increment> ) <STMT>
+     * <ForStmt> ::= FOR ( <Start> ; <Terminate> ; <Increment> ) <STMT>
      * <Start>     ::= EMPTY | <Expression>
      * <Terminate> ::= EMPTY | <Expression>
      * <Increment> ::= EMPTY | <Expression>
      */
-	private Stmt parseFor() {return null; }
+    private Stmt parseFor() {return null; }
 
 
     /*
-	 * <BlockStmt> ::= { <Body> }
+     * <BlockStmt> ::= { <Body> }
      * <Body> ::= EMPTY | <Stmt> <Body>
      */
-	private Stmt parseBlock() { return null;}
+    private Stmt parseBlock() { return null;}
 
 
     /*
-	 * <IfStmt> ::= IF ( <Expr> ) <Stmt> | IF ( <Expr> ) <Stmt> ELSE <Stmt>
+     * <IfStmt> ::= IF ( <Expr> ) <Stmt> | IF ( <Expr> ) <Stmt> ELSE <Stmt>
      */
-	private Stmt parseIf() { return null;}
+    private Stmt parseIf() { return null;}
 
 
     //-----------------------------------------
@@ -220,28 +220,28 @@ public class Parser
     //Here we introduce the precedence to operations
 
     /*
-	 * <Expression> ::= <LogicalOrExpr> <OptionalAssignment>
+     * <Expression> ::= <LogicalOrExpr> <OptionalAssignment>
      * <OptionalAssignment> ::= EMPTY | = <Expression>
      */
-	private Expr parseExpression() {
-	    int position = currentToken.position;
+    private Expr parseExpression() {
+        int position = currentToken.position;
 
-	    Expr left = parseOrExpr();
-	    if((this.currentToken = scanner.scan()).equals("=")) {
-	        parseOperator();
-	        Expr right = parseExpression();
-	        left = new BinaryLogicOrExpr(position, left, right);
+        Expr left = parseOrExpr();
+        if((this.currentToken = scanner.scan()).equals("=")) {
+            parseOperator();
+            Expr right = parseExpression();
+            left = new BinaryLogicOrExpr(position, left, right);
         }
 
-	    return left;
-	}
+        return left;
+    }
 
 
     /*
-	 * <LogicalOR> ::= <logicalAND> <LogicalORRest>
+     * <LogicalOR> ::= <logicalAND> <LogicalORRest>
      * <LogicalORRest> ::= EMPTY |  || <LogicalAND> <LogicalORRest>
      */
-	private Expr parseOrExpr() {
+    private Expr parseOrExpr() {
         int position = currentToken.position;
 
         Expr left = parseAndExpr();
@@ -252,79 +252,79 @@ public class Parser
         }
 
         return left;
-	}
+    }
 
 
     /*
-	 * <LogicalAND> ::= <ComparisonExpr> <LogicalANDRest>
+     * <LogicalAND> ::= <ComparisonExpr> <LogicalANDRest>
      * <LogicalANDRest> ::= EMPTY |  && <ComparisonExpr> <LogicalANDRest>
      */
-	private Expr parseAndExpr() {
-	    int position = currentToken.position;
+    private Expr parseAndExpr() {
+        int position = currentToken.position;
 
-	    Expr left = parseRelationalExpr();
-	    while (this.currentToken.spelling.equals("&&")) {
-	        this.currentToken = scanner.scan();
-	        Expr right = parseRelationalExpr();
-	        left = new BinaryLogicAndExpr(position, left, right);
+        Expr left = parseRelationalExpr();
+        while (this.currentToken.spelling.equals("&&")) {
+            this.currentToken = scanner.scan();
+            Expr right = parseRelationalExpr();
+            left = new BinaryLogicAndExpr(position, left, right);
         }
 
-	    return left;
-	}
+        return left;
+    }
 
 
     /*
-	 * <ComparisonExpr> ::= <RelationalExpr> <equalOrNotEqual> <RelationalExpr> |
+     * <ComparisonExpr> ::= <RelationalExpr> <equalOrNotEqual> <RelationalExpr> |
      *                     <RelationalExpr>
      * <equalOrNotEqual> ::=  == | !=
      */
-	private Expr parseEqualityExpr() {
-	    int position = currentToken.position;
+    private Expr parseEqualityExpr() {
+        int position = currentToken.position;
 
-	    Expr left = parseRelationalExpr();
-	    while (this.currentToken.spelling.equals("==") || this.currentToken.spelling.equals("!=")) {
+        Expr left = parseRelationalExpr();
+        while (this.currentToken.spelling.equals("==") || this.currentToken.spelling.equals("!=")) {
             this.currentToken = scanner.scan();
             parseOperator();
             Expr right = parseRelationalExpr();
             left = new BinaryCompEqExpr(position, left, right);
         }
 
-	    return left;
-	}
+        return left;
+    }
 
 
     /*
-	 * <RelationalExpr> ::=<AddExpr> | <AddExpr> <ComparisonOp> <AddExpr>
+     * <RelationalExpr> ::=<AddExpr> | <AddExpr> <ComparisonOp> <AddExpr>
      * <ComparisonOp> ::=  < | > | <= | >= | INSTANCEOF
      */
-	private Expr parseRelationalExpr() {
-	    int position = currentToken.position;
+    private Expr parseRelationalExpr() {
+        int position = currentToken.position;
 
-	    Expr left = parseAddExpr();
-	    String op = parseOperator();
-	    if(currentToken.kind == Token.Kind.COMPARE) {
-	        this.currentToken = scanner.scan();
-	        parseOperator();
+        Expr left = parseAddExpr();
+        String op = parseOperator();
+        if(currentToken.kind == Token.Kind.COMPARE) {
+            this.currentToken = scanner.scan();
+            parseOperator();
             Expr right = parseAddExpr();
             left = new BinaryCompEqExpr(position, left, right);
         }
 
-	    return left;
-	}
+        return left;
+    }
 
 
     /*
-	 * <AddExpr>::＝ <MultExpr> <MoreMultExpr>
+     * <AddExpr>::＝ <MultExpr> <MoreMultExpr>
      * <MoreMultExpr> ::= EMPTY | + <MultExpr> <MoreMultExpr> | - <MultExpr> <MoreMultExpr>
      */
-	private Expr parseAddExpr() {
-	    int position = currentToken.position;
+    private Expr parseAddExpr() {
+        int position = currentToken.position;
 
-	    Expr left = parseMultExpr();
+        Expr left = parseMultExpr();
 
-	    if((this.currentToken = scanner.scan()).equals("+")) {
-	        Expr right = parseMultExpr();
-	        left = new BinaryArithPlusExpr(position, left, right);
+        if((this.currentToken = scanner.scan()).equals("+")) {
+            Expr right = parseMultExpr();
+            left = new BinaryArithPlusExpr(position, left, right);
         }
         else if((this.currentToken = scanner.scan()).equals("-")) {
             Expr right = parseMultExpr();
@@ -334,18 +334,18 @@ public class Parser
             // return error
         }
 
-	    return left;
+        return left;
     }
 
 
     /*
-	 * <MultiExpr> ::= <NewCastOrUnary> <MoreNCU>
+     * <MultiExpr> ::= <NewCastOrUnary> <MoreNCU>
      * <MoreNCU> ::= * <NewCastOrUnary> <MoreNCU> |
      *               / <NewCastOrUnary> <MoreNCU> |
      *               % <NewCastOrUnary> <MoreNCU> |
      *               EMPTY
      */
-	private Expr parseMultExpr() {
+    private Expr parseMultExpr() {
         int position = currentToken.position;
 
         Expr left = parseNewCastOrUnary();
@@ -368,11 +368,11 @@ public class Parser
     }
 
     /*
-	 * <NewCastOrUnary> ::= < NewExpression> | <CastExpression> | <UnaryPrefix>
+     * <NewCastOrUnary> ::= < NewExpression> | <CastExpression> | <UnaryPrefix>
      */
-	private Expr parseNewCastOrUnary() {
+    private Expr parseNewCastOrUnary() {
         if(currentToken.kind == Token.Kind.NEW) {
-	        return parseNew();
+            return parseNew();
         } else if(currentToken.kind == Token.Kind.CAST) {
             return parseCast();
         } else {
@@ -382,24 +382,24 @@ public class Parser
 
 
     /*
-	 * <NewExpression> ::= NEW <Identifier> ( ) | NEW <Identifier> [ <Expression> ]
+     * <NewExpression> ::= NEW <Identifier> ( ) | NEW <Identifier> [ <Expression> ]
      */
-	private Expr parseNew() {
-	    int position = currentToken.position;
+    private Expr parseNew() {
+        int position = currentToken.position;
 
-	    String id = parseIdentifier();
-	    if ((currentToken = scanner.scan()).equals("[")) {
-	        parseExpression();
+        String id = parseIdentifier();
+        if ((currentToken = scanner.scan()).equals("[")) {
+            parseExpression();
         }
         Expr newExpr = new NewExpr(position, id);
-	    return newExpr;
-	}
+        return newExpr;
+    }
 
 
     /*
-	 * <CastExpression> ::= CAST ( <Type> , <Expression> )
+     * <CastExpression> ::= CAST ( <Type> , <Expression> )
      */
-	private Expr parseCast() {
+    private Expr parseCast() {
         int position = currentToken.position;
         String type = parseIdentifier();
         Expr expr = parseExpression();
@@ -410,29 +410,33 @@ public class Parser
 
 
     /*
-	 * <UnaryPrefix> ::= <PrefixOp> <UnaryPrefix> | <UnaryPostfix>
+     * <UnaryPrefix> ::= <PrefixOp> <UnaryPrefix> | <UnaryPostfix>
      * <PrefixOp> ::= - | ! | ++ | --
+     * (Postfix handles any variables, like !blah, in which case ! is a prefix op and blah is the unary prefix that = postfix)
      */
-	private Expr parseUnaryPrefix() {
+    private Expr parseUnaryPrefix() {
         int position = currentToken.position;
-        String spelling = currentToken.getSpelling();
+        String spelling = currentToken.getSpelling(); 
 
         // I'm confused here - UnaryExpr (and similar) classes
         // need to get passed an expr, but what is this expr??
         // Just a normal Expr, as it is below?
-        Expr operatorExpr = new Expr(position);
+        //Additional note from Tia: if the expression is meant to store the operation, like ++ or /, why pass it in the constructor?
+        //The operation won't change - a UnaryNegExpr will always contain -. Why not just have the unary expression class make it?
+
+        //Expr operatorExpr = new Expr(position);
 
         // additionally, do I need to make a call to parseUnaryPrefix()
         // after (or instead of) creating a new object and returning that
         // object?
-        if(spelling == "-") {
-            return new UnaryNegExpr(position, operatorExpr);;
-        } else if(spelling == "!") {
-            return new UnaryNotExpr(position, operatorExpr);
-        } else if(spelling == "++") {
-            return new UnaryIncrExpr(position, operatorExpr, false);
-        } else if(spelling == "--") {
-            return new UnaryDecrExpr(position, operatorExpr, false);
+        if("-".equals(spelling)) {
+            return new UnaryNegExpr(position, null);
+        } else if("!".equals(spelling)) {
+            return new UnaryNotExpr(position, null);
+        } else if("++".equals(spelling)) {
+            return new UnaryIncrExpr(position, null, false);
+        } else if("--".equals(spelling)) {
+            return new UnaryDecrExpr(position, null, false);
         } else {
             return parseUnaryPostfix();
         }
@@ -440,28 +444,28 @@ public class Parser
 
 
     /*
-	 * <UnaryPostfix> ::= <Primary> <PostfixOp>
+     * <UnaryPostfix> ::= <Primary> <PostfixOp>
      * <PostfixOp> ::= ++ | -- | EMPTY
      */
-	private Expr parseUnaryPostfix() {
+    private Expr parseUnaryPostfix() {
         int position = currentToken.position;
         Expr primaryExpr = parsePrimary();
 
         this.currentToken = scanner.scan();
 
-        if(this.currentToken.getSpelling() == "++") {
+        if("++".equals(currentToken.getSpelling()) ) {
             return new UnaryIncrExpr(position, primaryExpr, true);
-        } else if(this.currentToken.getSpelling == "--"){
+        } else if("--".equals(this.currentToken.spelling)){
             return new UnaryDecrExpr(position, primaryExpr, true);
         } else {
-            // register error? Or can we assume it fulfills the
-            // "EMPTY" part in the grammar?
+            return primaryExpr;
         }
     }
 
 
+
     /*
-	 * <Primary> ::= ( <Expression> ) | <IntegerConst> | <BooleanConst> |
+     * <Primary> ::= ( <Expression> ) | <IntegerConst> | <BooleanConst> |
      *                               <StringConst> | <VarExpr> | <DispatchExpr>
      * <VarExpr> ::= <VarExprPrefix> <Identifier> <VarExprSuffix>
      * <VarExprPrefix> ::= SUPER . | THIS . | EMPTY
@@ -469,33 +473,44 @@ public class Parser
      * <DispatchExpr> ::= <DispatchExprPrefix> <Identifier> ( <Arguments> )
      * <DispatchExprPrefix> ::= <Primary> . | EMPTY
      */
-	private Expr parsePrimary() {
+    private Expr parsePrimary() {
+        Expr expr;
         int position = currentToken.position;
         if( currentToken.kind == Token.Kind.LPAREN){
-            Expr expr = parseExpression();
+            expr = parseExpression();
             if(currentToken.kind != Token.Kind.RPAREN){
                 String message = "Missing right parenthesis";
-	            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, position, message));
+                notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, position, message));
             }
-            return expr;
         }
         else if(currentToken.kind == Token.Kind.INTCONST){
-            return parseIntConst();
+            expr = parseIntConst();
         }
         else if(currentToken.kind == Token.Kind.BOOLEAN){
-            return parseBoolean();
+            expr = parseBoolean();
         }
         else if(currentToken.kind == Token.Kind.STRCONST){
-            return parseStringConst();
+            expr = parseStringConst();
         }
         else if(currentToken.kind == Token.Kind.IDENTIFIER){
-            return parseVarOrDispatchExpr();
-        }
-        else{
-            return null;
+            expr = parseVarOrDispatchExpr();
         }
 
+        else{
+            String message = "This is not a primary";
+            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+            expr = null;
+        }
+
+        if(currentToken.kind == Token.Kind.DOT){ //I'm assuming the other methods moved it to the next token
+            String methodName = parseVarOrDispatchIdentifier();
+            ExprList args = processDispatchArgs();
+            expr = new DispatchExpr(position, expr, methodName, args);
+        }
+        return expr;
+
     }
+
 
     /*
      * <VarExpr> ::= <VarExprPrefix> <Identifier> <VarExprSuffix>
@@ -565,8 +580,8 @@ public class Parser
     }
 
     /*
-    * <VarExprSuffix> ::= [ <Expr> ] | EMPTY
-    */
+     * <VarExprSuffix> ::= [ <Expr> ] | EMPTY
+     */
     private Expr parseVarSuffix(){
         //Move onto the suffix, which is either empty or has an expression in brackets.
         //I think [Expr] represents indexing into an array
@@ -585,44 +600,44 @@ public class Parser
 
 
     /*
-    * Handles the case that it is a dispatch expression by handling its args
-    * If not dispatch expression, will move the scanner onto the next token
-    * <DispatchExpr> ::= <DispatchExprPrefix> <Identifier> ( <Arguments> )
-    */
+     * Handles the case that it is a dispatch expression by handling its args
+     * If not dispatch expression, will move the scanner onto the next token
+     * <DispatchExpr> ::= <DispatchExprPrefix> <Identifier> ( <Arguments> )
+     */
     private ExprList processDispatchArgs(){
-            ExprList args = parseArguments(); //I don't know what to do with the arguments either
-            if(scanner.scan().kind != Token.Kind.RPAREN) { //If it's not, then don't need to save the token anyways cause throw exception
-                String message = "Missing right parenthesis";
-	            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
-            }
-            return args;
+        ExprList args = parseArguments(); //I don't know what to do with the arguments either
+        if(scanner.scan().kind != Token.Kind.RPAREN) { //If it's not, then don't need to save the token anyways cause throw exception
+            String message = "Missing right parenthesis";
+            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        }
+        return args;
     }
 
 
 
     /*
-	 * <Arguments> ::= EMPTY | <Expression> <MoreArgs>
+     * <Arguments> ::= EMPTY | <Expression> <MoreArgs>
      * <MoreArgs>  ::= EMPTY | , <Expression> <MoreArgs>
      */
-	private ExprList parseArguments() {
-	    if(currentToken.kind != Token.Kind.IDENTIFIER) return null;
-	    int position = currentToken.position;
-	    ExprList argList = new ExprList(position);
+    private ExprList parseArguments() {
+        if(currentToken.kind != Token.Kind.IDENTIFIER) return null;
+        int position = currentToken.position;
+        ExprList argList = new ExprList(position);
         Expr argExpression = parseExpression();
         argList.addElement(argExpression);
-	    while(currentToken.kind == Token.Kind.COMMA){
-	        argExpression = parseExpression();
-	        argList.addElement(argExpression);
+        while(currentToken.kind == Token.Kind.COMMA){
+            argExpression = parseExpression();
+            argList.addElement(argExpression);
         }
         return argList;
     }
 
 
     /*
-	 * <Parameters>  ::= EMPTY | <Formal> <MoreFormals>
+     * <Parameters>  ::= EMPTY | <Formal> <MoreFormals>
      * <MoreFormals> ::= EMPTY | , <Formal> <MoreFormals
      */
-	private FormalList parseParameters() {
+    private FormalList parseParameters() {
         if(currentToken.kind != Token.Kind.IDENTIFIER) return null;
         int position = currentToken.position;
         FormalList paramList = new FormalList(position);
@@ -637,9 +652,9 @@ public class Parser
 
 
     /*
-	 * <Formal> ::= <Type> <Identifier>
+     * <Formal> ::= <Type> <Identifier>
      */
-	private Formal parseFormal() {
+    private Formal parseFormal() {
         int position = currentToken.position;
         String type = parseType();
         return new Formal(position, type, currentToken.getSpelling());
@@ -647,39 +662,39 @@ public class Parser
 
 
     /*
-	 * <Type> ::= <Identifier> <Brackets>
+     * <Type> ::= <Identifier> <Brackets>
      * <Brackets> ::= EMPTY | [ ]
      */
-     //*/ //Tia commented out cause it's an error
-	private String parseType() {
-	    String type = parseIdentifier();
-	    if(scanner.scan().kind == Token.Kind.LBRACKET ){
-	        type += "[";
-	        if(!(scanner.scan().kind == Token.Kind.RBRACKET)){
-	            String message = "Missing right bracket";
-	            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message)); //TODO REPLACE WITH ERROR REPORTING
+    //*/ //Tia commented out cause it's an error
+    private String parseType() {
+        String type = parseIdentifier();
+        if(scanner.scan().kind == Token.Kind.LBRACKET ){
+            type += "[";
+            if(!(scanner.scan().kind == Token.Kind.RBRACKET)){
+                String message = "Missing right bracket";
+                notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message)); //TODO REPLACE WITH ERROR REPORTING
             }
         }
-	    return type;
-	}
+        return type;
+    }
 
 
     //----------------------------------------
     //Terminals
 
-	private String parseOperator() {
-	    return currentToken.getSpelling();
+    private String parseOperator() {
+        return currentToken.getSpelling();
     }
 
 
     private String parseIdentifier() {
-	    return currentToken.getSpelling();
-	}
+        return currentToken.getSpelling();
+    }
 
     private ConstStringExpr parseStringConst() {
         int position = currentToken.position;
         return new ConstStringExpr(position, currentToken.getSpelling());
-	}
+    }
 
     private ConstIntExpr parseIntConst() {
         int position = currentToken.position;
@@ -718,4 +733,3 @@ public class Parser
     }
 
 }
-
