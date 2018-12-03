@@ -95,10 +95,10 @@ public class Parser
 
         // while (currentToken.kind != EOF) {
         // while (/* there are still members */) {          ASK DALE
-            Member member = parseMember();
-            memberList.addElement(member);
+        Member member = parseMember();
+        memberList.addElement(member);
         // }
-        
+
         return new Class_(position, filename, className, parent, memberList);
     }
 
@@ -445,14 +445,14 @@ public class Parser
      * <RelationalExpr> ::=<AddExpr> | <AddExpr> <ComparisonOp> <AddExpr>
      * <ComparisonOp> ::=  < | > | <= | >= | INSTANCEOF
      */
-	private Expr parseRelationalExpr() {
-	    int position = currentToken.position;
+    private Expr parseRelationalExpr() {
+        int position = currentToken.position;
 
-	    Expr left = parseAddExpr();
+        Expr left = parseAddExpr();
 //	    String op = parseOperator();
-	    if((currentToken = scanner.scan()).kind == Token.Kind.COMPARE) {
+        if((currentToken = scanner.scan()).kind == Token.Kind.COMPARE) {
 //	        this.currentToken = scanner.scan();
-	        parseOperator();
+            parseOperator();
             Expr right = parseAddExpr();
             left = new BinaryCompEqExpr(position, left, right);
         }
@@ -523,8 +523,10 @@ public class Parser
         if(currentToken.kind == Token.Kind.NEW) {
             return parseNew();
         } else if(currentToken.kind == Token.Kind.CAST) {
+            currentToken = scanner.scan(); //Tia addition
             return parseCast();
         } else {
+            currentToken = scanner.scan(); //Tia addition
             return parseUnaryPrefix();
         }
     }
@@ -536,10 +538,12 @@ public class Parser
     private Expr parseNew() {
         int position = currentToken.position;
 
-	    String id = parseIdentifier();
-	    if ((currentToken = scanner.scan()).equals("[")) {
-	        parseExpression();
-	        if (!(currentToken = scanner.scan()).equals("]")) {
+        String id = parseIdentifier();
+        Expr size = null;
+        if ((currentToken = scanner.scan()).equals("[")) {
+            currentToken = scanner.scan(); //Tia addition
+            size = parseExpression();
+            if (!(currentToken = scanner.scan()).equals("]")) {
                 String message = "No closing bracket";
                 notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
             }
@@ -550,7 +554,13 @@ public class Parser
                 notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
             }
         }
-        Expr newExpr = new NewExpr(position, id);
+        Expr newExpr;
+        if(size==null) {
+            newExpr = new NewExpr(position, id);
+        }
+        else{
+            newExpr = new NewArrayExpr(position, id, size);
+        }
         return newExpr;
     }
 
@@ -560,7 +570,9 @@ public class Parser
      */
     private Expr parseCast() {
         int position = currentToken.position;
+        currentToken = scanner.scan(); //Tia addition
         String type = parseIdentifier();
+        currentToken = scanner.scan(); //Tia addition
         Expr expr = parseExpression();
         Expr castExpr = new CastExpr(position, type, expr);
 
@@ -597,6 +609,7 @@ public class Parser
         } else if("--".equals(spelling)) {
             return new UnaryDecrExpr(position, null, false);
         } else {
+            currentToken = scanner.scan(); //Tia addition
             return parseUnaryPostfix();
         }
     }
@@ -636,6 +649,7 @@ public class Parser
         Expr expr;
         int position = currentToken.position;
         if( currentToken.kind == Token.Kind.LPAREN){
+            currentToken = scanner.scan(); //Tia addition
             expr = parseExpression();
             if(currentToken.kind != Token.Kind.RPAREN){
                 String message = "Missing right parenthesis";
@@ -661,7 +675,7 @@ public class Parser
             expr = null;
         }
 
-        if(currentToken.kind == Token.Kind.DOT){ //I'm assuming the other methods moved it to the next token
+        if(currentToken.kind == Token.Kind.DOT){ //The previous methods will have moved it on to the current token already
             String methodName = parseVarOrDispatchIdentifier();
             ExprList args = processDispatchArgs();
             expr = new DispatchExpr(position, expr, methodName, args);
@@ -682,23 +696,24 @@ public class Parser
         if( (currentToken.spelling.equals("super")) || (currentToken.spelling.equals("this"))){
             return parseVarExprWithPrefix();
         }
-        else{ //If not "super" or "this", then the prefix is empty, either an empty DispatchExprPrefix or empty VarExprPrefix.
+        else{ //The prefix is empty, either an empty DispatchExprPrefix or empty VarExprPrefix.
+            //Doesn't need to move on first because empty prefix means it's on the first token of the rest of the expr
             return parseVarOrDispatchExprNoPrefix();
         }
     }
 
     private Expr parseVarExprWithPrefix() {
         String refVarName = currentToken.spelling;
-        if ((scanner.scan()).kind != Token.Kind.DOT) { //"super" and "this" should both be followed by a dot
+        if ((scanner.scan()).kind != Token.Kind.DOT) { //If "super." or "this." is missing the dot
             String message = "Missing dot after reference name";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
-            return null; //It throws an exception so returns nothing, the return is a moot pt but Java insists
+            return null; //It throws an exception so shouldn't get here, the return is a moot pt but Java insists
         } else {
             currentToken = scanner.scan(); //Get the <identifier> after the dot
-            String varName = parseVarOrDispatchIdentifier(); //How do I convert an id into an expression for ref?
+            String varName = parseVarOrDispatchIdentifier();
             int position = currentToken.position;
             VarExpr referenceVar = new VarExpr(position, null, refVarName);
-            Expr arrayIdx = parseVarSuffix(); //I don't know what to do with this, I think it's an array index
+            Expr arrayIdx = parseVarSuffix(); //This moves it on itself, so don't need to move on before it
             if (arrayIdx != null) {
                 return new ArrayExpr(position, referenceVar, varName, arrayIdx);
             } else {
@@ -714,20 +729,20 @@ public class Parser
             return null; //It throws an exception
         }
         else {
-            return parseIdentifier(); //How do I convert an id into an expression for ref?
+            return parseIdentifier(); //I think parseIdentifier should perform the move on, don't need to add it
         }
 
     }
 
     private Expr parseVarOrDispatchExprNoPrefix(){
         String varName = parseIdentifier();
-        Expr arrayIdx = parseVarSuffix(); //I don't know what to do with this, I think it's an array index
+        Expr arrayIdx = parseVarSuffix();
         int position = currentToken.position;
         if((currentToken = scanner.scan()).kind == Token.Kind.LPAREN) { //Then it's a DispatchExpr
-            ExprList args = processDispatchArgs();
+            ExprList args = processDispatchArgs(); //processDispatch will move the token on
             return new DispatchExpr(position, arrayIdx, varName, args);
         }
-        else{ //It's a VarExpr
+        else{ //It's a VarExpr and the token has been moved onto the next already
             if(arrayIdx != null ){
                 return new ArrayExpr(position, null, varName, arrayIdx);
             }
@@ -769,6 +784,7 @@ public class Parser
             String message = "Missing right parenthesis";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         }
+        currentToken = scanner.scan(); //Tia addition
         return args;
     }
 
@@ -783,10 +799,12 @@ public class Parser
         int position = currentToken.position;
         ExprList argList = new ExprList(position);
         Expr argExpression = parseExpression();
-        argList.addElement(argExpression);
+        argList.addElement(argExpression); //The expression parsing should move it on to the comma
         while(currentToken.kind == Token.Kind.COMMA){
+            currentToken = scanner.scan(); //Tia addition
             argExpression = parseExpression();
             argList.addElement(argExpression);
+            currentToken = scanner.scan(); //Tia addition - this will get the comma, if the comma exists
         }
         return argList;
     }
@@ -803,8 +821,10 @@ public class Parser
         Formal param = parseFormal();
         paramList.addElement(param);
         while(currentToken.kind == Token.Kind.COMMA){
+            currentToken = scanner.scan(); //Tia addition
             param = parseFormal();
             paramList.addElement(param);
+            currentToken = scanner.scan(); //Tia addition
         }
         return paramList;
     }
@@ -816,24 +836,29 @@ public class Parser
     private Formal parseFormal() {
         int position = currentToken.position;
         String type = parseType();
-        return new Formal(position, type, currentToken.getSpelling());
+        String id = currentToken.getSpelling();
+        currentToken = scanner.scan(); //Tia addition
+        return new Formal(position, type, id);
     }
 
 
     /*
-	 * <Type> ::= <Identifier> <Brackets>
+     * <Type> ::= <Identifier> <Brackets>
      * <Brackets> ::= EMPTY | [ ]
      */
-    //*/ //Tia commented out cause it's an error
     private String parseType() {
         String type = parseIdentifier();
         if(scanner.scan().kind == Token.Kind.LBRACKET ){
             type += "[";
             if(!(scanner.scan().kind == Token.Kind.RBRACKET)){
                 String message = "Missing right bracket";
-                notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message)); //TODO REPLACE WITH ERROR REPORTING
+                notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+            }
+            else{
+                type += "]";
             }
         }
+        currentToken = scanner.scan(); //Tia addition
         return type;
     }
 
@@ -842,23 +867,29 @@ public class Parser
     //Terminals
 
     private String parseOperator() {
-        return currentToken.getSpelling();
+        String operator = currentToken.spelling;
+        currentToken = scanner.scan(); //Tia addition
+        return operator;
     }
 
 
     private String parseIdentifier() {
-        return currentToken.getSpelling();
+        String id = currentToken.spelling;
+        currentToken = scanner.scan(); //Tia addition
+        return id;
     }
 
     private ConstStringExpr parseStringConst() {
         int position = currentToken.position;
-        return new ConstStringExpr(position, currentToken.getSpelling());
+        String string = currentToken.getSpelling();
+        currentToken = scanner.scan(); //Tia addition
+        return new ConstStringExpr(position, string);
     }
 
     private ConstIntExpr parseIntConst() {
         int position = currentToken.position;
         String spelling = currentToken.getSpelling();
-
+        currentToken = scanner.scan(); //Tia addition
         return new ConstIntExpr(position, spelling);
     }
 
@@ -866,7 +897,7 @@ public class Parser
     private ConstBooleanExpr parseBoolean() {
         int position = currentToken.position;
         String spelling = currentToken.getSpelling();
-
+        currentToken = scanner.scan(); //Tia addition
         return new ConstBooleanExpr(position, spelling);
     }
 
@@ -894,4 +925,3 @@ public class Parser
     }
 
 }
-
