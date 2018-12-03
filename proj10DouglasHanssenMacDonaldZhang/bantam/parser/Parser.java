@@ -78,14 +78,27 @@ public class Parser
         String spelling = currentToken.getSpelling();
         MemberList memberList = new MemberList(position);
 
-        Expr left = parseIdentifier();
-        while (currentToken.kind != EOF) {
-            // while (/* there are still members */) {          ASK DALE
-            Member member = parseMember();
-            memberList.addElement(member);
+        String className = parseIdentifier();
+        String parent = "";
+
+        // move token on to check for extends clause
+        this.currentToken = scanner.scan();
+        if(this.currentToken.kind == EXTENDS) {
+            this.currentToken = scanner.scan();
+
+            parent = this.currentToken.spelling;
+
+            // move onto class members
+            this.currentToken = scanner.scan();
         }
 
-        return new Class_(position, spelling, spelling, spelling, memberList);
+        // while (currentToken.kind != EOF) {
+        // while (/* there are still members */) {          ASK DALE
+            Member member = parseMember();
+            memberList.addElement(member);
+        // }
+        
+        return new Class_(position, filename, className, parent, memberList);
     }
 
 
