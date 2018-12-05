@@ -447,7 +447,6 @@ public class Controller
     private void handleScanParse() throws IOException {
         if(this.promptSave()) {
             File curFile = this.tabFileMap.get(this.tabPane.getCurTab());
-            this.fileMenuController.handleNewMenuItemAction();
             this.toolbarController.handleScanParse(curFile.getPath());
         }
     }

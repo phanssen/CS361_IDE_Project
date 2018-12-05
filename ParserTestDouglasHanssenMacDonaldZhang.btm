@@ -1,0 +1,9 @@
+class A {
+    int x = 1;
+    String str = "hello";
+    boolean emptyStr = false;
+
+    void main() {
+        int y = 2;
+    }
+}
