@@ -57,6 +57,9 @@ public class Parser
      * <Program> ::= <Class> | <Class> <Program>
      */
     private Program parseProgram() {
+        // handle any comments at the beginning of the program
+        handleComments();
+
         int position = currentToken.position;
         ClassList classList = new ClassList(position);
 
@@ -78,37 +81,37 @@ public class Parser
         int position = currentToken.position;
         String spelling = currentToken.getSpelling();
         String className = "";
-        String parent = "";
         MemberList memberList = new MemberList(position);
 
-        // handle any comments at the beginning of the program
-        handleComments();
-
         // beginning of class
-        if(this.currentToken.kind == CLASS) {
-            this.currentToken = scanner.scan();
+        if(currentToken.kind == CLASS) {
+            currentToken = scanner.scan();
             className = parseIdentifier();
+        } else {
+            // notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, position, "Error"));
         }
 
         // check for extends clause
-        this.currentToken = scanner.scan();
-        parent = handleExtends();
+        String parent = handleExtends();
         
-        if(!currentToken.spelling.equals("{")) {
+        if(currentToken.kind != LCURLY) {
             String message = "Error in Class";
-            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+            // notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         }
 
-
-        this.currentToken = scanner.scan();
+        currentToken = scanner.scan();
         while (currentToken.kind != RCURLY && currentToken.kind != EOF) {
             Member member = parseMember();
             memberList.addElement(member);
         }
-        if(!currentToken.spelling.equals("}")) {
-            String message = "Error in Class";
-            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
-        }
+        
+        // unfinished class if right curly doesn't exist
+        // if(currentToken.kind != RCURLY) {
+        //     String message = "Error in Class";
+        //     // notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        // }
+
+        //find EOF if it hasn't been found already
         currentToken = scanner.scan();
 
         return new Class_(position, filename, className, parent, memberList);
@@ -122,25 +125,34 @@ public class Parser
      * <InitialValue> ::= EMPTY | = <Expression>
      */
     private Member parseMember() {
-        // anytime there is a member that is comments
+        // anytime there is a member that is a comment
         handleComments();
 
         int position = currentToken.position;
         String type = parseType();
         String id = parseIdentifier();
+        
+        // check for a method
         if((currentToken.spelling.equals("("))) {
             FormalList params = parseParameters();
-            StmtList stmnt = new StmtList(position);
-            Method method = new Method(position, type, id, params, stmnt);
+            StmtList stmtList = new StmtList(position);
+            Stmt stmt = parseStatement();
+
+            stmtList.addElement(stmt);
+            
+            Method method = new Method(position, type, id, params, stmtList);
+
+            currentToken = scanner.scan();
 
             return method;
         }
-        // check for a field
+        // member is a field, not a method
         else {
             Expr expr;
+
             // initial value
             if(currentToken.kind == ASSIGN) {
-                this.currentToken = scanner.scan();
+                // this.currentToken = scanner.scan();
                 expr = parseExpression();
             }
             // empty initial value
@@ -256,6 +268,7 @@ public class Parser
     private ExprStmt parseExpressionStmt() {
         int position = currentToken.position;
         Expr expr = parseExpression();
+
         return new ExprStmt(position, expr);
     }
 
@@ -333,12 +346,12 @@ public class Parser
     private Stmt parseBlock() {
         int position = currentToken.position;
 
-        if (this.currentToken.spelling.equals("{")) {
-            if (currentToken.kind == null) {
-                return null;
-            }
+        if (this.currentToken.kind == LCURLY) {
+            // if (currentToken.kind == null) {
+            //     return null;
+            // }
             currentToken = scanner.scan();
-            while ((this.currentToken.getSpelling() != "}")){
+            while ((this.currentToken.kind != RCURLY)){
                 Stmt stmt = parseStatement();
             }
         }
@@ -547,7 +560,7 @@ public class Parser
             currentToken = scanner.scan(); //Tia addition
             return parseCast();
         } else {
-            currentToken = scanner.scan(); //Tia addition
+            // currentToken = scanner.scan(); //Tia addition
             return parseUnaryPrefix();
         }
     }
@@ -667,6 +680,7 @@ public class Parser
     private Expr parsePrimary() {
         Expr expr;
         int position = currentToken.position;
+
         if( currentToken.kind == Token.Kind.LPAREN){
             currentToken = scanner.scan(); //Tia addition
             expr = parseExpression();
@@ -682,19 +696,18 @@ public class Parser
             expr = parseBoolean();
         }
         else if(currentToken.kind == Token.Kind.STRCONST){
-            System.out.println("***** Found String Const *****");
             expr = parseStringConst();
         }
         else if(currentToken.kind == Token.Kind.IDENTIFIER){
             expr = parseVarOrDispatchExpr();
         }
-        else{
+        else {
             String message = "This is not a primary";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
             expr = null;
         }
 
-        if((currentToken = scanner.scan()).kind == Token.Kind.DOT){ //I'm assuming the other methods moved it to the next token
+        if(currentToken.kind == Token.Kind.DOT){ //I'm assuming the other methods moved it to the next token
             String methodName = parseVarOrDispatchIdentifier();
             ExprList args = processDispatchArgs();
             expr = new DispatchExpr(position, expr, methodName, args);
@@ -775,7 +788,7 @@ public class Parser
     /*
      * <VarExprSuffix> ::= [ <Expr> ] | EMPTY
      */
-    private Expr parseVarSuffix(){
+    private Expr parseVarSuffix() {
         //Move onto the suffix, which is either empty or has an expression in brackets.
         //I think [Expr] represents indexing into an array
         //If next token is not [, since it's been stored in currentToken, it shouldn't be lost
@@ -788,9 +801,6 @@ public class Parser
             return null;
         }
     }
-
-
-
 
     /*
      * Handles the case that it is a dispatch expression by handling its args
@@ -834,14 +844,15 @@ public class Parser
      * <MoreFormals> ::= EMPTY | , <Formal> <MoreFormals
      */
     private FormalList parseParameters() {
-        System.out.println("Looking for parameters");
-        // If there are no parameters; scanner.scan() here moves past LPAREN
-        if((currentToken = scanner.scan()).kind != IDENTIFIER) {
-            System.out.println("no parameters");
-            return null; }
-
         int position = currentToken.position;
         FormalList paramList = new FormalList(position);
+
+        // No parameters: scanner.scan() moves past LPAREN and returns empty paramList
+        if((currentToken = scanner.scan()).kind != IDENTIFIER) {
+            currentToken = scanner.scan();
+            return paramList;
+        }
+
         Formal param = parseFormal();
         paramList.addElement(param);
 
@@ -875,7 +886,7 @@ public class Parser
     private String parseType() {
         String type = parseIdentifier();
         
-        if((currentToken = scanner.scan()).kind == LBRACKET){
+        if(currentToken.kind == LBRACKET){
             if(!((currentToken = scanner.scan()).kind == RBRACKET)){
                 String message = "Missing right bracket";
                 notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message)); //TODO REPLACE WITH ERROR REPORTING
@@ -891,53 +902,95 @@ public class Parser
     //----------------------------------------
     //Terminals
 
+    /**
+     * Parses operators and moves token on
+     * 
+     * @return String object
+     */
     private String parseOperator() {
         String operator = currentToken.spelling;
         currentToken = scanner.scan(); //Tia addition
+        
         return operator;
     }
 
 
+    /**
+     * Parses identifiers and moves token on
+     * 
+     * @return String object
+     */
     private String parseIdentifier() {
         String id = currentToken.spelling;
         currentToken = scanner.scan(); //Tia addition
+
         return id;
     }
 
+    /**
+     * Parses string constant values and moves token on
+     * 
+     * @return ConstStringExpr object
+     */
     private ConstStringExpr parseStringConst() {
         int position = currentToken.position;
         String string = currentToken.getSpelling();
         currentToken = scanner.scan(); //Tia addition
+
         return new ConstStringExpr(position, string);
     }
 
+    /**
+     * Parses integer constant values and moves token on
+     * 
+     * @return ConstIntExpr object
+     */
     private ConstIntExpr parseIntConst() {
         int position = currentToken.position;
         String spelling = currentToken.getSpelling();
         currentToken = scanner.scan(); //Tia addition
+
         return new ConstIntExpr(position, spelling);
     }
 
 
+    /**
+     * Parses boolean values and moves token on
+     * 
+     * @return ConstBooleanExpr object
+     */
     private ConstBooleanExpr parseBoolean() {
         int position = currentToken.position;
         String spelling = currentToken.getSpelling();
         currentToken = scanner.scan(); //Tia addition
+
         return new ConstBooleanExpr(position, spelling);
     }
 
+    /**
+     * Loops through tokens until non-comment token is found.
+     * Gets rid of multiple lines of single comments, and does
+     * nothing if no comments are found.
+     */
     private void handleComments() {
         while(this.currentToken.kind == COMMENT) {
             this.currentToken = scanner.scan();
         }
     }
 
+    /**
+     * Handles an extends clause by parsing an identifier.
+     * Classes can only extend one class, so uses conditional.
+     * 
+     * @return String that gets passed to the parent
+     */
     private String handleExtends() {
-        while(this.currentToken.kind == EXTENDS) {
-            this.currentToken = scanner.scan();
+        if(currentToken.kind == EXTENDS) {
+            currentToken = scanner.scan();
+            return parseIdentifier();
+        } else {
+            return "";
         }
-
-        return parseIdentifier();
     }
 
     /**

@@ -1,9 +1,9 @@
 class A {
     int x = 1;
     String str = "hello";
+    boolean emptyStr = false;
 
-    // main method
     void main() {
-        System.out.println(this.str);
+        int y = 2;
     }
 }
