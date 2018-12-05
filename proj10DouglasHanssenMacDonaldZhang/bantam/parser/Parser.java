@@ -93,11 +93,23 @@ public class Parser
             this.currentToken = scanner.scan();
         }
 
+        if(!currentToken.spelling.equals("{")) {
+            String message = "Error in Class";
+            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        }
+
+
         // while (currentToken.kind != EOF) {
         // while (/* there are still members */) {          ASK DALE
+        currentToken = scanner.scan();
         Member member = parseMember();
         memberList.addElement(member);
         // }
+        if(!currentToken.spelling.equals("}")) {
+            String message = "Error in Class";
+            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        }
+        currentToken = scanner.scan();
 
         return new Class_(position, filename, className, parent, memberList);
     }
@@ -114,7 +126,7 @@ public class Parser
 
         String type = parseType();
         String id = parseIdentifier();
-        if((currentToken = scanner.scan()).equals("(")) {
+        if((currentToken.spelling.equals("("))) {
             FormalList params = parseParameters();
             StmtList stmnt = new StmtList(position);
             Method method = new Method(position, type, id, params, stmnt);
@@ -122,10 +134,11 @@ public class Parser
 
         }
         else {
-            currentToken = scanner.scan();
-            String initValue = parseIdentifier();
+//            currentToken = scanner.scan();
+//            String initValue = parseIdentifier();
             Expr expr;
-            if((currentToken = scanner.scan()).equals("=")) {
+            if(currentToken.spelling.equals("=")) {
+                currentToken = scanner.scan();
                 expr = parseExpression();
             }
             else {
@@ -189,8 +202,9 @@ public class Parser
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         }
         if((currentToken = scanner.scan()).equals("(")) {
+            currentToken = scanner.scan();
             expr = parseExpression();
-            if ((currentToken = scanner.scan()).equals(")")) {
+            if (!currentToken.spelling.equals(")")) {
                 String message = "Error in While";
                 notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
             }
@@ -206,11 +220,14 @@ public class Parser
     private Stmt parseReturn() {
         int position = currentToken.position;
 
-        if( currentToken.kind != RETURN) {
+        if(currentToken.kind != RETURN) {
             String message = "Error in return";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         }
         this.currentToken = scanner.scan();
+        if(currentToken.spelling.equals(";")) {
+            return new ReturnStmt(position, null);
+        }
         Expr expr = parseExpression();
         return new ReturnStmt(position, expr);
 
@@ -222,11 +239,11 @@ public class Parser
     private Stmt parseBreak() {
         int position = currentToken.position;
 
-        if( currentToken.kind != BREAK) {
+        if(currentToken.kind != BREAK) {
             String message = "Error in break";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         }
-//        this.currentToken = scanner.scan();
+        this.currentToken = scanner.scan();
         return new BreakStmt(position);
     }
 
@@ -235,8 +252,6 @@ public class Parser
      */
     private ExprStmt parseExpressionStmt() {
         int position = currentToken.position;
-
-        this.currentToken = scanner.scan();
         Expr expr = parseExpression();
         return new ExprStmt(position, expr);
     }
@@ -253,12 +268,13 @@ public class Parser
             String message = "Error in DeclStmt";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         }
+        currentToken = scanner.scan();
         String name = parseIdentifier();
-        if(!(currentToken = scanner.scan()).equals("=")) {
+        if(!(currentToken.spelling.equals("="))) {
             String message = "Error in DeclStmt";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         }
-        parseOperator();
+//        parseOperator();
         currentToken = scanner.scan();
         Expr expr = parseExpression();
         return new DeclStmt(position, name, expr);
@@ -292,11 +308,12 @@ public class Parser
                 else{
                     if (predExpr == null) {
                         predExpr = parseExpression();
-                    } else {
+                    }
+                    else {
                         updateExpr = parseExpression();
                     }
                 }
-                currentToken = scanner.scan();
+//                currentToken = scanner.scan();
             }
         }
 
@@ -445,14 +462,14 @@ public class Parser
      * <RelationalExpr> ::=<AddExpr> | <AddExpr> <ComparisonOp> <AddExpr>
      * <ComparisonOp> ::=  < | > | <= | >= | INSTANCEOF
      */
-    private Expr parseRelationalExpr() {
-        int position = currentToken.position;
+	private Expr parseRelationalExpr() {
+	    int position = currentToken.position;
 
-        Expr left = parseAddExpr();
+	    Expr left = parseAddExpr();
 //	    String op = parseOperator();
-        if((currentToken = scanner.scan()).kind == Token.Kind.COMPARE) {
-//	        this.currentToken = scanner.scan();
-            parseOperator();
+	    if(currentToken.kind == COMPARE) {
+	        this.currentToken = scanner.scan();
+	        parseOperator();
             Expr right = parseAddExpr();
             left = new BinaryCompEqExpr(position, left, right);
         }
@@ -470,11 +487,13 @@ public class Parser
 
         Expr left = parseMultExpr();
 
-        if((this.currentToken = scanner.scan()).equals("+")) {
+        if(this.currentToken.equals("+")) {
+            currentToken = scanner.scan();
             Expr right = parseMultExpr();
             left = new BinaryArithPlusExpr(position, left, right);
         }
-        else if((this.currentToken = scanner.scan()).equals("-")) {
+        else if(this.currentToken.equals("-")) {
+            currentToken = scanner.scan();
             Expr right = parseMultExpr();
             left = new BinaryArithMinusExpr(position, left, right);
         }
@@ -498,15 +517,15 @@ public class Parser
         int position = currentToken.position;
 
         Expr left = parseNewCastOrUnary();
-        if((this.currentToken = scanner.scan()).equals("*")) {
+        if(this.currentToken.equals("*")) {
             Expr right = parseNewCastOrUnary();
             left = new BinaryArithPlusExpr(position, left, right);
         }
-        else if((this.currentToken = scanner.scan()).equals("/")) {
+        else if(this.currentToken.equals("/")) {
             Expr right = parseNewCastOrUnary();
             left = new BinaryArithMinusExpr(position, left, right);
         }
-        else if((this.currentToken = scanner.scan()).equals("%")) {
+        else if(this.currentToken.equals("%")) {
             Expr right = parseNewCastOrUnary();
             left = new BinaryArithMinusExpr(position, left, right);
         }
@@ -925,3 +944,4 @@ public class Parser
     }
 
 }
+
