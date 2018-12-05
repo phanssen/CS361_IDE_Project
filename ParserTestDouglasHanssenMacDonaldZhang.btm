@@ -1,0 +1,9 @@
+class A {
+    int x = 1;
+    String str = "hello";
+
+    // main method
+    void main() {
+        System.out.println(this.str);
+    }
+}

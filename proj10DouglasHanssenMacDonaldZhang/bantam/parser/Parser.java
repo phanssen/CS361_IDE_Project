@@ -77,34 +77,34 @@ public class Parser
     private Class_ parseClass() {
         int position = currentToken.position;
         String spelling = currentToken.getSpelling();
+        String className = "";
+        String parent = "";
         MemberList memberList = new MemberList(position);
 
-        String className = parseIdentifier();
-        String parent = "";
+        // handle any comments at the beginning of the program
+        handleComments();
 
-        // move token on to check for extends clause
-        this.currentToken = scanner.scan();
-        if(this.currentToken.kind == EXTENDS) {
+        // beginning of class
+        if(this.currentToken.kind == CLASS) {
             this.currentToken = scanner.scan();
-
-            parent = this.currentToken.spelling;
-
-            // move onto class members
-            this.currentToken = scanner.scan();
+            className = parseIdentifier();
         }
 
+        // check for extends clause
+        this.currentToken = scanner.scan();
+        parent = handleExtends();
+        
         if(!currentToken.spelling.equals("{")) {
             String message = "Error in Class";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         }
 
 
-        // while (currentToken.kind != EOF) {
-        // while (/* there are still members */) {          ASK DALE
-        currentToken = scanner.scan();
-        Member member = parseMember();
-        memberList.addElement(member);
-        // }
+        this.currentToken = scanner.scan();
+        while (currentToken.kind != RCURLY && currentToken.kind != EOF) {
+            Member member = parseMember();
+            memberList.addElement(member);
+        }
         if(!currentToken.spelling.equals("}")) {
             String message = "Error in Class";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
@@ -122,25 +122,28 @@ public class Parser
      * <InitialValue> ::= EMPTY | = <Expression>
      */
     private Member parseMember() {
-        int position = currentToken.position;
+        // anytime there is a member that is comments
+        handleComments();
 
+        int position = currentToken.position;
         String type = parseType();
         String id = parseIdentifier();
         if((currentToken.spelling.equals("("))) {
             FormalList params = parseParameters();
             StmtList stmnt = new StmtList(position);
             Method method = new Method(position, type, id, params, stmnt);
-            return method;
 
+            return method;
         }
+        // check for a field
         else {
-//            currentToken = scanner.scan();
-//            String initValue = parseIdentifier();
             Expr expr;
-            if(currentToken.spelling.equals("=")) {
-                currentToken = scanner.scan();
+            // initial value
+            if(currentToken.kind == ASSIGN) {
+                this.currentToken = scanner.scan();
                 expr = parseExpression();
             }
+            // empty initial value
             else {
                 expr = null;
             }
@@ -390,9 +393,9 @@ public class Parser
      */
     private Expr parseExpression() {
         int position = currentToken.position;
-
         Expr left = parseOrExpr();
-        if((this.currentToken = scanner.scan()).equals("=")) {
+
+        if(this.currentToken.equals("=")) {
             parseOperator();
             Expr right = parseExpression();
             left = new BinaryLogicOrExpr(position, left, right);
@@ -408,8 +411,8 @@ public class Parser
      */
     private Expr parseOrExpr() {
         int position = currentToken.position;
-
         Expr left = parseAndExpr();
+
         while (this.currentToken.spelling.equals("||")) {
             this.currentToken = scanner.scan();
             Expr right = parseAndExpr();
@@ -426,8 +429,8 @@ public class Parser
      */
     private Expr parseAndExpr() {
         int position = currentToken.position;
+        Expr left = parseEqualityExpr();
 
-        Expr left = parseRelationalExpr();
         while (this.currentToken.spelling.equals("&&")) {
             this.currentToken = scanner.scan();
             Expr right = parseRelationalExpr();
@@ -466,9 +469,8 @@ public class Parser
 	    int position = currentToken.position;
 
 	    Expr left = parseAddExpr();
-//	    String op = parseOperator();
-	    if(currentToken.kind == COMPARE) {
-	        this.currentToken = scanner.scan();
+	    if((currentToken = scanner.scan()).kind == Token.Kind.COMPARE) {
+//	        this.currentToken = scanner.scan();
 	        parseOperator();
             Expr right = parseAddExpr();
             left = new BinaryCompEqExpr(position, left, right);
@@ -497,11 +499,10 @@ public class Parser
             Expr right = parseMultExpr();
             left = new BinaryArithMinusExpr(position, left, right);
         }
-        else {
-            String message = "Did not find correct operator";
-            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
-        }
-
+        // else {
+        //     String message = "Did not find correct operator";
+        //     notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        // }
         return left;
     }
 
@@ -532,6 +533,7 @@ public class Parser
         else {
             // return error
         }
+
         return left;
     }
 
@@ -539,7 +541,7 @@ public class Parser
      * <NewCastOrUnary> ::= < NewExpression> | <CastExpression> | <UnaryPrefix>
      */
     private Expr parseNewCastOrUnary() {
-        if(currentToken.kind == Token.Kind.NEW) {
+        if(currentToken.kind == NEW) {
             return parseNew();
         } else if(currentToken.kind == Token.Kind.CAST) {
             currentToken = scanner.scan(); //Tia addition
@@ -642,8 +644,6 @@ public class Parser
         int position = currentToken.position;
         Expr primaryExpr = parsePrimary();
 
-        this.currentToken = scanner.scan();
-
         if("++".equals(currentToken.getSpelling()) ) {
             return new UnaryIncrExpr(position, primaryExpr, true);
         } else if("--".equals(this.currentToken.spelling)){
@@ -682,25 +682,25 @@ public class Parser
             expr = parseBoolean();
         }
         else if(currentToken.kind == Token.Kind.STRCONST){
+            System.out.println("***** Found String Const *****");
             expr = parseStringConst();
         }
         else if(currentToken.kind == Token.Kind.IDENTIFIER){
             expr = parseVarOrDispatchExpr();
         }
-
         else{
             String message = "This is not a primary";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
             expr = null;
         }
 
-        if(currentToken.kind == Token.Kind.DOT){ //The previous methods will have moved it on to the current token already
+        if((currentToken = scanner.scan()).kind == Token.Kind.DOT){ //I'm assuming the other methods moved it to the next token
             String methodName = parseVarOrDispatchIdentifier();
             ExprList args = processDispatchArgs();
             expr = new DispatchExpr(position, expr, methodName, args);
         }
-        return expr;
 
+        return expr;
     }
 
 
@@ -834,11 +834,18 @@ public class Parser
      * <MoreFormals> ::= EMPTY | , <Formal> <MoreFormals
      */
     private FormalList parseParameters() {
-        if(currentToken.kind != Token.Kind.IDENTIFIER) return null;
+        System.out.println("Looking for parameters");
+        // If there are no parameters; scanner.scan() here moves past LPAREN
+        if((currentToken = scanner.scan()).kind != IDENTIFIER) {
+            System.out.println("no parameters");
+            return null; }
+
         int position = currentToken.position;
         FormalList paramList = new FormalList(position);
         Formal param = parseFormal();
         paramList.addElement(param);
+
+        // while there are parameters
         while(currentToken.kind == Token.Kind.COMMA){
             currentToken = scanner.scan(); //Tia addition
             param = parseFormal();
@@ -867,17 +874,16 @@ public class Parser
      */
     private String parseType() {
         String type = parseIdentifier();
-        if(scanner.scan().kind == Token.Kind.LBRACKET ){
-            type += "[";
-            if(!(scanner.scan().kind == Token.Kind.RBRACKET)){
+        
+        if((currentToken = scanner.scan()).kind == LBRACKET){
+            if(!((currentToken = scanner.scan()).kind == RBRACKET)){
                 String message = "Missing right bracket";
-                notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
-            }
-            else{
-                type += "]";
+                notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message)); //TODO REPLACE WITH ERROR REPORTING
+            } else {
+                type += "[ ]";
             }
         }
-        currentToken = scanner.scan(); //Tia addition
+        
         return type;
     }
 
@@ -920,6 +926,20 @@ public class Parser
         return new ConstBooleanExpr(position, spelling);
     }
 
+    private void handleComments() {
+        while(this.currentToken.kind == COMMENT) {
+            this.currentToken = scanner.scan();
+        }
+    }
+
+    private String handleExtends() {
+        while(this.currentToken.kind == EXTENDS) {
+            this.currentToken = scanner.scan();
+        }
+
+        return parseIdentifier();
+    }
+
     /**
      * Call the register method in ErrorHandler to store the found error
      * @param error
@@ -935,10 +955,13 @@ public class Parser
         Parser parser = new Parser(errorHandler);
         Drawer drawer = new Drawer();
 
+        String resultMsg = errorHandler.errorsFound() ? ("Error: " + "access error here")
+                                : "Scan and parse successful";
+
         for(int i = 0; i < args.length; i++) { //0 is the file name Parser
             Program program = parser.parse(args[i]);
             drawer.draw(args[i], program);
-            System.out.println("Filename: " + args[i] + "\nFile size: " + errorHandler.getErrorList().size());
+            System.out.println("Filename: " + args[i] + "\n" + resultMsg);
             errorHandler.clear();
         }
     }
