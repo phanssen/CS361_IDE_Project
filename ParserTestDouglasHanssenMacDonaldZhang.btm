@@ -8,7 +8,7 @@ class A {
     }
 
     void main() {
-        int y = 2;
+        var y = 2;
     }
 }
 
