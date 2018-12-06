@@ -120,7 +120,7 @@ public class Parser
 
     /* Fields and Methods
      * <Member> ::= <Field> | <Method>
-     * <Method> ::= <Type> <Identifier> ( <Parameters> ) <Block>
+     * <Method> ::= <Type> <Identifier> ( <Parameters> ) <BlockStmt>
      * <Field> ::= <Type> <Identifier> <InitialValue> ;
      * <InitialValue> ::= EMPTY | = <Expression>
      */
@@ -136,7 +136,7 @@ public class Parser
         if((currentToken.spelling.equals("("))) {
             FormalList params = parseParameters();
             StmtList stmtList = new StmtList(position);
-            Stmt stmt = parseStatement();
+            Stmt stmt = parseBlock();
 
             stmtList.addElement(stmt);
             
@@ -284,16 +284,20 @@ public class Parser
             String message = "Error in DeclStmt";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         }
+
         currentToken = scanner.scan();
         String name = parseIdentifier();
-        if(!(currentToken.spelling.equals("="))) {
-            String message = "Error in DeclStmt";
-            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
-        }
-//        parseOperator();
-        currentToken = scanner.scan();
-        Expr expr = parseExpression();
-        return new DeclStmt(position, name, expr);
+
+        // if(!(currentToken.spelling.equals("="))) {
+        //     String message = "Error in DeclStmt";
+        //     currentToken = scanner.scan();
+        //     // notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        // } else {
+            String operator = parseOperator();
+            Expr expr = parseExpression();
+
+            return new DeclStmt(position, name, expr);
+        // }
 
     }
 
@@ -459,8 +463,8 @@ public class Parser
      */
     private Expr parseEqualityExpr() {
         int position = currentToken.position;
-
         Expr left = parseRelationalExpr();
+
         while (this.currentToken.spelling.equals("==") || this.currentToken.spelling.equals("!=")) {
             this.currentToken = scanner.scan();
             parseOperator();
@@ -478,8 +482,8 @@ public class Parser
      */
 	private Expr parseRelationalExpr() {
 	    int position = currentToken.position;
-
-	    Expr left = parseAddExpr();
+        Expr left = parseAddExpr();
+        
 	    if((currentToken = scanner.scan()).kind == Token.Kind.COMPARE) {
 //	        this.currentToken = scanner.scan();
 	        parseOperator();
@@ -497,7 +501,6 @@ public class Parser
      */
     private Expr parseAddExpr() {
         int position = currentToken.position;
-
         Expr left = parseMultExpr();
 
         if(this.currentToken.equals("+")) {
@@ -527,8 +530,8 @@ public class Parser
      */
     private Expr parseMultExpr() {
         int position = currentToken.position;
-
         Expr left = parseNewCastOrUnary();
+
         if(this.currentToken.equals("*")) {
             Expr right = parseNewCastOrUnary();
             left = new BinaryArithPlusExpr(position, left, right);
@@ -700,7 +703,7 @@ public class Parser
             expr = parseVarOrDispatchExpr();
         }
         else {
-            String message = "This is not a primary";
+            String message = "Token is not a primary";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
             expr = null;
         }
@@ -907,7 +910,6 @@ public class Parser
      */
     private String parseOperator() {
         String operator = currentToken.spelling;
-        currentToken = scanner.scan(); //Tia addition
         
         return operator;
     }
