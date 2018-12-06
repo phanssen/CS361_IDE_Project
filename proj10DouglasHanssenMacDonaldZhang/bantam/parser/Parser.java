@@ -345,18 +345,16 @@ public class Parser
      */
     private Stmt parseBlock() {
         int position = currentToken.position;
+        StmtList list = new StmtList(position);
 
         if (this.currentToken.kind == LCURLY) {
-            // if (currentToken.kind == null) {
-            //     return null;
-            // }
             currentToken = scanner.scan();
+
             while ((this.currentToken.kind != RCURLY)){
                 Stmt stmt = parseStatement();
+                list.addElement(stmt);
             }
         }
-
-        StmtList list = new StmtList(position);
         return new BlockStmt(position, list);
 
     }
