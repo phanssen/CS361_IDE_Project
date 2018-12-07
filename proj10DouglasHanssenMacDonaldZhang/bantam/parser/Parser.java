@@ -143,7 +143,7 @@ public class Parser
             Method method = new Method(position, type, id, params, stmtList);
 
             currentToken = scanner.scan();
-
+            System.out.println(currentToken.spelling);
             return method;
         }
         // member is a field, not a method
@@ -160,6 +160,7 @@ public class Parser
                 expr = null;
             }
             Field field = new Field(position, type, id, expr);
+            System.out.println(currentToken.spelling);
             return field;
         }
     }
@@ -212,21 +213,26 @@ public class Parser
 
         Expr expr = null;
         Stmt stmt = null;
-        if( currentToken.kind != WHILE){
-            String message = "Error in While";
-            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
-        }
-        if((currentToken = scanner.scan()).equals("(")) {
+
+        if((currentToken = scanner.scan()).spelling.equals("(")) {
             currentToken = scanner.scan();
             expr = parseExpression();
-            if (!currentToken.spelling.equals(")")) {
-                String message = "Error in While";
-                notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
-            }
-            stmt = parseStatement();
-        }
-        return new WhileStmt(position, expr, stmt);
+            
+            // while next token isn't the end of while
+            if((currentToken = scanner.scan()).kind != RCURLY) {
+                stmt = parseStatement();
+                // System.out.println(currentToken.spelling);
 
+                currentToken = scanner.scan();
+
+                return new WhileStmt(position, expr, stmt);
+            } else {
+                String message = "No statement in while";
+                notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+                // return some kind of statement?
+            }
+        }
+        return null;
     }
 
     /*
@@ -244,8 +250,8 @@ public class Parser
             return new ReturnStmt(position, null);
         }
         Expr expr = parseExpression();
+        
         return new ReturnStmt(position, expr);
-
     }
 
     /*
@@ -253,12 +259,8 @@ public class Parser
      */
     private Stmt parseBreak() {
         int position = currentToken.position;
+        currentToken = scanner.scan();
 
-        if(currentToken.kind != BREAK) {
-            String message = "Error in break";
-            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
-        }
-        this.currentToken = scanner.scan();
         return new BreakStmt(position);
     }
 
@@ -418,6 +420,8 @@ public class Parser
             Expr right = parseExpression();
             left = new BinaryLogicOrExpr(position, left, right);
         }
+        
+        currentToken = scanner.scan();
 
         return left;
     }
@@ -451,7 +455,7 @@ public class Parser
 
         while (this.currentToken.spelling.equals("&&")) {
             this.currentToken = scanner.scan();
-            Expr right = parseRelationalExpr();
+            Expr right = parseEqualityExpr();
             left = new BinaryLogicAndExpr(position, left, right);
         }
 
@@ -487,12 +491,15 @@ public class Parser
 	    int position = currentToken.position;
         Expr left = parseAddExpr();
         
-	    if((currentToken = scanner.scan()).kind == Token.Kind.COMPARE) {
-//	        this.currentToken = scanner.scan();
+	    if(currentToken.kind == COMPARE) {
+	        this.currentToken = scanner.scan();
 	        parseOperator();
             Expr right = parseAddExpr();
             left = new BinaryCompEqExpr(position, left, right);
         }
+
+        // System.out.println(currentToken.spelling);
+
 
         return left;
     }
@@ -520,6 +527,9 @@ public class Parser
         //     String message = "Did not find correct operator";
         //     notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         // }
+
+        // System.out.println(currentToken.spelling);
+
         return left;
     }
 
@@ -554,6 +564,8 @@ public class Parser
         }
         else {
         }
+
+        // System.out.println(currentToken.spelling);
         return left;
     }
 
@@ -694,7 +706,7 @@ public class Parser
     private Expr parsePrimary() {
         Expr expr;
         int position = currentToken.position;
-//        System.out.println(currentToken.toString());
+    //    System.out.println(currentToken.kind);
 
         if( currentToken.kind == Token.Kind.LPAREN){
             currentToken = scanner.scan(); //Tia addition
@@ -714,12 +726,10 @@ public class Parser
             expr = parseStringConst();
         }
         else if(currentToken.kind == Token.Kind.IDENTIFIER){
-//            System.out.println("here");
             expr = parseVarOrDispatchExpr();
         }
         else {
             String message = "Token is not a primary";
-//            System.out.println(currentToken.toString());
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
             expr = null;
         }
@@ -745,7 +755,7 @@ public class Parser
         if( (currentToken.spelling.equals("super")) || (currentToken.spelling.equals("this"))){
             return parseVarExprWithPrefix();
         }
-        else{ //The prefix is empty, either an empty DispatchExprPrefix or empty VarExprPrefix.
+        else { //The prefix is empty, either an empty DispatchExprPrefix or empty VarExprPrefix.
             //Doesn't need to move on first because empty prefix means it's on the first token of the rest of the expr
             return parseVarOrDispatchExprNoPrefix();
         }
@@ -786,16 +796,19 @@ public class Parser
     private Expr parseVarOrDispatchExprNoPrefix(){
         String varName = parseIdentifier();
         Expr arrayIdx = parseVarSuffix();
+
         int position = currentToken.position;
-        if((currentToken = scanner.scan()).kind == Token.Kind.LPAREN) { //Then it's a DispatchExpr
+
+        if(currentToken.kind == Token.Kind.LPAREN) { //Then it's a DispatchExpr
             ExprList args = processDispatchArgs(); //processDispatch will move the token on
+            
             return new DispatchExpr(position, arrayIdx, varName, args);
         }
-        else{ //It's a VarExpr and the token has been moved onto the next already
-            if(arrayIdx != null ){
+        else { //It's a VarExpr and the token has been moved onto the next already
+            if(arrayIdx != null ) {
                 return new ArrayExpr(position, null, varName, arrayIdx);
             }
-            else{
+            else {
                 return new VarExpr(position, null, varName);
             }
         }
@@ -843,15 +856,18 @@ public class Parser
     private ExprList parseArguments() {
         if(currentToken.kind != Token.Kind.IDENTIFIER) return null;
         int position = currentToken.position;
+        
         ExprList argList = new ExprList(position);
         Expr argExpression = parseExpression();
         argList.addElement(argExpression); //The expression parsing should move it on to the comma
+        
         while(currentToken.kind == Token.Kind.COMMA){
             currentToken = scanner.scan(); //Tia addition
             argExpression = parseExpression();
             argList.addElement(argExpression);
             currentToken = scanner.scan(); //Tia addition - this will get the comma, if the comma exists
         }
+
         return argList;
     }
 
