@@ -6,34 +6,41 @@ class A {
     void foo(int p, String hello) {
         while(emptyStr || emptyStr && emptyStr) {
             var x = 3;
+            var h = 8;
+            break;
         }
     }
 
     void main() {
         var y = 2;
         var x = y;
+        var boolVal = true;
 
-        if(y == x) {
+        if(y == x && boolVal) {
             var a = y;
         }
         if(y != x) {
             var a = y;
         }
         if(y > x) {
-            var b = x;
+            var b = -5;
         }
         if(y < x) {
             var b = x;
         }
         if(y >= x) {
-            var b = x;
+            y--;
         }
         if(y <= x) {
-            var b = x;
+            y++;
+        }
+        if(y instanceof x) {
+            break;
         }
     }
 }
 
-class B {
+class B extends A{
     String myString = "Class B!";
+    int[] arr = null;
 }

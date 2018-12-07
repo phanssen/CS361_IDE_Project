@@ -223,7 +223,7 @@ public class Parser
             expr = parseExpression();
             
             // while next token isn't the end of while
-            while((currentToken = scanner.scan()).kind != RCURLY) {
+            while(currentToken.kind != RCURLY) {
                 stmt = parseStatement();
             } 
             return new WhileStmt(position, expr, stmt);
@@ -240,6 +240,7 @@ public class Parser
      * <ReturnStmt> ::= RETURN <Expression> ; | RETURN ;
      */
     private Stmt parseReturn() {
+        System.out.println("Return statement hit!");
         int position = currentToken.position;
 
         if(currentToken.kind != RETURN) {
@@ -260,7 +261,8 @@ public class Parser
      */
     private Stmt parseBreak() {
         int position = currentToken.position;
-        currentToken = scanner.scan();
+        currentToken = scanner.scan();  // gets us to the semilcolon
+        currentToken = scanner.scan();  // gets us to the next token
 
         return new BreakStmt(position);
     }
@@ -361,7 +363,7 @@ public class Parser
         if (this.currentToken.kind == LCURLY) {
             currentToken = scanner.scan();
 
-            // loop until block is
+            // loop until block is over
             while ((this.currentToken.kind != RCURLY)){
                 Stmt stmt = parseStatement();
                 list.addElement(stmt);
@@ -521,18 +523,15 @@ public class Parser
             else if(currentToken.spelling.equals("<=")) {
                 this.currentToken = scanner.scan();
                 Expr right = parseAddExpr();
+
                 left = new BinaryCompLeqExpr(position, left, right);
-            // } else if(currentToken.kind == INSTANCEOF) {
-            //     this.currentToken = scanner.scan();
-            //     Expr right = parseAddExpr();
-            //     String type = parseType();
-            //     left = new InstanceofExpr(position, right, type);
-            // }
             }
+        } else if(currentToken.kind == INSTANCEOF) {
+            this.currentToken = scanner.scan();
+            String type = parseType();
+
+            left = new InstanceofExpr(position, left, type);
         }
-
-        // System.out.println(currentToken.spelling);
-
 
         return left;
     }
@@ -561,8 +560,6 @@ public class Parser
         //     notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         // }
 
-        // System.out.println(currentToken.spelling);
-
         return left;
     }
 
@@ -577,7 +574,6 @@ public class Parser
     private Expr parseMultExpr() {
         int position = currentToken.position;
         Expr left = parseNewCastOrUnary();
-//        System.out.println(currentToken.toString());
 
         if(currentToken.spelling.equals("*")) {
             currentToken = scanner.scan();
@@ -585,7 +581,6 @@ public class Parser
             left = new BinaryArithTimesExpr(position, left, right);
         }
         else if(currentToken.spelling.equals("/")) {
-//            System.out.println("here");
             currentToken = scanner.scan();
             Expr right = parseNewCastOrUnary();
             left = new BinaryArithDivideExpr(position, left, right);
@@ -598,7 +593,6 @@ public class Parser
         else {
         }
 
-        // System.out.println(currentToken.spelling);
         return left;
     }
 
@@ -626,6 +620,7 @@ public class Parser
 
         String id = parseIdentifier();
         Expr size = null;
+
         if ((currentToken = scanner.scan()).equals("[")) {
             currentToken = scanner.scan(); //Tia addition
             size = parseExpression();
@@ -641,7 +636,7 @@ public class Parser
             }
         }
         Expr newExpr;
-        if(size==null) {
+        if(size == null) {
             newExpr = new NewExpr(position, id);
         }
         else{
@@ -675,32 +670,25 @@ public class Parser
         int position = currentToken.position;
         String spelling = currentToken.getSpelling();
 
-        // I'm confused here - UnaryExpr (and similar) classes
-        // need to get passed an expr, but what is this expr??
-        // Just a normal Expr, as it is below?
-        //Additional note from Tia: if the expression is meant to store the operation, like ++ or /, why pass it in the constructor?
-        //The operation won't change - a UnaryNegExpr will always contain -. Why not just have the unary expression class make it?
-
-        //Expr operatorExpr = new Expr(position);
-
-        // additionally, do I need to make a call to parseUnaryPrefix()
-        // after (or instead of) creating a new object and returning that
-        // object?
         if("-".equals(spelling)) {
             currentToken = scanner.scan();
             Expr expr = parseUnaryPrefix();
+
             return new UnaryNegExpr(position, expr);
         } else if("!".equals(spelling)) {
             currentToken = scanner.scan();
             Expr expr = parseUnaryPrefix();
+
             return new UnaryNotExpr(position, expr);
         } else if("++".equals(spelling)) {
             currentToken = scanner.scan();
             Expr expr = parseUnaryPrefix();
+
             return new UnaryIncrExpr(position, expr, false);
         } else if("--".equals(spelling)) {
             currentToken = scanner.scan();
             Expr expr = parseUnaryPrefix();
+
             return new UnaryDecrExpr(position, expr, false);
         } else {
             return parseUnaryPostfix();
@@ -739,7 +727,6 @@ public class Parser
     private Expr parsePrimary() {
         Expr expr;
         int position = currentToken.position;
-    //    System.out.println(currentToken.kind);
 
         if( currentToken.kind == Token.Kind.LPAREN){
             currentToken = scanner.scan(); //Tia addition
@@ -796,16 +783,20 @@ public class Parser
 
     private Expr parseVarExprWithPrefix() {
         String refVarName = currentToken.spelling;
+
         if ((scanner.scan()).kind != Token.Kind.DOT) { //If "super." or "this." is missing the dot
             String message = "Missing dot after reference name";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+            
             return null; //It throws an exception so shouldn't get here, the return is a moot pt but Java insists
         } else {
             currentToken = scanner.scan(); //Get the <identifier> after the dot
+            
             String varName = parseVarOrDispatchIdentifier();
             int position = currentToken.position;
             VarExpr referenceVar = new VarExpr(position, null, refVarName);
             Expr arrayIdx = parseVarSuffix(); //This moves it on itself, so don't need to move on before it
+            
             if (arrayIdx != null) {
                 return new ArrayExpr(position, referenceVar, varName, arrayIdx);
             } else {
