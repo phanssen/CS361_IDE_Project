@@ -5,22 +5,22 @@
  * Modified By: Kyle Douglas, Paige Hanssen, Wyett MacDonald, Tia Zhang
  * Originally By: Liwei Jiang, Tracy Quan, Danqing Zhao, Chris Marcello, Michael Coyne
  * Date: 12/6/2018
- * This file contains the Scanner class, taking in a file,
- * splitting it into proper tokens, reporting bugs when necessary.
+ * This file contains the Scanner class, which takes in a file and
+ * splits it into proper tokens, reporting bugs when necessary.
  * We borrowed this file from the "originally by" group because we couldn't fix up our scanner in time
  */
+
 
 package proj10DouglasHanssenMacDonaldZhang.bantam.lexer;
 
 import proj10DouglasHanssenMacDonaldZhang.bantam.lexer.Token.Kind;
 import proj10DouglasHanssenMacDonaldZhang.bantam.util.*;
 import proj10DouglasHanssenMacDonaldZhang.bantam.util.Error;
-//import proj10DouglasHanssenMacDonaldZhang.bantam.util.Error.*;
 import java.io.Reader;
 import java.util.List;
 
 /**
- * The Scanner class taking in a file, splitting it into proper tokens,
+ * The Scanner class takes in a file and splits it into proper tokens,
  * reporting bugs when necessary.
  *
  * @author liweijiang
@@ -40,22 +40,22 @@ public class Scanner {
 
      //the currentChar from the sourceFile that's being processed into part of a token
     private char currentChar;
-    //Stores the next char after a token is done or the current char to avoid them being lost once the continuation condition fails
-    //I was going to use the null char but was afraid it'd be harder to read and more confusing since it's the eof in SourceFile
-    private Character nextChar = null; //TIA ADDED.
-    private Integer startPosition = null; //TIA ADDED. Used to store the original line position for multiline tokens
-    //These two are stored as Objects and not primitives so I can use the null value.
+
+    //The next two fields are stored as Objects and not primitives so I can store a null as a default if not used.
+
+    //Stores the next char after a token is done to avoid it being lost
+    private Character nextChar = null;
+
+    //Used to store the original line position for multiline tokens
+    private Integer startPosition = null;
 
 
-    /**
-     * the string constant
-     */
-    //private String stringConstant;
+
 
     /**
      * A constructor of the Scanner class.
      *
-     * @param handler an ErrorHandler object
+     * @param handler an ErrorHandler object that will be used to register any errors from scanning
      */
     public Scanner(ErrorHandler handler) {
         this.errorHandler = handler;
@@ -67,7 +67,7 @@ public class Scanner {
      * A constructor of the Scanner class.
      *
      * @param filename a filename as a String
-     * @param handler an ErrorHandler object
+     * @param handler an ErrorHandler object that will be used to register any errors from scanning
      */
     public Scanner(String filename, ErrorHandler handler) {
         this.errorHandler = handler;
@@ -121,10 +121,9 @@ public class Scanner {
      *
      * @param kind the Kind of the Token
      * @param spelling the spelling of the Token as a String
-     * @param ifGetNextChar a boolean value indicating whether to get the next character after creating the new Token
      * @return the new Token object created
      */
-    private Token createNewToken(Token.Kind kind, String spelling, boolean ifGetNextChar) {
+    private Token createNewToken(Token.Kind kind, String spelling) {
         int position;
         if (startPosition != null) {
             position = startPosition;
@@ -138,23 +137,14 @@ public class Scanner {
             position--;
         }
         Token newToken = new Token(kind, spelling, position);
-        // get the next character as specified
-        /*if (ifGetNextChar) {
-            this.currentChar = this.sourceFile.getNextChar();
-        }
-        else { //TIA MODIFIED
-            this.currentChar = nextChar;
-        }*/
+
         if(nextChar == null){
             currentChar = sourceFile.getNextChar();
         }
         else{
-            //System.out.println("Lost char found, it's "  + nextChar);
             currentChar = nextChar;
             nextChar = null;
         }
-
-        //currentChar = sourceFile.getNextChar(); //TIA ADDED
         return newToken;
     }
 
@@ -163,12 +153,11 @@ public class Scanner {
      *
      * @param message error message
      * @param spelling the spelling of the error token
-     * @param ifGetNextChar a boolean value indicating whether to get the next character after creating the ERROR Token
      * @return the ERROR Token constructed
      */
-    private Token createAndRegisterErrorToken(String message, String spelling, boolean ifGetNextChar) {
+    private Token createAndRegisterErrorToken(String message, String spelling) {
         this.registerError(Error.Kind.LEX_ERROR, message);
-        return this.createNewToken(Kind.ERROR, message + ": " + spelling, ifGetNextChar);
+        return this.createNewToken(Kind.ERROR, message + ": " + spelling);
     }
 
     /**
@@ -185,10 +174,10 @@ public class Scanner {
     private Token constructSpecialCharWithSameFirstLetterToken(char firstChar, char secondChar, Token.Kind kind_long, Token.Kind kind_short) {
         if ((nextChar = this.sourceFile.getNextChar()) == secondChar) {
             nextChar = null;
-            return this.createNewToken(kind_long, Character.toString(firstChar) + Character.toString(secondChar), true);
+            return this.createNewToken(kind_long, Character.toString(firstChar) + Character.toString(secondChar));
         }
         else {
-            return this.createNewToken(kind_short, Character.toString(firstChar), false);
+            return this.createNewToken(kind_short, Character.toString(firstChar));
         }
     }
 
@@ -209,10 +198,11 @@ public class Scanner {
         try {
             Integer.parseInt(integerConstant);
         } catch (Exception e) {
-            return createAndRegisterErrorToken("Integer Constant Too Large", integerConstant, false);
+            nextChar = currentChar;
+            return createAndRegisterErrorToken("Integer Constant Too Large", integerConstant);
         }
         nextChar = currentChar;
-        return this.createNewToken(Kind.INTCONST, integerConstant, false);
+        return this.createNewToken(Kind.INTCONST, integerConstant);
     }
 
     /**
@@ -230,7 +220,7 @@ public class Scanner {
             this.currentChar = this.sourceFile.getNextChar();
         }
         nextChar = currentChar;
-        return this.createNewToken(Kind.IDENTIFIER, identifier, false);
+        return this.createNewToken(Kind.IDENTIFIER, identifier);
     }
 
     /**
@@ -247,7 +237,7 @@ public class Scanner {
             lineComment += this.currentChar;
             this.currentChar = this.sourceFile.getNextChar();
         }
-        return this.createNewToken(Kind.COMMENT, lineComment, true);
+        return this.createNewToken(Kind.COMMENT, lineComment);
     }
 
     /**
@@ -261,17 +251,16 @@ public class Scanner {
         String blockComment = "/*";
         startPosition = sourceFile.getCurrentLineNumber();
         this.currentChar = this.sourceFile.getNextChar();
-        char lastChar = currentChar;
+        char lastChar;
         while (!(this.currentChar == '*' && this.sourceFile.getNextChar() == '/')) {
             blockComment += this.currentChar;
             if ((lastChar = this.sourceFile.getNextChar()) == SourceFile.eof) {
-                return createAndRegisterErrorToken("Unterminated Block Comment", blockComment, true);
+                return createAndRegisterErrorToken("Unterminated Block Comment", blockComment);
             }
-            //System.out.println("Block comment " + currentChar + ". " + lastChar);
-            this.currentChar = lastChar; //TIA MODIFIED
+            this.currentChar = lastChar;
         }
         blockComment += "*/";
-        return this.createNewToken(Kind.COMMENT, blockComment, true);
+        return this.createNewToken(Kind.COMMENT, blockComment);
     }
 
     /**
@@ -286,16 +275,25 @@ public class Scanner {
      */
     private Token constructStringConstantToken() {
         String stringConstant = Character.toString(this.currentChar);
-        startPosition = sourceFile.getCurrentLineNumber(); //In case of multiline string error, store the starting line //TODO see if necessary?
+        //In case of multiline strings, store the starting line for the error token
+        startPosition = sourceFile.getCurrentLineNumber();
         boolean containIllegalEscapeChar = false;
         this.currentChar = this.sourceFile.getNextChar();
 
-        while (!(this.currentChar == '\"' && !this.isEscaped(stringConstant))) { //TODO CHECK IN THE MORNING
+        boolean illegalMultiline = false;
+        while (!(this.currentChar == '\"' && !this.isEscaped(stringConstant))) {
+            //I've changed this case from Liwei's group's version because their immediate return at the end of the line
+            //meant the beginning of the next line (which was still in the illegal string) was processed as a valid token
+            //It would then think the ending " was the beginning of another unterminated string.
+            //That gave us three+ tokens and two errors for one multiline String
             if (this.currentChar == SourceFile.eol) {
-                return createAndRegisterErrorToken("Unterminated String Constant", stringConstant, true);
+                illegalMultiline = true;
+                stringConstant += this.currentChar;
+                this.currentChar = this.sourceFile.getNextChar();
+                continue;
             }
             else if (this.currentChar == SourceFile.eof) {
-                return createAndRegisterErrorToken("Unterminated String Constant", stringConstant, false);
+                return createAndRegisterErrorToken("Unterminated String Constant or illegal multline string", stringConstant);
             }
             else if (this.currentChar == '\\' ) {
                 if (!this.isLegalEscapeChars(stringConstant)) {
@@ -309,13 +307,18 @@ public class Scanner {
         }
         stringConstant += "\"";
 
+        if(illegalMultiline){
+            return createAndRegisterErrorToken("Unterminated String Constant", stringConstant);
+        }
         if (containIllegalEscapeChar) {
-            return createAndRegisterErrorToken("String Contains Illegal Escape Characters", stringConstant, true);
+            return createAndRegisterErrorToken("String Contains Illegal Escape Characters", stringConstant);
         }
         if (stringConstant.length() > 5002) {
-            return createAndRegisterErrorToken("String Exceeds 5000 Characters", stringConstant, true);
+            return createAndRegisterErrorToken("String Exceeds 5000 Characters", stringConstant);
         }
-        return this.createNewToken(Kind.STRCONST, stringConstant, true);
+
+
+        return this.createNewToken(Kind.STRCONST, stringConstant);
     }
 
     /**
@@ -371,18 +374,18 @@ public class Scanner {
             }
             // -------------------- EOF
             if (this.currentChar == SourceFile.eof) {
-                return this.createNewToken(Token.Kind.EOF, "End of File", false);
+                return this.createNewToken(Token.Kind.EOF, "End of File");
             }
 
             // -------------------- Line Comment
             else if (this.currentChar == '/' && (nextChar = this.sourceFile.getNextChar()) == '/') {
-                nextChar =  null; //Reset nextChar to null;
+                nextChar =  null; //Reset nextChar to null if the char won't be lost;
                 return this.constructLineCommentToken();
             }
 
             // -------------------- Block Comment
-            else if (this.currentChar == '/' && nextChar == '*') { //TIA MODIFIED
-                nextChar = null;
+            else if (this.currentChar == '/' && nextChar == '*') {
+                nextChar = null; //Reset nextChar to null if the char won't be lost;
                 return this.constructBlockCommentToken();
             }
 
@@ -403,12 +406,12 @@ public class Scanner {
 
             // -------------------- Special Characters
             // &&
-            else if (this.currentChar == '&' && (this.sourceFile.getNextChar()) == '&') { //nextChar =
-                return this.createNewToken(Token.Kind.BINARYLOGIC, "&&", true);
+            else if (this.currentChar == '&' && (this.sourceFile.getNextChar()) == '&') {
+                return this.createNewToken(Token.Kind.BINARYLOGIC, "&&");
             }
             // ||
-            else if (this.currentChar == '|' && (this.sourceFile.getNextChar()) == '|') { //TIA MODIFIED nextChar =
-                return this.createNewToken(Token.Kind.BINARYLOGIC, "||", true);
+            else if (this.currentChar == '|' && (this.sourceFile.getNextChar()) == '|') {
+                return this.createNewToken(Token.Kind.BINARYLOGIC, "||");
             }
             // -- / -
             else if (this.currentChar == '-') {
@@ -436,65 +439,61 @@ public class Scanner {
             }
             // *
             else if (this.currentChar == '*') {
-                return this.createNewToken(Token.Kind.MULDIV, "*", true);
+                return this.createNewToken(Token.Kind.MULDIV, "*");
             }
             // /
             else if (this.currentChar == '/') {
-                //If I understand the code right, ifGetNextChar is false because it would've tripped up the two comment cases and so lost a char
-                //I've already saved that char, so I shouldn't need to store anything in nextChar there
-                return this.createNewToken(Token.Kind.MULDIV, "/", false);
+                return this.createNewToken(Token.Kind.MULDIV, "/");
             }
             // %
             else if (this.currentChar == '%') {
-                return this.createNewToken(Token.Kind.MULDIV, "%", true);
+                return this.createNewToken(Token.Kind.MULDIV, "%");
             }
             // {
             else if (this.currentChar == '{') {
-                return this.createNewToken(Token.Kind.LCURLY, "{", true);
+                return this.createNewToken(Token.Kind.LCURLY, "{");
             }
             // }
             else if (this.currentChar == '}') {
-                return this.createNewToken(Token.Kind.RCURLY, "}", true);
+                return this.createNewToken(Token.Kind.RCURLY, "}");
             }
             // [
             else if (this.currentChar == '[') {
-                return this.createNewToken(Token.Kind.LBRACKET, "[", true);
+                return this.createNewToken(Token.Kind.LBRACKET, "[");
             }
             // ]
             else if (this.currentChar == ']') {
-                return this.createNewToken(Token.Kind.RBRACKET, "]", true);
+                return this.createNewToken(Token.Kind.RBRACKET, "]");
             }
             // (
             else if (this.currentChar == '(') {
-                return this.createNewToken(Token.Kind.LPAREN, "(", true);
+                return this.createNewToken(Token.Kind.LPAREN, "(");
             }
             // )
             else if (this.currentChar == ')') {
-                return this.createNewToken(Token.Kind.RPAREN, ")", true);
+                return this.createNewToken(Token.Kind.RPAREN, ")");
             }
             // .
             else if (this.currentChar == '.') {
-                return this.createNewToken(Token.Kind.DOT, ".", true);
+                return this.createNewToken(Token.Kind.DOT, ".");
             }
             // ,
             else if (this.currentChar == ',') {
-                return this.createNewToken(Token.Kind.COMMA, ",", true);
+                return this.createNewToken(Token.Kind.COMMA, ",");
             }
             // ;
             else if (this.currentChar == ';') {
-                return this.createNewToken(Token.Kind.SEMICOLON, ";", true);
+                return this.createNewToken(Token.Kind.SEMICOLON, ";");
             }
             // :
             else if (this.currentChar == ':') {
-                return this.createNewToken(Token.Kind.COLON, ":", true);
+                return this.createNewToken(Token.Kind.COLON, ":");
             }
             // Illegal Special Characters
             else {
-                return createAndRegisterErrorToken("Illegal Special Character", Character.toString(this.currentChar), true);
+                return createAndRegisterErrorToken("Illegal Special Character", Character.toString(this.currentChar));
             }
-            /*if(nextChar != '\u0000'){
-                currentChar = nextChar;
-            }*/
+
     }
 
     /**
