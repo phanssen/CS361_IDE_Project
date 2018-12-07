@@ -149,7 +149,7 @@ public class Scanner {
             currentChar = sourceFile.getNextChar();
         }
         else{
-            System.out.println("Lost char found, it's "  + nextChar);
+            //System.out.println("Lost char found, it's "  + nextChar);
             currentChar = nextChar;
             nextChar = null;
         }
@@ -403,11 +403,11 @@ public class Scanner {
 
             // -------------------- Special Characters
             // &&
-            else if (this.currentChar == '&' && (nextChar = this.sourceFile.getNextChar()) == '&') {
+            else if (this.currentChar == '&' && (this.sourceFile.getNextChar()) == '&') { //nextChar =
                 return this.createNewToken(Token.Kind.BINARYLOGIC, "&&", true);
             }
             // ||
-            else if (this.currentChar == '|' && (nextChar = this.sourceFile.getNextChar()) == '|') { //TIA MODIFIED
+            else if (this.currentChar == '|' && (this.sourceFile.getNextChar()) == '|') { //TIA MODIFIED nextChar =
                 return this.createNewToken(Token.Kind.BINARYLOGIC, "||", true);
             }
             // -- / -
