@@ -47,6 +47,7 @@ public class Parser
         errorHandler = new ErrorHandler();
         scanner = new Scanner(filename, errorHandler);
         currentToken = scanner.scan();
+
         Program program = this.parseProgram();
 
         return program;
@@ -79,13 +80,13 @@ public class Parser
      */
     private Class_ parseClass() {
         int position = currentToken.position;
-        String spelling = currentToken.getSpelling();
         String className = "";
         MemberList memberList = new MemberList(position);
 
         // beginning of class
         if(currentToken.kind == CLASS) {
             currentToken = scanner.scan();
+            // parse identifier, returns either extends or LCURLY
             className = parseIdentifier();
         } else {
             // notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, position, "Error"));
@@ -99,8 +100,10 @@ public class Parser
             // notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
         }
 
+        // enter the class
         currentToken = scanner.scan();
         while (currentToken.kind != RCURLY && currentToken.kind != EOF) {
+            // every time a member is returned, scanner should be on the next token
             Member member = parseMember();
             memberList.addElement(member);
         }
@@ -129,21 +132,22 @@ public class Parser
         handleComments();
 
         int position = currentToken.position;
+        // parseType and parseIdentifier move the token on
         String type = parseType();
         String id = parseIdentifier();
         
         // check for a method
         if((currentToken.spelling.equals("("))) {
+            currentToken = scanner.scan();
             FormalList params = parseParameters();
+            // return from parseParams, on open curly brace
+
             StmtList stmtList = new StmtList(position);
             Stmt stmt = parseBlock();
-
             stmtList.addElement(stmt);
             
             Method method = new Method(position, type, id, params, stmtList);
 
-            currentToken = scanner.scan();
-            System.out.println(currentToken.spelling);
             return method;
         }
         // member is a field, not a method
@@ -160,7 +164,7 @@ public class Parser
                 expr = null;
             }
             Field field = new Field(position, type, id, expr);
-            System.out.println(currentToken.spelling);
+
             return field;
         }
     }
@@ -219,18 +223,15 @@ public class Parser
             expr = parseExpression();
             
             // while next token isn't the end of while
-            if((currentToken = scanner.scan()).kind != RCURLY) {
+            while((currentToken = scanner.scan()).kind != RCURLY) {
                 stmt = parseStatement();
-                // System.out.println(currentToken.spelling);
-
-                currentToken = scanner.scan();
-
-                return new WhileStmt(position, expr, stmt);
-            } else {
-                String message = "No statement in while";
-                notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
-                // return some kind of statement?
-            }
+            } 
+            return new WhileStmt(position, expr, stmt);
+            // if {
+            //     String message = "No statement in while";
+            //     notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+            //     // return some kind of statement?
+            // }
         }
         return null;
     }
@@ -270,6 +271,7 @@ public class Parser
     private ExprStmt parseExpressionStmt() {
         int position = currentToken.position;
         Expr expr = parseExpression();
+        currentToken = scanner.scan();
 
         return new ExprStmt(position, expr);
     }
@@ -355,14 +357,19 @@ public class Parser
         int position = currentToken.position;
         StmtList list = new StmtList(position);
 
+        // check for left curly
         if (this.currentToken.kind == LCURLY) {
             currentToken = scanner.scan();
 
+            // loop until block is
             while ((this.currentToken.kind != RCURLY)){
                 Stmt stmt = parseStatement();
                 list.addElement(stmt);
             }
         }
+        // get to whatever character follows the end of a method block
+        currentToken = scanner.scan();
+
         return new BlockStmt(position, list);
 
     }
@@ -378,19 +385,19 @@ public class Parser
         Expr predExpr = null;
         Stmt thenStmt = null;
 
-        if( currentToken.kind != IF){
-            String message = "Error in parseIf";
-            notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
-        }
         currentToken = scanner.scan();
+        // scan to open if expr
         if (currentToken.spelling.equals("(")) {
             currentToken = scanner.scan();
-            while (!(currentToken.spelling.equals(")"))) {
+            if(!(currentToken.spelling.equals(")"))) {
                 predExpr = parseExpression();
             }
         }
-        thenStmt = parseStatement();
+
         currentToken = scanner.scan();
+        thenStmt = parseStatement();    // returns right curly brace
+        currentToken = scanner.scan();  // scan to else or next token
+
         if (currentToken.kind == ELSE) {
             currentToken = scanner.scan();
             elseStmt = parseStatement();
@@ -414,7 +421,7 @@ public class Parser
         int position = currentToken.position;
         Expr left = parseOrExpr();
 
-        if(this.currentToken.equals("=")) {
+        if(this.currentToken.spelling.equals("=")) {
 //            parseOperator();
             currentToken = scanner.scan();
             Expr right = parseExpression();
@@ -444,7 +451,6 @@ public class Parser
         return left;
     }
 
-
     /*
      * <LogicalAND> ::= <ComparisonExpr> <LogicalANDRest>
      * <LogicalANDRest> ::= EMPTY |  && <ComparisonExpr> <LogicalANDRest>
@@ -472,11 +478,17 @@ public class Parser
         int position = currentToken.position;
         Expr left = parseRelationalExpr();
 
-        while (this.currentToken.spelling.equals("==") || this.currentToken.spelling.equals("!=")) {
+        if(this.currentToken.spelling.equals("==")) {
             this.currentToken = scanner.scan();
-//            parseOperator();
             Expr right = parseRelationalExpr();
+            
             left = new BinaryCompEqExpr(position, left, right);
+        }
+        else if (this.currentToken.spelling.equals("!=")) {
+            this.currentToken = scanner.scan();
+            Expr right = parseRelationalExpr();
+
+            left = new BinaryCompNeExpr(position, left, right);
         }
 
         return left;
@@ -492,10 +504,31 @@ public class Parser
         Expr left = parseAddExpr();
         
 	    if(currentToken.kind == COMPARE) {
-	        this.currentToken = scanner.scan();
-	        parseOperator();
-            Expr right = parseAddExpr();
-            left = new BinaryCompEqExpr(position, left, right);
+            if(currentToken.spelling.equals("<")) {
+                this.currentToken = scanner.scan();
+                Expr right = parseAddExpr();
+                left = new BinaryCompLtExpr(position, left, right);
+            } else if(currentToken.spelling.equals(">")) {
+                this.currentToken = scanner.scan();
+                Expr right = parseAddExpr();
+                left = new BinaryCompGtExpr(position, left, right);
+            }
+            else if(currentToken.spelling.equals(">=")) {
+                this.currentToken = scanner.scan();
+                Expr right = parseAddExpr();
+                left = new BinaryCompGeqExpr(position, left, right);
+            }
+            else if(currentToken.spelling.equals("<=")) {
+                this.currentToken = scanner.scan();
+                Expr right = parseAddExpr();
+                left = new BinaryCompLeqExpr(position, left, right);
+            // } else if(currentToken.kind == INSTANCEOF) {
+            //     this.currentToken = scanner.scan();
+            //     Expr right = parseAddExpr();
+            //     String type = parseType();
+            //     left = new InstanceofExpr(position, right, type);
+            // }
+            }
         }
 
         // System.out.println(currentToken.spelling);
@@ -880,8 +913,9 @@ public class Parser
         int position = currentToken.position;
         FormalList paramList = new FormalList(position);
 
-        // No parameters: scanner.scan() moves past LPAREN and returns empty paramList
-        if((currentToken = scanner.scan()).kind != IDENTIFIER) {
+        // No parameters: scanner.scan() moves to RPAREN and returns empty paramList
+        if(currentToken.kind == RPAREN) {
+            // scans to LCURLY and returns
             currentToken = scanner.scan();
             return paramList;
         }
@@ -890,12 +924,13 @@ public class Parser
         paramList.addElement(param);
 
         // while there are parameters
-        while(currentToken.kind == Token.Kind.COMMA){
+        while(currentToken.kind == COMMA){
             currentToken = scanner.scan(); //Tia addition
             param = parseFormal();
             paramList.addElement(param);
-            currentToken = scanner.scan(); //Tia addition
         }
+
+        currentToken = scanner.scan();
         return paramList;
     }
 
@@ -905,9 +940,10 @@ public class Parser
      */
     private Formal parseFormal() {
         int position = currentToken.position;
+
         String type = parseType();
-        String id = currentToken.getSpelling();
-        currentToken = scanner.scan(); //Tia addition
+        String id = parseIdentifier();
+
         return new Formal(position, type, id);
     }
 
@@ -917,6 +953,7 @@ public class Parser
      * <Brackets> ::= EMPTY | [ ]
      */
     private String parseType() {
+        // parses type identifier and moves on
         String type = parseIdentifier();
         
         if(currentToken.kind == LBRACKET){
@@ -924,6 +961,7 @@ public class Parser
                 String message = "Missing right bracket";
                 notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message)); //TODO REPLACE WITH ERROR REPORTING
             } else {
+                currentToken = scanner.scan();
                 type += "[ ]";
             }
         }

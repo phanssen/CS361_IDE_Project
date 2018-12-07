@@ -1,16 +1,36 @@
 class A {
-    int x = 1;
+    int x = 1 + 1;
     String str = "hello";
     boolean emptyStr = false;
 
-    void foo() {
+    void foo(int p, String hello) {
         while(emptyStr || emptyStr && emptyStr) {
-            break;
+            var x = 3;
         }
     }
 
     void main() {
         var y = 2;
+        var x = y;
+
+        if(y == x) {
+            var a = y;
+        }
+        if(y != x) {
+            var a = y;
+        }
+        if(y > x) {
+            var b = x;
+        }
+        if(y < x) {
+            var b = x;
+        }
+        if(y >= x) {
+            var b = x;
+        }
+        if(y <= x) {
+            var b = x;
+        }
     }
 }
 
