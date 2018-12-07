@@ -152,7 +152,7 @@ public class Parser
 
             // initial value
             if(currentToken.kind == ASSIGN) {
-                // this.currentToken = scanner.scan();
+                this.currentToken = scanner.scan();
                 expr = parseExpression();
             }
             // empty initial value
@@ -280,6 +280,7 @@ public class Parser
     private Stmt parseDeclStmt() {
         int position = currentToken.position;
 
+        Expr expr = null;
         if( currentToken.kind != VAR){
             String message = "Error in DeclStmt";
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
@@ -288,17 +289,18 @@ public class Parser
         currentToken = scanner.scan();
         String name = parseIdentifier();
 
-        // if(!(currentToken.spelling.equals("="))) {
-        //     String message = "Error in DeclStmt";
-        //     currentToken = scanner.scan();
-        //     // notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
-        // } else {
-            String operator = parseOperator();
-            Expr expr = parseExpression();
-
-            return new DeclStmt(position, name, expr);
-        // }
-
+        if(!(currentToken.spelling.equals("="))) {
+             String message = "Error in DeclStmt";
+             currentToken = scanner.scan();
+             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
+        }
+        else {
+//            String operator = parseOperator();
+            currentToken = scanner.scan();
+            expr = parseExpression();
+//            return new DeclStmt(position, name, expr);
+        }
+        return new DeclStmt(position, name, expr);
     }
 
 
@@ -411,7 +413,8 @@ public class Parser
         Expr left = parseOrExpr();
 
         if(this.currentToken.equals("=")) {
-            parseOperator();
+//            parseOperator();
+            currentToken = scanner.scan();
             Expr right = parseExpression();
             left = new BinaryLogicOrExpr(position, left, right);
         }
@@ -467,7 +470,7 @@ public class Parser
 
         while (this.currentToken.spelling.equals("==") || this.currentToken.spelling.equals("!=")) {
             this.currentToken = scanner.scan();
-            parseOperator();
+//            parseOperator();
             Expr right = parseRelationalExpr();
             left = new BinaryCompEqExpr(position, left, right);
         }
@@ -503,12 +506,12 @@ public class Parser
         int position = currentToken.position;
         Expr left = parseMultExpr();
 
-        if(this.currentToken.equals("+")) {
+        if(this.currentToken.spelling.equals("+")) {
             currentToken = scanner.scan();
             Expr right = parseMultExpr();
             left = new BinaryArithPlusExpr(position, left, right);
         }
-        else if(this.currentToken.equals("-")) {
+        else if(this.currentToken.spelling.equals("-")) {
             currentToken = scanner.scan();
             Expr right = parseMultExpr();
             left = new BinaryArithMinusExpr(position, left, right);
@@ -531,23 +534,26 @@ public class Parser
     private Expr parseMultExpr() {
         int position = currentToken.position;
         Expr left = parseNewCastOrUnary();
+//        System.out.println(currentToken.toString());
 
-        if(this.currentToken.equals("*")) {
+        if(currentToken.spelling.equals("*")) {
+            currentToken = scanner.scan();
             Expr right = parseNewCastOrUnary();
-            left = new BinaryArithPlusExpr(position, left, right);
+            left = new BinaryArithTimesExpr(position, left, right);
         }
-        else if(this.currentToken.equals("/")) {
+        else if(currentToken.spelling.equals("/")) {
+//            System.out.println("here");
+            currentToken = scanner.scan();
             Expr right = parseNewCastOrUnary();
-            left = new BinaryArithMinusExpr(position, left, right);
+            left = new BinaryArithDivideExpr(position, left, right);
         }
-        else if(this.currentToken.equals("%")) {
+        else if(currentToken.spelling.equals("%")) {
+            currentToken = scanner.scan();
             Expr right = parseNewCastOrUnary();
-            left = new BinaryArithMinusExpr(position, left, right);
+            left = new BinaryArithModulusExpr(position, left, right);
         }
         else {
-            // return error
         }
-
         return left;
     }
 
@@ -557,7 +563,7 @@ public class Parser
     private Expr parseNewCastOrUnary() {
         if(currentToken.kind == NEW) {
             return parseNew();
-        } else if(currentToken.kind == Token.Kind.CAST) {
+        } else if(currentToken.kind == CAST) {
             currentToken = scanner.scan(); //Tia addition
             return parseCast();
         } else {
@@ -636,15 +642,22 @@ public class Parser
         // after (or instead of) creating a new object and returning that
         // object?
         if("-".equals(spelling)) {
-            return new UnaryNegExpr(position, null);
+            currentToken = scanner.scan();
+            Expr expr = parseUnaryPrefix();
+            return new UnaryNegExpr(position, expr);
         } else if("!".equals(spelling)) {
-            return new UnaryNotExpr(position, null);
+            currentToken = scanner.scan();
+            Expr expr = parseUnaryPrefix();
+            return new UnaryNotExpr(position, expr);
         } else if("++".equals(spelling)) {
-            return new UnaryIncrExpr(position, null, false);
+            currentToken = scanner.scan();
+            Expr expr = parseUnaryPrefix();
+            return new UnaryIncrExpr(position, expr, false);
         } else if("--".equals(spelling)) {
-            return new UnaryDecrExpr(position, null, false);
+            currentToken = scanner.scan();
+            Expr expr = parseUnaryPrefix();
+            return new UnaryDecrExpr(position, expr, false);
         } else {
-            currentToken = scanner.scan(); //Tia addition
             return parseUnaryPostfix();
         }
     }
@@ -681,6 +694,7 @@ public class Parser
     private Expr parsePrimary() {
         Expr expr;
         int position = currentToken.position;
+//        System.out.println(currentToken.toString());
 
         if( currentToken.kind == Token.Kind.LPAREN){
             currentToken = scanner.scan(); //Tia addition
@@ -700,10 +714,12 @@ public class Parser
             expr = parseStringConst();
         }
         else if(currentToken.kind == Token.Kind.IDENTIFIER){
+//            System.out.println("here");
             expr = parseVarOrDispatchExpr();
         }
         else {
             String message = "Token is not a primary";
+//            System.out.println(currentToken.toString());
             notifyErrorHandler(new Error(Error.Kind.PARSE_ERROR, filename, currentToken.position, message));
             expr = null;
         }
@@ -793,7 +809,7 @@ public class Parser
         //Move onto the suffix, which is either empty or has an expression in brackets.
         //I think [Expr] represents indexing into an array
         //If next token is not [, since it's been stored in currentToken, it shouldn't be lost
-        if((currentToken = scanner.scan()).spelling.equals("[")){
+        if(currentToken.spelling.equals("[")){
             currentToken = scanner.scan();
             Expr expr = parseExpression();
             return expr;
@@ -1000,6 +1016,7 @@ public class Parser
     private void notifyErrorHandler(Error error) throws CompilationException{
         this.errorHandler.register(error.getKind(), error.getFilename(),
                 error.getLineNum(), error.getMessage());
+        System.out.println(error.getMessage());
         throw new CompilationException("There was an error while parsing");
     }
 
