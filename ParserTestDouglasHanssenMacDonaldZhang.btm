@@ -3,8 +3,10 @@ class A {
     String str = "hello";
     boolean emptyStr = false;
 
-    void foo(int p, String k) {
-
+    void foo() {
+        while(emptyStr || emptyStr && emptyStr) {
+            break;
+        }
     }
 
     void main() {
